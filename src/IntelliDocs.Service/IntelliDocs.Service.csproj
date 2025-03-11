@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IntelliDocs.Core\IntelliDocs.Core.csproj" />
+    <ProjectReference Include="..\IntelliDocs.Data\IntelliDocs.Data.csproj" />
+  </ItemGroup>
+
 </Project>
