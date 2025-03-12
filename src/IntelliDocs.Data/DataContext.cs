@@ -9,11 +9,10 @@ using System.Threading.Tasks;
 
 namespace IntelliDocs.Data
 {
-   public class DataContext : DbContext, IDataContext
+   public class DataContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<UserFile> Files { get; set; }
-        public DbSet<SharedFile> SharedFiles { get; set; }
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
     }
 }

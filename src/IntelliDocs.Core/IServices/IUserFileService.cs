@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IntelliDocs.Core.Services
+namespace IntelliDocs.Core.IServices
 {
    public interface IUserFileService
     {
