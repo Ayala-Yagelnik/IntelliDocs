@@ -16,6 +16,7 @@ namespace IntelliDocs.Service.Services
             _repository = repository;
             _mapper = mapper;
         }
+
         public async Task UploadFileAsync(UserFile file)
         {
             await _repository.Files.AddAsync(file);
@@ -37,6 +38,18 @@ namespace IntelliDocs.Service.Services
             var files = await _repository.Files.GetListAsync();
             var userFiles = files.Where(f => f.Id == userId && f.FileName.Contains(query));
             return userFiles;
+        }
+
+        public async Task<bool> DeleteFileAsync(int fileId)
+        {
+            UserFile? itemToDelete = await _repository.Files.GetByIdAsync(fileId);
+            if (itemToDelete == null)
+            {
+                return false;
+            }
+            _repository.Files.DeleteAsync(itemToDelete);
+            await _repository.SaveAsync();
+            return true;
         }
     }
 }

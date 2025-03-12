@@ -1,7 +1,10 @@
-﻿using IntelliDocs.Core.Entities;
+﻿using System.Threading.Tasks;
+using AutoMapper;
+using IntelliDocs.Core.Entities;
 using IntelliDocs.Core.IServices;
 using IntelliDocs.Core.Models;
 using IntelliDocs.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntelliDocs.API.Controllers
@@ -11,35 +14,54 @@ namespace IntelliDocs.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IMapper _mapper;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IMapper mapper)
         {
             _authService = authService;
+            _mapper = mapper;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterModel model)
         {
-            var user = new UserRegisterModel
-            {
-                Username = model.Username,
-                Email = model.Email,
-                Password = model.Password
-            };
+            if (model == null)
+                return BadRequest("User data is required.");
+            var authResult = await _authService.RegisterAsync(model);
 
-            await _authService.RegisterAsync(user);
-            return Ok(user);
+            if (!authResult.Succeeded)
+            {
+                return BadRequest(authResult.Errors);
+            }
+
+            return Ok(new { Token = authResult.Token });
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] UserLoginModel model)
+        public async Task<IActionResult> Login([FromBody] UserLoginModel model)
         {
-            var token = _authService.LoginAsync(model);
+            var authResult = await _authService.LoginAsync(model);
 
-            if (token == null)
-                return Unauthorized();
+            if (!authResult.Succeeded)
+            {
+                return Unauthorized(authResult.Errors);
+            }
 
-            return Ok(new { Token = token });
+            return Ok(new { Token = authResult.Token });
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPost("setAdmin")]
+        public async Task<IActionResult> SetAdmin([FromBody] SetAdminModel model)
+        {
+            var user = await _authService.SetAdminAsync(model);
+
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            return Ok(user);
         }
     }
 

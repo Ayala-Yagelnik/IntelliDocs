@@ -33,7 +33,9 @@ namespace IntelliDocs.Service.Services
             {
                 Email = model.Email,
                 Username = model.Username,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
+                IsAdmin = model.IsAdmin,
+                CreatedAt = DateTime.Now
             };
 
             await _repository.Users.AddAsync(newUser);
@@ -61,22 +63,59 @@ namespace IntelliDocs.Service.Services
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, "User")
+            };
+
+            if (user.IsAdmin)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Email, user.Email),
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Issuer = _configuration["JWT:Issuer"],
-                Audience = _configuration["JWT:Audience"]
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
 
+        public async Task<User?> SetAdminAsync(string email, bool isAdmin)
+        {
+            var user = await _repository.Users.GetUserByEmailAsync(email);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            user.IsAdmin = isAdmin;
+            await _repository.SaveAsync();
+
+            return user;
+        }
+
+        public async Task<AuthResult> SetAdminAsync(SetAdminModel model)
+        {
+            var user = await _repository.Users.GetUserByEmailAsync(model.Email);
+
+            if (user == null)
+            {
+                return new AuthResult { Succeeded = false, Errors = new List<string> { "User not found" } };
+            }
+
+            user.IsAdmin = model.IsAdmin;
+            _repository.Users.UpdateAsync(user);
+            await _repository.SaveAsync();
+
+            return new AuthResult { Succeeded = true };
+        }
     }
 }

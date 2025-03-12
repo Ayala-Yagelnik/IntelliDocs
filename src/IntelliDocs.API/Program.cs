@@ -12,10 +12,16 @@ using IntelliDocs.Data.Repositories;
 using IntelliDocs.Core.IServices;
 using IntelliDocs.Core;
 using IntelliDocs.Service.Services;
+using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+// .AddJsonOptions(options =>
+// {
+//     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+//     options.JsonSerializerOptions.WriteIndented = true;
+// });
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -33,7 +39,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddAuthorization();
+//jwt extensions
+builder.Services.AddAuthorization(options =>
+      {
+          options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+          options.AddPolicy("UserOrAdmin", policy => policy.RequireRole("User", "Admin"));
+          options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+      });
 
 builder.Services.AddAuthentication(options =>
 {
@@ -53,10 +65,14 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
     };
 });
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+builder.Services.AddControllers();
+
+
 builder.Services.AddEndpointsApiExplorer();
 
+//swagger extensions
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -89,9 +105,8 @@ builder.Services.AddSwaggerGen(c =>
     }});
 });
 
-
+//services extensions
 builder.Services.AddScoped<IUserService, UserService>();
-
 builder.Services.AddScoped<IUserFileService, UserFileService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -104,8 +119,7 @@ builder.Services.AddHttpClient();
 
 
 // Add services to the container.
-builder.Services.AddControllers();
-
+// builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
 
 
@@ -120,11 +134,6 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty;
     });
 }
-
-
-// builder.Services.AddAutoMapper(typeof(MappingPostEntity));
-
-// builder.Services.AddOpenApi();
 
 
 
