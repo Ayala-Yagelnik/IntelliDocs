@@ -118,13 +118,12 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "IntelliDocs API V1");
         c.RoutePrefix = string.Empty;
     });
-    app.MapOpenApi();
 }
 
 
-builder.Services.AddAutoMapper(typeof(MappingPostEntity));
+// builder.Services.AddAutoMapper(typeof(MappingPostEntity));
 
-builder.Services.AddOpenApi();
+// builder.Services.AddOpenApi();
 
 
 
