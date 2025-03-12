@@ -12,5 +12,6 @@ namespace IntelliDocs.Core.IServices
         Task UploadFileAsync(UserFile file);
         Task ShareFileAsync(int fileId, int userId);
         Task<IEnumerable<UserFile>> SearchFilesAsync(string query, int userId);
+        Task<bool> DeleteFileAsync(int fileId);
     }
 }

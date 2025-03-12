@@ -12,57 +12,56 @@ namespace IntelliDocs.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
         readonly IMapper _mapper;
 
-        public UsersController(IUserService userService,IMapper mapper)
+        public UsersController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
             _mapper = mapper;
         }
 
-        // GET: api/<UsersController>
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet]
-        public  async Task<ActionResult<List<UserDTO>>> Get()
+        public async Task<ActionResult<List<UserDTO>>> Get()
         {
-            var users =await _userService.GetAllAsync();
-           return users==null? NotFound(): Ok(users);
+            var users = await _userService.GetAllAsync();
+            return users == null ? NotFound() : Ok(users);
         }
 
-        // GET api/<UsersController>/5
+        [Authorize(Policy = "UserOrAdmin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDTO>> Get(int id)
         {
-            var user =await _userService.GetByIdAsync(id);
-            return user==null? NotFound(): Ok(user);
+            var user = await _userService.GetByIdAsync(id);
+            return user == null ? NotFound() : Ok(user);
         }
 
-        // POST api/<UsersController>
+        [Authorize(Policy = "UserOrAdmin")]
         [HttpPost]
-        public  async Task<ActionResult<UserDTO>> Post([FromBody] UserPost user)
+        public async Task<ActionResult<UserDTO>> Post([FromBody] UserPost user)
         {
-            var dto=_mapper.Map<UserDTO>(user);
-            var newUser =await _userService.AddAsync(dto);
-            return newUser==null?BadRequest(newUser): Ok(newUser);
+            var dto = _mapper.Map<UserDTO>(user);
+            var newUser = await _userService.AddAsync(dto);
+            return newUser == null ? BadRequest(newUser) : Ok(newUser);
         }
 
-        // PUT api/<UsersController>/5
+        [Authorize(Policy = "UserOrAdmin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<UserDTO>> Put(int id, [FromBody] UserPost user)
         {
-            var dto=_mapper.Map<UserDTO>(user);
-            var updatedUser =await _userService.UpdateAsync(id,dto);
-            return updatedUser==null?NotFound(): Ok(updatedUser);
+            var dto = _mapper.Map<UserDTO>(user);
+            var updatedUser = await _userService.UpdateAsync(id, dto);
+            return updatedUser == null ? NotFound() : Ok(updatedUser);
         }
 
-        // DELETE api/<UsersController>/5
+        [Authorize(Policy = "AdminOnly")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
-        {       
-            return await _userService.DeleteAsync(id)? Ok():NotFound();
+        {
+            return await _userService.DeleteAsync(id) ? Ok() : NotFound();
         }
     }
 }

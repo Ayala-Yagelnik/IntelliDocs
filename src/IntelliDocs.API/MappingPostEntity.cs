@@ -6,6 +6,10 @@ namespace IntelliDocs.API
 {
     public class MappingPostEntity : Profile
     {
-        public MappingPostEntity() => CreateMap<UserPost, UserDTO>();
+        public MappingPostEntity()
+        {
+            CreateMap<UserPost, UserDTO>();
+            CreateMap<FilePost, FileDTO>();
+        }
     }
 }

@@ -33,7 +33,9 @@ namespace IntelliDocs.Service.Services
             {
                 Email = model.Email,
                 Username = model.Username,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
+                IsAdmin = model.IsAdmin,
+                CreatedAt = DateTime.Now
             };
 
             await _repository.Users.AddAsync(newUser);
@@ -59,24 +61,64 @@ namespace IntelliDocs.Service.Services
 
         private string GenerateJwtToken(User user)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Email, user.Email),
-                }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Issuer = _configuration["JWT:Issuer"],
-                Audience = _configuration["JWT:Audience"]
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Role, "User")
             };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            if (user.IsAdmin)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+            }
+
+            var token = new JwtSecurityToken
+            (
+                 _configuration["JWT:Issuer"],
+                _configuration["JWT:Audience"],
+                claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials
+            );
+
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public async Task<User?> SetAdminAsync(string email, bool isAdmin)
+        {
+            var user = await _repository.Users.GetUserByEmailAsync(email);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            user.IsAdmin = isAdmin;
+            await _repository.SaveAsync();
+
+            return user;
+        }
+
+        public async Task<AuthResult> SetAdminAsync(SetAdminModel model)
+        {
+            var user = await _repository.Users.GetUserByEmailAsync(model.Email);
+
+            if (user == null)
+            {
+                return new AuthResult { Succeeded = false, Errors = new List<string> { "User not found" } };
+            }
+
+            user.IsAdmin = model.IsAdmin;
+            _repository.Users.UpdateAsync(user);
+            await _repository.SaveAsync();
+
+            return new AuthResult { Succeeded = true };
+        }
     }
 }
