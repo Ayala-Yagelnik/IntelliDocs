@@ -14,7 +14,6 @@ namespace IntelliDocs.Data
         public DbSet<User> Users { get; set; }
         public DbSet<UserFile> Files { get; set; }
         public DbSet<SharedFile> SharedFiles { get; set; }
-
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
     }
 }

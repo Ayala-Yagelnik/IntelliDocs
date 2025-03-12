@@ -19,6 +19,9 @@ namespace IntelliDocs.API.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromBody] UserFile file)
         {
+           if (file == null || file.FileSize == 0)
+            return BadRequest("File not provided");
+
             await _userFileService.UploadFileAsync(file);
             return Ok();
         }
