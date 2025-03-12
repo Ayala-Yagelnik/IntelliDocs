@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using IntelliDocs.Core.Services;
 using IntelliDocs.Core.Entities;
+using Microsoft.EntityFrameworkCore.Metadata;
+using IntelliDocs.Core.DTOs;
+using IntelliDocs.API.PostEntity;
+using AutoMapper;
 
 namespace IntelliDocs.API.Controllers
 {
@@ -12,50 +16,53 @@ namespace IntelliDocs.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+        readonly IMapper _mapper;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService,IMapper mapper)
         {
             _userService = userService;
+            _mapper = mapper;
         }
 
         // GET: api/<UsersController>
         [HttpGet]
-        public ActionResult Get()
+        public  async Task<ActionResult<List<UserDTO>>> Get()
         {
-            var users = _userService.GetAllUsers();
-            return Ok(users);
+            var users =await _userService.GetAllAsync();
+           return users==null? NotFound(): Ok(users);
         }
 
         // GET api/<UsersController>/5
         [HttpGet("{id}")]
-        public ActionResult Get(int id)
+        public async Task<ActionResult<UserDTO>> Get(int id)
         {
-            var user = _userService.GetById(id);
-            return Ok(user);
+            var user =await _userService.GetByIdAsync(id);
+            return user==null? NotFound(): Ok(user);
         }
 
         // POST api/<UsersController>
         [HttpPost]
-        public ActionResult Post([FromBody] User user)
+        public  async Task<ActionResult<UserDTO>> Post([FromBody] UserPost user)
         {
-            var newUser = _userService.Add(user);
-            return Ok(newUser);
+            var dto=_mapper.Map<UserDTO>(user);
+            var newUser =await _userService.AddAsync(dto);
+            return newUser==null?BadRequest(newUser): Ok(newUser);
         }
 
         // PUT api/<UsersController>/5
         [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody] User user)
+        public async Task<ActionResult<UserDTO>> Put(int id, [FromBody] UserPost user)
         {
-            var updatedUser = _userService.Update(user);
-            return Ok(updatedUser);
+            var dto=_mapper.Map<UserDTO>(user);
+            var updatedUser =await _userService.UpdateAsync(id,dto);
+            return updatedUser==null?NotFound(): Ok(updatedUser);
         }
 
         // DELETE api/<UsersController>/5
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
-        {
-            _userService.Delete(id);
-            return Ok();
+        public async Task<ActionResult> Delete(int id)
+        {       
+            return await _userService.DeleteAsync(id)? Ok():NotFound();
         }
     }
 }

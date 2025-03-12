@@ -1,4 +1,5 @@
 ﻿using IntelliDocs.Core.Entities;
+using IntelliDocs.Core.IServices;
 using IntelliDocs.Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

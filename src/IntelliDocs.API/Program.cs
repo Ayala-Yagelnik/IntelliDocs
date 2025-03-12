@@ -6,16 +6,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using IntelliDocs.Core.Repositories;
+using IntelliDocs.API;
+using IntelliDocs.Core.IRepositories;
 using IntelliDocs.Data.Repositories;
+using IntelliDocs.Core.IServices;
+using IntelliDocs.Core;
+using IntelliDocs.Service.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<IDataContext, DataContext>(options =>
+builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    ServerVersion.Parse("8.0.33-mysql"));
+    ServerVersion.Parse("8.0.33-mysql"),
+    mySqlOptions => mySqlOptions.EnableRetryOnFailure());
 });
 
 builder.Services.AddCors(options =>
@@ -85,10 +90,18 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 
-builder.Services.AddScoped<IDataContext, DataContext>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<IUserFileService, UserFileService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
+builder.Services.AddScoped<IFileRepository, FileRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+builder.Services.AddHttpClient();
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -109,6 +122,9 @@ if (app.Environment.IsDevelopment())
 }
 
 
+// builder.Services.AddAutoMapper(typeof(MappingPostEntity));
+
+// builder.Services.AddOpenApi();
 
 
 
