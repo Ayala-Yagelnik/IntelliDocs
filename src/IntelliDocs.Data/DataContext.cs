@@ -1,4 +1,5 @@
-﻿using IntelliDocs.Core.Models;
+﻿using IntelliDocs.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,12 @@ using System.Threading.Tasks;
 
 namespace IntelliDocs.Data
 {
-    class DataContext
+   public class DataContext : DbContext, IDataContext
     {
-        public List<User> Users { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserFile> Files { get; set; }
+        public DbSet<SharedFile> SharedFiles { get; set; }
+
+        public DataContext(DbContextOptions<DataContext> options) : base(options) { }
     }
 }
