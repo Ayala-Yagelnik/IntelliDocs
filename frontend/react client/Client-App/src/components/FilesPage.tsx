@@ -1,16 +1,15 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Typography, Grid, Card, CardContent, CardMedia, Button, Dialog, DialogTitle, DialogContent, DialogActions, Box, Alert } from '@mui/material';
 import { fetchUserFiles, uploadFile } from '../services/fileService';
 
-interface FileType {
-  name: string;
-  thumbnailUrl: string;
+interface FileWithUrl extends File {
   url: string;
+  thumbnailUrl: string;
 }
 
 const FilesPage: React.FC = () => {
-  const [files, setFiles] = useState<FileType[]>([]);
-  const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
+  const [files, setFiles] = useState<FileWithUrl[]>([]);
+  const [selectedFile, setSelectedFile] = useState<FileWithUrl | null>(null);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,34 +25,28 @@ const FilesPage: React.FC = () => {
     loadFiles();
   }, []);
 
-interface HandleFileClick {
-    name: string;
-    thumbnailUrl: string;
-    url: string;
-}
-
-const handleFileClick = (file: HandleFileClick) => {
+  const handleFileClick = (file: FileWithUrl) => {
     setSelectedFile(file);
     setOpen(true);
-};
+  };
 
   const handleClose = () => {
     setOpen(false);
     setSelectedFile(null);
   };
 
-const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-        try {
-            await uploadFile(file);
-            const userFiles = await fetchUserFiles();
-            setFiles(userFiles);
-        } catch (err) {
-            setError('Failed to upload file. Please try again.');
-        }
+      try {
+        await uploadFile(file);
+        const userFiles = await fetchUserFiles();
+        setFiles(userFiles);
+      } catch (err) {
+        setError('Failed to upload file. Please try again.');
+      }
     }
-};
+  };
 
   return (
     <Container>
