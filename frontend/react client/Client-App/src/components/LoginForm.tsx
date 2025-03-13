@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../store/authSlice';
 import { StoreType } from '../models/storeModel';
+import { useTransition } from 'react';
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
@@ -12,17 +13,20 @@ const LoginForm = () => {
     const navigate = useNavigate();
     const error = useSelector((state: StoreType) => state.auth.error);
     const loading = useSelector((state: StoreType) => state.auth.loading);
+    const [isPending, startTransition] = useTransition();
 
-    const handleSubmit = async (event: React.FormEvent) => {
+    const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
-        try {
-            const response = await dispatch<any>(login({ email, password })).unwrap();
-            console.log('Login successful:', response);
-            localStorage.setItem('token', response.token);
-            navigate('/files');
-        } catch (err) {
-            console.error('Login failed:', err);
-        }
+        startTransition(async () => {
+            try {
+                const response = await dispatch<any>(login({ email, password })).unwrap();
+                console.log('Login successful:', response);
+                localStorage.setItem('token', response.token);
+                navigate('/files');
+            } catch (err) {
+                console.error('Login failed:', err);
+            }
+        });
     };
 
     return (
@@ -59,7 +63,7 @@ const LoginForm = () => {
                     </Box>
                 )}
                 <Box textAlign="center">
-                    <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                    <Button type="submit" variant="contained" color="primary" disabled={loading || isPending}>
                         התחבר
                     </Button>
                 </Box>

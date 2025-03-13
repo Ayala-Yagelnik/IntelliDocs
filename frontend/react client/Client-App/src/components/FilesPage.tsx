@@ -1,20 +1,21 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Typography, Grid, Card, CardContent, CardMedia, Button, Dialog, DialogTitle, DialogContent, DialogActions, Box, Alert } from '@mui/material';
 import { fetchUserFiles, uploadFile } from '../store/fileSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { File } from '../models/file';
 import { AppDispatch } from '../store/store';
 import { StoreType } from '../models/storeModel';
+import { useTransition } from 'react';
 
 const FilesPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const files = useSelector((state:StoreType) => state.files.list);
-  const loading = useSelector((state:StoreType) => state.files.loading);
+  const files = useSelector((state: StoreType) => state.files.list);
+  const loading = useSelector((state: StoreType) => state.files.loading);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
- 
   useEffect(() => {
     dispatch(fetchUserFiles());
   }, [dispatch]);
@@ -32,12 +33,14 @@ const FilesPage = () => {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      try {
-        await dispatch<any>(uploadFile(file)).unwrap();
-        dispatch(fetchUserFiles());
-      } catch (err) {
-        setError('Failed to upload file. Please try again.');
-      }
+      startTransition(async () => {
+        try {
+          await dispatch(uploadFile(file)).unwrap();
+          dispatch(fetchUserFiles());
+        } catch (err) {
+          setError('Failed to upload file. Please try again.');
+        }
+      });
     }
   };
 
@@ -58,7 +61,7 @@ const FilesPage = () => {
         </Box>
       )}
       <Grid container spacing={4}>
-        {files.map((file: File, index: React.Key | null | undefined) => (
+        {files.map((file, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Card onClick={() => handleFileClick(file)}>
               <CardMedia
