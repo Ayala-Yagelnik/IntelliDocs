@@ -13,12 +13,12 @@ export async function register(user: User) {
     return response.json();
 }
 
-export async function login(user: { email: string; password: string; }) {
+export const login = async (user: { email: string; password: string; }) =>{
  try {
         const response = await fetch(`${API_URL}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({username:user.email, password: user.password}),
+            body: JSON.stringify(user),
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

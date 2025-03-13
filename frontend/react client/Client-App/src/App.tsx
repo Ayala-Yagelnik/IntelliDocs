@@ -1,11 +1,13 @@
-import LoginForm from "./components/LoginForm"
+import { router } from './Router'
+import { RouterProvider } from 'react-router'
 
-function App() {
+const App = () => {
 
 
   return (
     <>
-      <LoginForm />
+      <RouterProvider router={router} />
+
     </>
   )
 }
