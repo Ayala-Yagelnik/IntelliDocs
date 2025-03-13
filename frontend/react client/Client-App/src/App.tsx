@@ -8,8 +8,8 @@ const App = () => {
 
   return (
     <>
-    <Provider store={store}>
-      <RouterProvider router={router} />
+      <Provider store={store}>
+        <RouterProvider router={router} />
       </Provider>
     </>
   )

@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
-using AutoMapper;
-using IntelliDocs.Core.Entities;
+﻿using AutoMapper;
 using IntelliDocs.Core.IServices;
 using IntelliDocs.Core.Models;
-using IntelliDocs.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
