@@ -1,31 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Typography, Grid, Card, CardContent, CardMedia, Button, Dialog, DialogTitle, DialogContent, DialogActions, Box, Alert } from '@mui/material';
-import { fetchUserFiles, uploadFile } from '../services/fileService';
+import { fetchUserFiles, uploadFile } from '../store/fileSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { File } from '../models/file';
+import { AppDispatch } from '../store/store';
+import { StoreType } from '../models/storeModel';
 
-interface FileWithUrl extends File {
-  url: string;
-  thumbnailUrl: string;
-}
-
-const FilesPage: React.FC = () => {
-  const [files, setFiles] = useState<FileWithUrl[]>([]);
-  const [selectedFile, setSelectedFile] = useState<FileWithUrl | null>(null);
+const FilesPage = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const files = useSelector((state:StoreType) => state.files.list);
+  const loading = useSelector((state:StoreType) => state.files.loading);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+ 
   useEffect(() => {
-    const loadFiles = async () => {
-      try {
-        const userFiles = await fetchUserFiles();
-        setFiles(userFiles);
-      } catch (err) {
-        setError('Failed to load files. Please try again.');
-      }
-    };
-    loadFiles();
-  }, []);
+    dispatch(fetchUserFiles());
+  }, [dispatch]);
 
-  const handleFileClick = (file: FileWithUrl) => {
+  const handleFileClick = (file: File) => {
     setSelectedFile(file);
     setOpen(true);
   };
@@ -39,9 +33,8 @@ const FilesPage: React.FC = () => {
     const file = event.target.files?.[0];
     if (file) {
       try {
-        await uploadFile(file);
-        const userFiles = await fetchUserFiles();
-        setFiles(userFiles);
+        await dispatch<any>(uploadFile(file)).unwrap();
+        dispatch(fetchUserFiles());
       } catch (err) {
         setError('Failed to upload file. Please try again.');
       }
@@ -65,13 +58,13 @@ const FilesPage: React.FC = () => {
         </Box>
       )}
       <Grid container spacing={4}>
-        {files.map((file, index) => (
+        {files.map((file: File, index: React.Key | null | undefined) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Card onClick={() => handleFileClick(file)}>
               <CardMedia
                 component="img"
                 height="140"
-                image={file.thumbnailUrl}
+                image={file.path}
                 alt={file.name}
               />
               <CardContent>
@@ -86,7 +79,7 @@ const FilesPage: React.FC = () => {
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>{selectedFile?.name}</DialogTitle>
         <DialogContent>
-          <img src={selectedFile?.url} alt={selectedFile?.name} style={{ width: '100%' }} />
+          <img src={selectedFile?.path} alt={selectedFile?.name} style={{ width: '100%' }} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
