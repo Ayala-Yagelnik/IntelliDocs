@@ -1,24 +1,27 @@
 import React, { useState } from 'react';
-import { login } from '../services/authService';
 import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../store/authSlice';
+import { StoreType } from '../models/storeModel';
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+    const error = useSelector((state: StoreType) => state.auth.error);
+    const loading = useSelector((state: StoreType) => state.auth.loading);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            const response = await login({ email, password });
+            const response = await dispatch<any>(login({ email, password })).unwrap();
             console.log('Login successful:', response);
             localStorage.setItem('token', response.token);
             navigate('/files');
         } catch (err) {
             console.error('Login failed:', err);
-            setError('Login failed. Please check your credentials and try again.');
         }
     };
 
@@ -56,7 +59,7 @@ const LoginForm = () => {
                     </Box>
                 )}
                 <Box textAlign="center">
-                    <Button type="submit" variant="contained" color="primary">
+                    <Button type="submit" variant="contained" color="primary" disabled={loading}>
                         התחבר
                     </Button>
                 </Box>
