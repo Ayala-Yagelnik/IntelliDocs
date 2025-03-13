@@ -10,26 +10,22 @@ export const fetchUserFiles = async () => {
     return response.json();
   };
   
-export interface FileUploadResponse {
-    fileName: string;
-    filePath: string;
-}
-
-export const uploadFile = async (file: File): Promise<FileUploadResponse> => {
+  export const uploadFile = async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-
+  
     const response = await fetch('http://localhost:5046/api/Files/upload', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: formData,
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        // אין צורך להגדיר Content-Type כאשר משתמשים ב-FormData
+      },
+      body: formData,
     });
-
+  
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-
+  
     return response.json();
-};
+  };
