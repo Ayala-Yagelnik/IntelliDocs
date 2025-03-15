@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using IntelliDocs.Core.DTOs;
 using IntelliDocs.Core.IServices;
-using IntelliDocs.Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

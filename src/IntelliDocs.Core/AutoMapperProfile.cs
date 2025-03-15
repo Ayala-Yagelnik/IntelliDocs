@@ -10,7 +10,8 @@ namespace IntelliDocs.Core
         {
             CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<UserFile, FileDTO>().ReverseMap();
-
+            CreateMap<PermissionDTO, Permission>().ReverseMap();
+            CreateMap<RoleDTO, Role>().ReverseMap();
         }
     }
 }

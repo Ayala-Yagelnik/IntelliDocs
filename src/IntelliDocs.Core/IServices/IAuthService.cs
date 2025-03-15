@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IntelliDocs.Core.DTOs;
 using IntelliDocs.Core.Entities;
-using IntelliDocs.Core.Models;
 
 namespace IntelliDocs.Core.IServices
 {
     public interface IAuthService
     {
-        Task<AuthResult> LoginAsync(UserLoginModel model);
-        Task<AuthResult> RegisterAsync(UserRegisterModel model);
-        Task<AuthResult> SetAdminAsync(SetAdminModel model);
+        string GenerateJwtToken(User user);
+        Task<User> ValidateUser(string email, string password);
+
+        Task<Result<AuthResult>> LoginAsync(UserLoginModel model);
+        Task<Result<bool>> RegisterAsync(UserRegisterModel model);
+        Task<Result<bool>> SetAdminAsync(SetAdminModel model);
     }
 }

@@ -1,5 +1,4 @@
-
-namespace IntelliDocs.Core.Models
+namespace IntelliDocs.Core.DTOs
 {
     public class UserLoginModel
     {

@@ -9,15 +9,21 @@ namespace IntelliDocs.Data.Repositories
 
         public IUserRepository Users { get; }
 
-        public RepositoryManager(DataContext context, IFileRepository files, IUserRepository users)
+        public IPermissionRepository Permissions { get; }
+
+        public IRoleRepository Roles {  get; }
+
+        public RepositoryManager(DataContext context, IFileRepository files, IUserRepository users, IPermissionRepository permissions,IRoleRepository roles)
         {
             _context = context;
             Files = files;
             Users = users;
+            Permissions = permissions;
+            Roles = roles;
         }
-        public async Task<int> SaveAsync()
+        public async Task SaveAsync()
         {
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
     }

@@ -22,10 +22,10 @@ namespace IntelliDocs.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<List<UserDTO>> GetAllAsync()
+        public async Task<IEnumerable<UserDTO>> GetAllAsync()
         {
-            var users = await _repository.Users.GetListAsync();
-            return _mapper.Map<List<UserDTO>>(users);
+            var users = await _repository.Users.GetAllAsync();
+            return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
         public async Task<UserDTO> GetByIdAsync(int id)
@@ -37,7 +37,11 @@ namespace IntelliDocs.Service.Services
         public async Task<UserDTO> AddAsync(UserDTO user)
         {
             var model = _mapper.Map<User>(user);
-            await _repository.Users.AddAsync(model);
+            var u = await _repository.Users.AddAsync(model);
+            if (u == null)
+            {
+                throw null;
+            }
             await _repository.SaveAsync();
             return _mapper.Map<UserDTO>(model);
         }
@@ -45,23 +49,31 @@ namespace IntelliDocs.Service.Services
         public async Task<UserDTO> UpdateAsync(int id, UserDTO user)
         {
             var model = _mapper.Map<User>(user);
-            var updated = _repository.Users.UpdateAsync(model);
+            var updated = _repository.Users.UpdateAsync(id, model);
+            if (updated == null)
+                return null;
             await _repository.SaveAsync();
             return _mapper.Map<UserDTO>(updated);
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            User itemToDelete = await _repository.Users.GetByIdAsync(id);
-            _repository.Users.DeleteAsync(itemToDelete);
-            await _repository.SaveAsync();
-            return true;
+            bool success =await _repository.Users.DeleteAsync(id);
+            if (success)
+                await _repository.SaveAsync();
+            return success;
         }
 
-        public async Task<List<FileDTO>> GetUserFilesByUserIdAsync(int userId)
+        public async Task<IEnumerable<FileDTO>> GetUserFilesByUserIdAsync(int userId)
         {
             var files = await _repository.Files.GetFilesByUserIdAsync(userId);
+            if (files==null)
+            {
+                return null;
+            }
             return _mapper.Map<List<FileDTO>>(files);
         }
+
+
     }
 }
