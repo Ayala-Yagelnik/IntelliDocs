@@ -7,6 +7,5 @@ namespace IntelliDocs.Core.DTOs
         public string FilePath { get; set; }=string.Empty;
         public long FileSize { get; set; }
         public string FileType { get; set; }=string.Empty;
-        public DateTime UploadDate { get; set; }
     }
 }

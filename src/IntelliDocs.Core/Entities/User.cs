@@ -14,16 +14,19 @@ namespace IntelliDocs.Core.Entities
         [Key]
         public int Id { get; set; }
         [Required]
+        [MaxLength(100)]
         public string Username { get; set; }=string.Empty;
         [Required]
         public string PasswordHash { get; set; }=string.Empty;
         [Required]
         [EmailAddress]
+        [MaxLength(100)]
         public string Email { get; set; }=string.Empty;
-        public bool IsAdmin { get; set; } = false;
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }=DateTime.Now;
         public string AccountStatus { get; set; } = "Active";
-        public List<UserFile>? UserFiles { get; set; }
+        public bool RoleId { get; set; } = false;
+        public Role Role { get; set; }
+        public List<UserFile> UserFiles { get; set; }
 
     }
 }

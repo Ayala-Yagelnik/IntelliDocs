@@ -8,14 +8,14 @@ namespace IntelliDocs.Core.IRepositories
 {
     public interface IRepository<T>
     {
-        public Task<List<T>> GetListAsync();
+        public Task<List<T>> GetAllAsync();
 
         public Task<T> GetByIdAsync(int id);
 
-        public Task< T >AddAsync(T val);
+        public Task<T> AddAsync(T val);
 
-        public T UpdateAsync(T val);
+        public Task<T> UpdateAsync(int id, T val);
 
-        public void DeleteAsync(T id);
+        public Task<bool> DeleteAsync(int id);
     }
 }

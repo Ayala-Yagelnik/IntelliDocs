@@ -3,6 +3,8 @@ using IntelliDocs.Core.IRepositories;
 using IntelliDocs.Core.IServices;
 
 using AutoMapper;
+using IntelliDocs.Core.DTOs;
+using IntelliDocs.Data.Repositories;
 
 
 namespace IntelliDocs.Service.Services
@@ -17,13 +19,20 @@ namespace IntelliDocs.Service.Services
             _mapper = mapper;
         }
 
-        public async Task UploadFileAsync(UserFile file)
+        public async Task<FileDTO> UploadFileAsync(FileDTO fileDto)
         {
-            await _repository.Files.AddAsync(file);
+            var file = _mapper.Map<UserFile>(fileDto);
+            var f = await _repository.Files.AddAsync(file);
+            if (f == null)
+            {
+                throw null;
+            }
             await _repository.SaveAsync();
+            return _mapper.Map<FileDTO>(f);
         }
 
-        public async Task ShareFileAsync(int fileId, int userId)
+        //TODO: Implement the method
+        public async Task<FileDTO> ShareFileAsync(int fileId, int userId)
         {
             var file = _repository.Files.GetByIdAsync(fileId);
             if (file is null)
@@ -31,25 +40,38 @@ namespace IntelliDocs.Service.Services
                 throw new Exception("File not found");
             }
             await _repository.SaveAsync();
+            return _mapper.Map<FileDTO>(file);
         }
 
         public async Task<IEnumerable<UserFile>> SearchFilesAsync(string query, int userId)
         {
-            var files = await _repository.Files.GetListAsync();
+            var files = await _repository.Files.GetAllAsync();
             var userFiles = files.Where(f => f.Id == userId && f.FileName.Contains(query));
             return userFiles;
         }
 
         public async Task<bool> DeleteFileAsync(int fileId)
         {
-            UserFile? itemToDelete = await _repository.Files.GetByIdAsync(fileId);
-            if (itemToDelete == null)
+            bool success = await _repository.Files.DeleteAsync(fileId);
+            if (success)
             {
-                return false;
+                await _repository.SaveAsync();
             }
-            _repository.Files.DeleteAsync(itemToDelete);
-            await _repository.SaveAsync();
-            return true;
+            return success;
         }
+
+        public async Task<IEnumerable<FileDTO>> GetAllFiles()
+        {
+            var files = await _repository.Files.GetAllAsync();
+            return _mapper.Map<IEnumerable<FileDTO>>(files);
+        }
+
+        public async Task<FileDTO> GetFileById(int id)
+        {
+            var file = await _repository.Files.GetByIdAsync(id);
+            return _mapper.Map<FileDTO>(file);
+        }
+
+   
     }
 }

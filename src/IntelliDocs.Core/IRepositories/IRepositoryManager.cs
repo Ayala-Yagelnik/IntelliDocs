@@ -3,7 +3,9 @@ namespace IntelliDocs.Core.IRepositories{
   {
       public IFileRepository Files { get; }
       public IUserRepository Users { get; }
+        IPermissionRepository Permissions { get; }
+        IRoleRepository Roles { get; }
 
-      Task<int> SaveAsync();
+        Task SaveAsync();
   }
 }

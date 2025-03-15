@@ -1,11 +1,13 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using IntelliDocs.Core;
+using IntelliDocs.Core.DTOs;
 using IntelliDocs.Core.Entities;
 using IntelliDocs.Core.IRepositories;
 using IntelliDocs.Core.IServices;
-using IntelliDocs.Core.Models;
 using IntelliDocs.Core.Services;
+using IntelliDocs.Data.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -22,103 +24,112 @@ namespace IntelliDocs.Service.Services
             _configuration = configuration;
         }
 
-        public async Task<AuthResult> RegisterAsync(UserRegisterModel model)
+        public string GenerateJwtToken(User user)
         {
-            if (await _repository.Users.ExistsByEmailAsync(model.Email))
-            {
-                return new AuthResult { Succeeded = false, Errors = new List<string> { "Email already exists" } };
-            }
-
-            var newUser = new User
-            {
-                Email = model.Email,
-                Username = model.Username,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
-                IsAdmin = model.IsAdmin,
-                CreatedAt = DateTime.Now
-            };
-
-            await _repository.Users.AddAsync(newUser);
-            await _repository.SaveAsync();
-
-            var token = GenerateJwtToken(newUser);
-            return new AuthResult { Succeeded = true, Token = token };
-        }
-
-        public async Task<AuthResult> LoginAsync(UserLoginModel model)
-        {
-            var user = await _repository.Users.GetUserByEmailAsync(model.Email);
-
-            if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
-            {
-                return new AuthResult { Succeeded = false, Errors = new List<string> { "Invalid email or password" } };
-            }
-
-            var token = GenerateJwtToken(user);
-            return new AuthResult { Succeeded = true, Token = token };
-
-        }
-
-        private string GenerateJwtToken(User user)
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Role, "User")
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            if (user.IsAdmin)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
-            }
+            claims.Add(new Claim(ClaimTypes.Role, user.Role.NameRole));
 
-            var token = new JwtSecurityToken
-            (
-                 _configuration["JWT:Issuer"],
-                _configuration["JWT:Audience"],
+            var token = new JwtSecurityToken(
+                _configuration["Jwt:Issuer"],
+                _configuration["Jwt:Audience"],
                 claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: credentials
             );
-
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task<User?> SetAdminAsync(string email, bool isAdmin)
-        {
-            var user = await _repository.Users.GetUserByEmailAsync(email);
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            user.IsAdmin = isAdmin;
-            await _repository.SaveAsync();
-
-            return user;
-        }
-
-        public async Task<AuthResult> SetAdminAsync(SetAdminModel model)
+        public async Task<Result<bool>> SetAdminAsync(SetAdminModel model)
         {
             var user = await _repository.Users.GetUserByEmailAsync(model.Email);
 
             if (user == null)
             {
-                return new AuthResult { Succeeded = false, Errors = new List<string> { "User not found" } };
+                return Result<bool>.Failure("User not found");
             }
 
-            user.IsAdmin = model.IsAdmin;
-            _repository.Users.UpdateAsync(user);
+            _repository.Users.UpdateAsync(user.Id, user);
             await _repository.SaveAsync();
 
-            return new AuthResult { Succeeded = true };
+            return Result<bool>.Success(true);
         }
+
+        public async Task<User> ValidateUser(string email, string password)
+        {
+            User user = await _repository.Users.GetUserByEmailAsync(email);
+            Console.WriteLine(user.RoleId);
+            if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+            {
+                return user;
+            }
+
+            return null;
+        }
+
+        public async Task<Result<AuthResult>> LoginAsync(UserLoginModel model)
+        {
+            User user = await ValidateUser(model.Email, model.Password);
+            if (user != null)
+            {
+                var token = GenerateJwtToken(user);
+                var userDto = new UserDTO
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Role = user.Role.NameRole
+                };
+                var response = new AuthResult
+                {
+                    User = userDto,
+                    Token = token
+                };
+                return Result<AuthResult>.Success(response);
+            }
+
+            return Result<AuthResult>.Failure("Invalid username or password.");
+        }
+
+        public async Task<Result<bool>> RegisterAsync(UserRegisterModel model)
+        {
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
+            var role = await _repository.roles.GetRoleByName(model.Role);
+
+            var user = new User
+            {
+                Username = model.Username,
+                Email = model.Email,
+                PasswordHash = hashedPassword,
+                AccountStatus = "Active",
+                CreatedAt = DateTime.UtcNow,
+                Role = role
+            };
+
+            if (await _repository.Users.GetUserByEmailAsync(user.Email) != null)
+            {
+                return Result<bool>.Failure("Email already exists");
+            }
+
+            var result = _repository.Users.AddAsync(user);
+            if (result == null)
+            {
+                return Result<bool>.Failure("Failed to register user.");
+            }
+
+            await _repository.SaveAsync();
+            return Result<bool>.Success(true);
+        }
+
+
     }
 }
