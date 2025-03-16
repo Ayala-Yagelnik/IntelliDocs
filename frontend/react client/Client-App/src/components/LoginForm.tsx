@@ -22,7 +22,7 @@ const LoginForm = () => {
                 const response = await dispatch<any>(login({ email, password })).unwrap();
                 console.log('Login successful:', response);
                 localStorage.setItem('token', response.token);
-                navigate('/files');
+                // navigate('/updateUser/' + dispatch<any>(fetchUserByEmail(email)).unwrap().id);
             } catch (err) {
                 console.error('Login failed:', err);
             }
@@ -73,3 +73,4 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
+
