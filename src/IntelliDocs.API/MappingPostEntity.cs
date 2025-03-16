@@ -1,6 +1,7 @@
 using AutoMapper;
 using IntelliDocs.API.PostEntity;
 using IntelliDocs.Core.DTOs;
+using IntelliDocs.Core.Entities;
 
 namespace IntelliDocs.API
 {
@@ -8,8 +9,12 @@ namespace IntelliDocs.API
     {
         public MappingPostEntity()
         {
-            CreateMap<UserPost, UserDTO>();
-            CreateMap<FilePost, FileDTO>();
+            CreateMap<UserPost, UserDTO>().ReverseMap();
+            CreateMap<FilePost, FileDTO>().ReverseMap();
+            CreateMap<PermissionPost, PermissionDTO>().ReverseMap();
+            CreateMap<RolePost, RoleDTO>().ReverseMap();
+             CreateMap<UserDTO, User>()
+                .ForMember(dest => dest.Role, opt => opt.Ignore()).ReverseMap(); 
         }
     }
 }

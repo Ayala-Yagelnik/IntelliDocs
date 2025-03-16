@@ -13,6 +13,7 @@ using IntelliDocs.Service.Services;
 using System.Text.Json.Serialization;
 using IntelliDocs.Service.services;
 using Amazon.S3;
+using IntelliDocs.API;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,7 +61,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"] ?? throw new ArgumentNullException("JWT:Key")))
     };
 });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 builder.Services.AddControllers()
  .AddJsonOptions(options =>
@@ -118,6 +118,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+builder.Services.AddAutoMapper(typeof(MappingPostEntity));
 builder.Services.AddHttpClient();
 builder.Services.AddAWSService<IAmazonS3>();
 

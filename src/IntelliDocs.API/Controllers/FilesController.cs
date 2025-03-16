@@ -18,14 +18,12 @@ namespace IntelliDocs.API.Controllers
         private readonly IUserFileService _userFileService;
         private readonly IMapper _mapper;
         private readonly IAmazonS3 _s3Client;
-
         public FilesController(IUserFileService fileService, IMapper mapper, IAmazonS3 s3Client)
         {
             _userFileService = fileService;
             _mapper = mapper;
             _s3Client = s3Client;
         }
-
 
         [Authorize(Policy = "UserOrAdmin")]
         [HttpGet("presigned-url")]

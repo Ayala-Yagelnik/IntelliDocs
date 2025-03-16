@@ -36,19 +36,19 @@ namespace IntelliDocs.Service.Services
 
         public async Task<UserDTO> AddAsync(UserDTO user)
         {
-            var model = _mapper.Map<User>(user);
-            var roleExists = await _repository.Roles.GetByIdAsync(user.Role);
-            if (roleExists == null)
+            var role = await _repository.Roles.GetRoleByName("User");
+            if (role == null)
             {
                 throw new InvalidOperationException("Role does not exist.");
             }
-            var u = await _repository.Users.AddAsync(model);
-            if (u == null)
-            {
-                throw null;
-            }
+
+            var userEntity = _mapper.Map<User>(user);
+            userEntity.Role = role;
+
+            await _repository.Users.AddAsync(userEntity);
             await _repository.SaveAsync();
-            return _mapper.Map<UserDTO>(model);
+
+            return _mapper.Map<UserDTO>(userEntity);
         }
 
         public async Task<UserDTO> UpdateAsync(int id, UserDTO user)
@@ -63,7 +63,7 @@ namespace IntelliDocs.Service.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            bool success =await _repository.Users.DeleteAsync(id);
+            bool success = await _repository.Users.DeleteAsync(id);
             if (success)
                 await _repository.SaveAsync();
             return success;
@@ -72,7 +72,7 @@ namespace IntelliDocs.Service.Services
         public async Task<IEnumerable<FileDTO>> GetUserFilesByUserIdAsync(int userId)
         {
             var files = await _repository.Files.GetFilesByUserIdAsync(userId);
-            if (files==null)
+            if (files == null)
             {
                 return null;
             }
