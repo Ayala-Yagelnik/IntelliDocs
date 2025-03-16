@@ -10,6 +10,8 @@ using IntelliDocs.Core.Services;
 using IntelliDocs.Data.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace IntelliDocs.Service.Services
 {
@@ -36,8 +38,10 @@ namespace IntelliDocs.Service.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            claims.Add(new Claim(ClaimTypes.Role, user.Role.NameRole));
-
+            if (user.Role != null)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, user.Role.NameRole));
+            }
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"],
@@ -67,10 +71,13 @@ namespace IntelliDocs.Service.Services
         public async Task<User> ValidateUser(string email, string password)
         {
             User user = await _repository.Users.GetUserByEmailAsync(email);
-            Console.WriteLine(user.RoleId);
-            if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+            if (user != null)
             {
-                return user;
+                user.Role = await _repository.Roles.GetByIdAsync(user.RoleId);
+                if (BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+                {
+                    return user;
+                }
             }
 
             return null;
@@ -87,7 +94,7 @@ namespace IntelliDocs.Service.Services
                     Id = user.Id,
                     Username = user.Username,
                     Email = user.Email,
-                    Role = user.Role.NameRole
+                    Role = user.Role.Id
                 };
                 var response = new AuthResult
                 {
@@ -103,7 +110,7 @@ namespace IntelliDocs.Service.Services
         public async Task<Result<bool>> RegisterAsync(UserRegisterModel model)
         {
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
-            var role = await _repository.roles.GetRoleByName(model.Role);
+            var role = await _repository.Roles.GetByIdAsync(model.Role);
 
             var user = new User
             {

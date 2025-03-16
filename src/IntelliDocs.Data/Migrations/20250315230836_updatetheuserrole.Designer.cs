@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IntelliDocs.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250312152443_initDB")]
-    partial class initDB
+    [Migration("20250315230836_updatetheuserrole")]
+    partial class updatetheuserrole
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,51 @@ namespace IntelliDocs.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
+            modelBuilder.Entity("IntelliDocs.Core.Entities.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NamePermission")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int?>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("Permissions");
+                });
+
+            modelBuilder.Entity("IntelliDocs.Core.Entities.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("NameRole")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
 
             modelBuilder.Entity("IntelliDocs.Core.Entities.User", b =>
                 {
@@ -47,8 +92,10 @@ namespace IntelliDocs.Data.Migrations
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -56,6 +103,8 @@ namespace IntelliDocs.Data.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("User");
                 });
@@ -101,6 +150,24 @@ namespace IntelliDocs.Data.Migrations
                     b.ToTable("Files");
                 });
 
+            modelBuilder.Entity("IntelliDocs.Core.Entities.Permission", b =>
+                {
+                    b.HasOne("IntelliDocs.Core.Entities.Role", null)
+                        .WithMany("Permissions")
+                        .HasForeignKey("RoleId");
+                });
+
+            modelBuilder.Entity("IntelliDocs.Core.Entities.User", b =>
+                {
+                    b.HasOne("IntelliDocs.Core.Entities.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("IntelliDocs.Core.Entities.UserFile", b =>
                 {
                     b.HasOne("IntelliDocs.Core.Entities.User", "Author")
@@ -114,6 +181,11 @@ namespace IntelliDocs.Data.Migrations
                         .HasForeignKey("UserFileId");
 
                     b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("IntelliDocs.Core.Entities.Role", b =>
+                {
+                    b.Navigation("Permissions");
                 });
 
             modelBuilder.Entity("IntelliDocs.Core.Entities.User", b =>

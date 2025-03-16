@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace IntelliDocs.Service.services
 {
-    class RoleService:IRoleService
+  public  class RoleService:IRoleService
     {
         private readonly IRepositoryManager _repository;
         private readonly IMapper _mapper;
@@ -24,20 +24,20 @@ namespace IntelliDocs.Service.services
 
         public async Task<IEnumerable<RoleDTO>> GetAllRoles()
         {
-            var roles = await _repository.roles.GetFull();
+            var roles = await _repository.Roles.GetFull();
             return _mapper.Map<IEnumerable<RoleDTO>>(roles);
         }
 
         public async Task<RoleDTO> GetRoleById(int id)
         {
-            var role = await _repository.roles.GetByIdAsync(id);
+            var role = await _repository.Roles.GetByIdAsync(id);
             return _mapper.Map<RoleDTO>(role);
         }
 
         public async Task<RoleDTO> AddRole(RoleDTO roleDto)
         {
             var roleEntity = _mapper.Map<Role>(roleDto);
-            roleEntity = await _repository.roles.AddAsync(roleEntity);
+            roleEntity = await _repository.Roles.AddAsync(roleEntity);
             if (roleEntity != null)
             {
                 await _repository.SaveAsync();
@@ -49,7 +49,7 @@ namespace IntelliDocs.Service.services
         public async Task<RoleDTO> UpdateRole(int id, RoleDTO roleDto)
         {
             var roleEntity = _mapper.Map<Role>(roleDto);
-            roleEntity = await _repository.roles.UpdateAsync(id, roleEntity);
+            roleEntity = await _repository.Roles.UpdateAsync(id, roleEntity);
             if (roleEntity != null)
             {
                 await _repository.SaveAsync();
@@ -60,7 +60,7 @@ namespace IntelliDocs.Service.services
 
         public async Task<bool> DeleteRole(int id)
         {
-            bool succeed = await _repository.roles.DeleteAsync(id);
+            bool succeed = await _repository.Roles.DeleteAsync(id);
             if (succeed)
                 await _repository.SaveAsync();
             return succeed;

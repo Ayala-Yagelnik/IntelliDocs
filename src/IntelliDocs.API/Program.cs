@@ -13,6 +13,7 @@ using IntelliDocs.Core.IServices;
 using IntelliDocs.Core;
 using IntelliDocs.Service.Services;
 using System.Text.Json.Serialization;
+using IntelliDocs.Service.services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -113,7 +114,11 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped<IFileRepository, FileRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddHttpClient();
 

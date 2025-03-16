@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using IntelliDocs.Core.DTOs;
 using IntelliDocs.Core.Entities;
 using IntelliDocs.Core.IServices;
 using IntelliDocs.Core.Services;
@@ -28,7 +29,8 @@ namespace IntelliDocs.API.Controllers
             if (file == null || file.FileSize == 0)
                 return BadRequest("File not provided");
 
-            await _userFileService.UploadFileAsync(file);
+            var fileDto = _mapper.Map<FileDTO>(file);
+            await _userFileService.UploadFileAsync(fileDto);
             return Ok();
         }
 

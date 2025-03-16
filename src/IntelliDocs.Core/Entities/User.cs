@@ -24,7 +24,8 @@ namespace IntelliDocs.Core.Entities
         public string Email { get; set; }=string.Empty;
         public DateTime CreatedAt { get; set; }=DateTime.Now;
         public string AccountStatus { get; set; } = "Active";
-        public bool RoleId { get; set; } = false;
+        public int RoleId { get; set; }
+        [ForeignKey("RoleId")]
         public Role Role { get; set; }
         public List<UserFile> UserFiles { get; set; }
 
