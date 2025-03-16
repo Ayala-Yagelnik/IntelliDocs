@@ -19,30 +19,30 @@ namespace IntelliDocs.API.Controllers
         private readonly IMapper _mapper;
         private readonly IAmazonS3 _s3Client;
 
-        public FilesController(IUserFileService fileService, IMapper mapper,IAmazonS3 s3Client)
+        public FilesController(IUserFileService fileService, IMapper mapper, IAmazonS3 s3Client)
         {
             _userFileService = fileService;
             _mapper = mapper;
             _s3Client = s3Client;
         }
-       
+
 
         [Authorize(Policy = "UserOrAdmin")]
-       [HttpGet("presigned-url")]
-    public async Task<IActionResult> GetPresignedUrl([FromQuery] string fileName)
-    {
-        var request = new GetPreSignedUrlRequest
+        [HttpGet("presigned-url")]
+        public async Task<IActionResult> GetPresignedUrl([FromQuery] string fileName)
         {
-            BucketName = "your-bucket-name",
-            Key = fileName,
-            Verb = HttpVerb.PUT,
-            Expires = DateTime.UtcNow.AddMinutes(5),
-            ContentType = "image/jpeg/doc/pdf" // או סוג הקובץ המתאים
-        };
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = "intellidocs3",
+                Key = fileName,
+                Verb = HttpVerb.PUT,
+                Expires = DateTime.UtcNow.AddMinutes(5),
+                ContentType = "image/jpeg/doc/pdf/png/docx/xlsx/pptx/txt/csv/zip/rar"
+            };
 
-        string url = _s3Client.GetPreSignedURL(request);
-        return Ok(new { url });
-    }
+            string url = await Task.Run(() => _s3Client.GetPreSignedURL(request));
+            return Ok(new { url });
+        }
 
         [Authorize(Policy = "UserOrAdmin")]
         [HttpPost("share")]
