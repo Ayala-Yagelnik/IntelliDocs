@@ -6,6 +6,8 @@ using IntelliDocs.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Amazon.S3;
+using Amazon.S3.Model;
 
 namespace IntelliDocs.API.Controllers
 {
@@ -15,23 +17,31 @@ namespace IntelliDocs.API.Controllers
     {
         private readonly IUserFileService _userFileService;
         private readonly IMapper _mapper;
+        private readonly IAmazonS3 _s3Client;
 
-        public FilesController(IUserFileService fileService, IMapper mapper)
+        public FilesController(IUserFileService fileService, IMapper mapper, IAmazonS3 s3Client)
         {
             _userFileService = fileService;
             _mapper = mapper;
+            _s3Client = s3Client;
         }
 
-        [Authorize(Policy = "UserOrAdmin")]
-        [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile([FromBody] UserFile file)
-        {
-            if (file == null || file.FileSize == 0)
-                return BadRequest("File not provided");
 
-            var fileDto = _mapper.Map<FileDTO>(file);
-            await _userFileService.UploadFileAsync(fileDto);
-            return Ok();
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpGet("presigned-url")]
+        public async Task<IActionResult> GetPresignedUrl([FromQuery] string fileName)
+        {
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = "intellidocs3",
+                Key = fileName,
+                Verb = HttpVerb.PUT,
+                Expires = DateTime.UtcNow.AddMinutes(5),
+                ContentType = "image/jpeg/doc/pdf/png/docx/xlsx/pptx/txt/csv/zip/rar"
+            };
+
+            string url = await Task.Run(() => _s3Client.GetPreSignedURL(request));
+            return Ok(new { url });
         }
 
         [Authorize(Policy = "UserOrAdmin")]
