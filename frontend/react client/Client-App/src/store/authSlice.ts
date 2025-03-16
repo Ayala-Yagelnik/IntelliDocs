@@ -76,7 +76,7 @@ const authSlice = createSlice({
       .addCase(register.pending, (state) => {
         state.loading = true;
       })
-      .addCase(setAdmin.fulfilled, (state, action) => {
+      .addCase(setAdmin.fulfilled, (state) => {
         state.loading = false;
       })
       .addCase(setAdmin.rejected, (state, action) => {

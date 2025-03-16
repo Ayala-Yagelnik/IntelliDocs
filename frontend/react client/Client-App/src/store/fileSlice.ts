@@ -31,8 +31,13 @@ export const fetchUserFiles = createAsyncThunk<File[], void, { rejectValue: { er
 export const uploadFile = createAsyncThunk(
   'files/upload',
   async (file: File, thunkAPI) => {
+    const formData = new FormData();
+    formData.append('file', new Blob([file.content], { type: file.type }), file.name);
     try {
-      const response = await axios.post(`${API_URL}/upload`, file, {
+      const response = await axios.post(`${API_URL}/upload`,
+        //  file,
+         formData,
+          {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`        },
       });

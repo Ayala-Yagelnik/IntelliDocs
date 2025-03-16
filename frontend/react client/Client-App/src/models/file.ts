@@ -7,4 +7,5 @@ export interface File {
     updatedAt: Date;
     userId: string;
     path: string;
+    content: ArrayBuffer;
 }
