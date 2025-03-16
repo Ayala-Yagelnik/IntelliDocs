@@ -26,12 +26,12 @@ namespace IntelliDocs.API.Controllers
                 return BadRequest("User data is required.");
             var authResult = await _authService.RegisterAsync(model);
 
-            if (!authResult.Succeeded)
+            if (!authResult.IsSuccess)
             {
-                return BadRequest(authResult.Errors);
+                return BadRequest(authResult.ErrorMessage);
             }
 
-            return Ok(new { Token = authResult.Token });
+            return Ok(authResult.Data);
         }
 
         [HttpPost("login")]
@@ -39,12 +39,12 @@ namespace IntelliDocs.API.Controllers
         {
             var authResult = await _authService.LoginAsync(model);
 
-            if (!authResult.Succeeded)
+            if (!authResult.IsSuccess)
             {
-                return Unauthorized(authResult.Errors);
+                return Unauthorized(authResult.ErrorMessage);
             }
 
-            return Ok(new { Token = authResult.Token });
+            return Ok(authResult.Data);
         }
 
         [Authorize(Policy = "AdminOnly")]

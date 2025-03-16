@@ -37,6 +37,11 @@ namespace IntelliDocs.Service.Services
         public async Task<UserDTO> AddAsync(UserDTO user)
         {
             var model = _mapper.Map<User>(user);
+            var roleExists = await _repository.Roles.GetByIdAsync(user.Role);
+            if (roleExists == null)
+            {
+                throw new InvalidOperationException("Role does not exist.");
+            }
             var u = await _repository.Users.AddAsync(model);
             if (u == null)
             {
