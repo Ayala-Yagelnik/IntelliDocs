@@ -1,12 +1,10 @@
 using IntelliDocs.Data;
 using IntelliDocs.Core.Services;
-using IntelliDocs.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using IntelliDocs.API;
 using IntelliDocs.Core.IRepositories;
 using IntelliDocs.Data.Repositories;
 using IntelliDocs.Core.IServices;
@@ -14,6 +12,7 @@ using IntelliDocs.Core;
 using IntelliDocs.Service.Services;
 using System.Text.Json.Serialization;
 using IntelliDocs.Service.services;
+using Amazon.S3;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -109,7 +108,6 @@ builder.Services.AddSwaggerGen(c =>
 //services extensions
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserFileService, UserFileService>();
-builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped<IFileRepository, FileRepository>();
@@ -121,6 +119,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddHttpClient();
+builder.Services.AddAWSService<IAmazonS3>();
 
 
 // Add services to the container.

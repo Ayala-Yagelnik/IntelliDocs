@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using IntelliDocs.Core.Services;
-using IntelliDocs.Core.Entities;
-using Microsoft.EntityFrameworkCore.Metadata;
 using IntelliDocs.Core.DTOs;
 using IntelliDocs.API.PostEntity;
 using AutoMapper;

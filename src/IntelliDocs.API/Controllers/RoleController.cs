@@ -21,7 +21,7 @@ namespace IntelliDocs.API.Controllers
             _mapper = mapper;
         }
 
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RoleDTO>>> Get()
         {

@@ -37,7 +37,8 @@ namespace IntelliDocs.API.Controllers
                 Key = fileName,
                 Verb = HttpVerb.PUT,
                 Expires = DateTime.UtcNow.AddMinutes(5),
-                ContentType = "image/jpeg/doc/pdf/png/docx/xlsx/pptx/txt/csv/zip/rar"
+                // ContentType = "image/jpeg/doc/pdf/png/docx/xlsx/pptx/txt/csv/zip/rar"
+            ContentType = "application/octet-stream"
             };
 
             string url = await Task.Run(() => _s3Client.GetPreSignedURL(request));

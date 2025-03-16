@@ -16,12 +16,15 @@ const FileUploader = () => {
 
     try {
       // שלב 1: קבלת Presigned URL מהשרת
-      const response = await axios.get('/api/files/presigned-url', {
-        params: { fileName: file.name }
+      const response = await axios.get('http://localhost:5046/api/Files/presigned-url', {
+        params: { fileName: file.name },
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
       });
 
       const presignedUrl = (response.data as { url: string }).url;
-console.log(presignedUrl);
+      console.log(presignedUrl);
       if (!presignedUrl) {
         throw new Error('Presigned URL is not defined');
       }
@@ -30,7 +33,7 @@ console.log(presignedUrl);
         headers: {
           'Content-Type': file.type,
         },
-        onUploadProgress: (progressEvent:ProgressEvent) => {
+        onUploadProgress: (progressEvent: ProgressEvent) => {
           const percent = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total || 1)
           );
