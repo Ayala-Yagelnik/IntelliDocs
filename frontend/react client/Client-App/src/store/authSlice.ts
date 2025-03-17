@@ -31,7 +31,7 @@ export const register = createAsyncThunk<
       }
 
       );
-      return response.data;
+      return response.data as { token: string; user: User }; // ✅ המרת הסוג כאן
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message);
     }

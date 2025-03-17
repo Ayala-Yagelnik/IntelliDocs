@@ -3,7 +3,6 @@ import { Button, Box, Typography, TextField, CircularProgress } from '@mui/mater
 // import { motion } from 'framer-motion';
 // import { useState } from 'react';
 import axios from 'axios';
-import { AxiosProgressEvent } from 'axios'; // הוספת ייבוא מתאים
 
 // צבעים וקונפיגורציות
 // const primaryColor = "#10a37f";
@@ -49,7 +48,7 @@ const [loading, setLoading] = useState(false);
                 headers: {
                     'Content-Type': file.type
                 },
-                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                onUploadProgress: (progressEvent: ProgressEvent) => {
                   setProgress(Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1)));
               }
 
