@@ -13,7 +13,7 @@ import axios from 'axios';
 
 const FileUploader = () => {
     const [file, setFile] = useState<File | null>(null);
-    const [progress, setProgress] = useState(0);
+    const [progress, ] = useState(0);
 const [loading, setLoading] = useState(false);
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files;
@@ -48,9 +48,9 @@ const [loading, setLoading] = useState(false);
                 headers: {
                     'Content-Type': file.type
                 },
-                onUploadProgress: (progressEvent: ProgressEvent) => {
-                  setProgress(Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1)));
-              }
+              //   onUploadProgress: (progressEvent: ProgressEvent) => {
+              //     setProgress(Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1)));
+              // }
 
             });
 
