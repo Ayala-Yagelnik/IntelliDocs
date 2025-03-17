@@ -13,7 +13,7 @@ import axios from 'axios';
 
 const FileUploader = () => {
     const [file, setFile] = useState<File | null>(null);
-    const [progress, setUploadProgress] = useState(0);
+    // const [progress, setUploadProgress] = useState(0);
     const [loading, setLoading] = useState(false);
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files;
@@ -48,12 +48,12 @@ const FileUploader = () => {
                 headers: {
                     'Content-Type': file.type
                 },
-                onUploadProgress: progressEvent => {
-                  const percentCompleted = Math.round(
-                    (progressEvent.loaded * 100) / (progressEvent.total || 1)
-                  );
-                  setUploadProgress(percentCompleted);
-                },
+                // onUploadProgress: progressEvent => {
+                //   const percentCompleted = Math.round(
+                //     (progressEvent.loaded * 100) / (progressEvent.total || 1)
+                //   );
+                //   setUploadProgress(percentCompleted);
+                // },
               //   onUploadProgress: (progressEvent: ProgressEvent) => {
               //     setProgress(Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1)));
               // }
@@ -89,7 +89,7 @@ const FileUploader = () => {
                 {loading ? <CircularProgress size={24} /> : 'Upload'}
 
             </Button>
-            {progress > 0 && <Typography mt={1}>התקדמות: {progress}%</Typography>}
+            {/* {progress > 0 && <Typography mt={1}>התקדמות: {progress}%</Typography>} */}
 
         </Box>
     );
