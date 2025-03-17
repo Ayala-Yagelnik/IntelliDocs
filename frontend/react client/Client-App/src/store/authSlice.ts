@@ -10,13 +10,16 @@ export const login = createAsyncThunk(
     try {
       const response = await axios.post(`${API_URL}/login`, { email, password });
       return response.data;
-    } catch (error: unknown) {
+    } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
-export const register = createAsyncThunk(
+export const register = createAsyncThunk<
+{ token: string }, 
+  { email: string; password: string; username: string }>
+(
   'auth/register',
   async (userData: { email: string; password: string; username: string }, thunkAPI) => {
     try {
@@ -28,7 +31,7 @@ export const register = createAsyncThunk(
 
       );
       return response.data;
-    } catch (error: unknown) {
+    } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -44,7 +47,7 @@ export const setAdmin = createAsyncThunk(
         },
       });
       return response.data;
-    } catch (error: unknown) {
+    } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
