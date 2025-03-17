@@ -15,7 +15,7 @@ const FileUploader = () => {
     const [file, setFile] = useState<File | null>(null);
     const [progress, setProgress] = useState(0);
 const [loading, setLoading] = useState(false);
-    const handleFileChange = (event) => {
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFile(event.target.files[0]);
     };
 
@@ -39,14 +39,17 @@ const [loading, setLoading] = useState(false);
                 }
             });
 
-            const { url } = response.data;
+            const { url } = response.data as { url: string };
 
             // Upload file to S3 using the presigned URL
             await axios.put(url, file, {
                 headers: {
                     'Content-Type': file.type
                 },
-                onUploadProgress: (progressEvent) => setProgress(Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1))),
+                onUploadProgress: (progressEvent: ProgressEvent) => {
+                  setProgress(Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1)));
+              }
+
             });
 
             alert('File uploaded successfully!');

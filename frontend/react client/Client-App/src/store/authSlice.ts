@@ -17,7 +17,10 @@ export const login = createAsyncThunk(
 );
 
 export const register = createAsyncThunk<
-{ token: string }, 
+{
+  token: string;
+  user: User;  
+},
   { email: string; password: string; username: string }>
 (
   'auth/register',
@@ -75,7 +78,7 @@ const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(register.fulfilled, (state, action) => {
-        state.user = action.payload as User;
+        state.user = action.payload.user;
         state.loading = false;
       })
       .addCase(register.rejected, (state, action) => {

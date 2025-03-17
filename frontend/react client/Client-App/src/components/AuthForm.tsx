@@ -32,7 +32,7 @@ const AuthForm = ({ isRegister = false }) => {
         const registerResponse = await dispatch(register({ username, email, password })).unwrap()as { token: string };
                 console.log('Registration successful:', registerResponse);
                 }
-            const response = await dispatch(login({ email, password })).unwrap();
+            const response = await dispatch(login({ email, password })).unwrap() as { token: string };
             localStorage.setItem('token', response.token);
             navigate('/');
         } catch (err) {
