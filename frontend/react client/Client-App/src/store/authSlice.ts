@@ -10,7 +10,7 @@ export const login = createAsyncThunk(
     try {
       const response = await axios.post(`${API_URL}/login`, { email, password });
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -18,11 +18,17 @@ export const login = createAsyncThunk(
 
 export const register = createAsyncThunk(
   'auth/register',
-  async (user: User, thunkAPI) => {
+  async (userData: { email: string; password: string; username: string }, thunkAPI) => {
     try {
-      const response = await axios.post(`${API_URL}/register`, user);
+      const response = await axios.post(`${API_URL}/register`,{
+        email: userData.email,
+        password: userData.password,
+        username: userData.username,
+      }
+
+      );
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -38,7 +44,7 @@ export const setAdmin = createAsyncThunk(
         },
       });
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }

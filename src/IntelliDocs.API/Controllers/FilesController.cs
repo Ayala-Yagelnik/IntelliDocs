@@ -32,8 +32,8 @@ namespace IntelliDocs.API.Controllers
         {
             if (string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(contentType))
                 return BadRequest("Missing file name or content type");
-
-            var url = await _s3Service.GeneratePresignedUrlAsync(fileName, contentType);
+            var userName = HttpContext?.User?.Identity?.Name;
+            var url = await _s3Service.GeneratePresignedUrlAsync($"{userName}/{fileName}", contentType);
             return Ok(new { url });
         }
 

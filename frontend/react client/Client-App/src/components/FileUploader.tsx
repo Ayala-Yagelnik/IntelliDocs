@@ -1,64 +1,87 @@
 import React, { useState } from 'react';
+import { Button, Box, Typography, TextField, CircularProgress } from '@mui/material';
+// import { motion } from 'framer-motion';
+// import { useState } from 'react';
 import axios from 'axios';
 
+// צבעים וקונפיגורציות
+// const primaryColor = "#10a37f";
+// const textColor = "#333";
+// const hoverColor = "#0e8c6b";
+
+// const MotionButton = motion(Button);
+
 const FileUploader = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [progress, setProgress] = useState(0);
+    const [file, setFile] = useState<File | null>(null);
+    const [progress, setProgress] = useState(0);
+const [loading, setLoading] = useState(false);
+    const handleFileChange = (event) => {
+        setFile(event.target.files[0]);
+    };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-    }
-  };
+    const handleUpload = async () => {
+        if (!file) {
+            alert('Please select a file first!');
+            return;
+        }
 
-  const handleUpload = async () => {
-    if (!file) return;
+        setLoading(true);
 
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token is not available');
-      }
+        try {
+            // Get presigned URL from server
+            const response = await axios.get('http://localhost:5046/api/Files/upload-url', {
+                params: {
+                    fileName: file.name,
+                    contentType: file.type
+                },
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
 
-      // שלב 1: קבלת Presigned URL מהשרת
-      const response = await axios.get('http://localhost:5046/api/Files/upload-url', {
-        params: { fileName: file.name , contentType: file.type },
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+            const { url } = response.data;
 
-      const presignedUrl = (response.data as { url: string }).url;
-      if (!presignedUrl) {
-        throw new Error('Presigned URL is not defined');
-      }
+            // Upload file to S3 using the presigned URL
+            await axios.put(url, file, {
+                headers: {
+                    'Content-Type': file.type
+                },
+                onUploadProgress: (progressEvent) => setProgress(Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1))),
+            });
 
-      // שלב 2: העלאת הקובץ ישירות ל-S3
-      await axios.put(presignedUrl, file, {
-        headers: {
-          'Content-Type': file.type,
-        },
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round(
-            (progressEvent.loaded * 100) / (progressEvent.total || 1)
-          );
-          setProgress(percent);
-        },
-      });
+            alert('File uploaded successfully!');
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            alert('Error uploading file');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      alert('הקובץ הועלה בהצלחה!');
-    } catch (error) {
-      console.error('שגיאה בהעלאה:', error);
-    }
-  };
+    return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
+            <Typography variant="h4" gutterBottom>
+                Upload File
+            </Typography>
+            <TextField
+                type="file"
+                onChange={handleFileChange}
+                sx={{ mb: 2 }}
+                InputLabelProps={{ shrink: true }}
+            />
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={handleUpload}
+                disabled={loading}
+            >
+                {loading ? <CircularProgress size={24} /> : 'Upload'}
 
-  return (
-    <div>
-      <input type="file" onChange={handleFileChange} />
-      <button onClick={handleUpload}>העלה קובץ</button>
-      {progress > 0 && <div>התקדמות: {progress}%</div>}
-    </div>
-  );
+            </Button>
+            {progress > 0 && <Typography mt={1}>התקדמות: {progress}%</Typography>}
+
+        </Box>
+    );
 };
 
 export default FileUploader;
