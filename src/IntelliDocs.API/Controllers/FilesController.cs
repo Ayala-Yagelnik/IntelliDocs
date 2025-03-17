@@ -38,47 +38,6 @@ namespace IntelliDocs.API.Controllers
         }
 
         [Authorize(Policy = "UserOrAdmin")]
-        [HttpGet("presigned-url")]
-        public async Task<IActionResult> GetPresignedUrl([FromQuery] string fileName)
-        {
-            try
-            {
-                var request = new GetPreSignedUrlRequest
-                {
-                    BucketName = "intellidocs3",
-                    Key = fileName,
-                    Verb = HttpVerb.PUT,
-                    Expires = DateTime.UtcNow.AddMinutes(5),
-                    ContentType = "application/octet-stream"
-                };
-                try
-                {
-                    var presignedUrl = _s3Client.GetPreSignedURL(request);
-                    Console.WriteLine($"Generated presigned URL: {presignedUrl}");
-                    return Ok(new { url = presignedUrl });
-                }
-                catch (AmazonS3Exception ex)
-                {
-                    Console.WriteLine($"S3 Error: {ex.Message}");
-                    return StatusCode(500, $"Error creating presigned URL: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"General Error: {ex.Message}");
-                    return StatusCode(500, $"Internal server error: {ex.Message}");
-                }
-            }
-            catch (AmazonS3Exception ex)
-            {
-                return StatusCode(500, $"Error creating presigned URL: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        [Authorize(Policy = "UserOrAdmin")]
         [HttpGet("download-url/{fileName}")]
         public async Task<IActionResult> GetDownloadUrl(string fileName)
         {

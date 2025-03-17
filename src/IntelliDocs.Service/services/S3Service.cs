@@ -13,8 +13,8 @@ namespace IntelliDocs.Service.Services
         public S3Service(IConfiguration configuration)
         {
             var awsOptions = configuration.GetSection("AWS");
-            var accessKey = awsOptions["Credentials:AccessKey"];
-            var secretKey = awsOptions["Credentials:SecretKey"];
+            var accessKey = awsOptions["AccessKey"];
+            var secretKey = awsOptions["SecretKey"];
             var region = awsOptions["Region"];
             _bucketName = awsOptions["BucketName"] ?? throw new ArgumentNullException("AWS BucketName is missing");
             
