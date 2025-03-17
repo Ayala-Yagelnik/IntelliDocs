@@ -10,7 +10,7 @@ import { useTransition } from 'react';
 const FilesPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const files = useSelector((state: StoreType) => state.files.list);
-  const loading = useSelector((state: StoreType) => state.files.loading);
+  // const loading = useSelector((state: StoreType) => state.files.loading);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ const FilesPage = () => {
     if (file) {
       startTransition(async () => {
         try {
-          await dispatch(uploadFile(file)).unwrap();
+          // await dispatch(uploadFile(file)).unwrap();
           dispatch(fetchUserFiles());
         } catch (err) {
           setError('Failed to upload file. Please try again.');

@@ -16,31 +16,74 @@ namespace IntelliDocs.API.Controllers
     public class FilesController : ControllerBase
     {
         private readonly IUserFileService _userFileService;
-        private readonly IMapper _mapper;
+        private readonly IS3Service _s3Service;
         private readonly IAmazonS3 _s3Client;
-        public FilesController(IUserFileService fileService, IMapper mapper, IAmazonS3 s3Client)
+
+        public FilesController(IUserFileService fileService, IS3Service s3Server, IAmazonS3 s3Client)
         {
             _userFileService = fileService;
-            _mapper = mapper;
+            _s3Service = s3Server;
             _s3Client = s3Client;
+        }
+
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpGet("upload-url")]
+        public async Task<IActionResult> GetUploadUrl([FromQuery] string fileName, [FromQuery] string contentType)
+        {
+            if (string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(contentType))
+                return BadRequest("Missing file name or content type");
+
+            var url = await _s3Service.GeneratePresignedUrlAsync(fileName, contentType);
+            return Ok(new { url });
         }
 
         [Authorize(Policy = "UserOrAdmin")]
         [HttpGet("presigned-url")]
         public async Task<IActionResult> GetPresignedUrl([FromQuery] string fileName)
         {
-            var request = new GetPreSignedUrlRequest
+            try
             {
-                BucketName = "intellidocs3",
-                Key = fileName,
-                Verb = HttpVerb.PUT,
-                Expires = DateTime.UtcNow.AddMinutes(5),
-                // ContentType = "image/jpeg/doc/pdf/png/docx/xlsx/pptx/txt/csv/zip/rar"
-            ContentType = "application/octet-stream"
-            };
+                var request = new GetPreSignedUrlRequest
+                {
+                    BucketName = "intellidocs3",
+                    Key = fileName,
+                    Verb = HttpVerb.PUT,
+                    Expires = DateTime.UtcNow.AddMinutes(5),
+                    ContentType = "application/octet-stream"
+                };
+                try
+                {
+                    var presignedUrl = _s3Client.GetPreSignedURL(request);
+                    Console.WriteLine($"Generated presigned URL: {presignedUrl}");
+                    return Ok(new { url = presignedUrl });
+                }
+                catch (AmazonS3Exception ex)
+                {
+                    Console.WriteLine($"S3 Error: {ex.Message}");
+                    return StatusCode(500, $"Error creating presigned URL: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"General Error: {ex.Message}");
+                    return StatusCode(500, $"Internal server error: {ex.Message}");
+                }
+            }
+            catch (AmazonS3Exception ex)
+            {
+                return StatusCode(500, $"Error creating presigned URL: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
-            string url = await Task.Run(() => _s3Client.GetPreSignedURL(request));
-            return Ok(new { url });
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpGet("download-url/{fileName}")]
+        public async Task<IActionResult> GetDownloadUrl(string fileName)
+        {
+            var url = await _s3Service.GetDownloadUrlAsync(fileName);
+            return Ok(new { downloadUrl = url });
         }
 
         [Authorize(Policy = "UserOrAdmin")]

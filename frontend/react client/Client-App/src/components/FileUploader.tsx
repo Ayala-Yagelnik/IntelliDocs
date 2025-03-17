@@ -15,25 +15,30 @@ const FileUploader = () => {
     if (!file) return;
 
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Token is not available');
+      }
+
       // שלב 1: קבלת Presigned URL מהשרת
       const response = await axios.get('http://localhost:5046/api/Files/presigned-url', {
         params: { fileName: file.name },
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
         },
       });
 
       const presignedUrl = (response.data as { url: string }).url;
-      console.log(presignedUrl);
       if (!presignedUrl) {
         throw new Error('Presigned URL is not defined');
       }
+
       // שלב 2: העלאת הקובץ ישירות ל-S3
       await axios.put(presignedUrl, file, {
         headers: {
           'Content-Type': file.type,
         },
-        onUploadProgress: (progressEvent: ProgressEvent) => {
+        onUploadProgress: (progressEvent) => {
           const percent = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total || 1)
           );
