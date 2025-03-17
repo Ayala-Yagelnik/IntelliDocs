@@ -13,8 +13,8 @@ import axios from 'axios';
 
 const FileUploader = () => {
     const [file, setFile] = useState<File | null>(null);
-    const [progress, ] = useState(0);
-const [loading, setLoading] = useState(false);
+    const [progress, setUploadProgress] = useState(0);
+    const [loading, setLoading] = useState(false);
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files;
       if (!files || files.length === 0) return; 
@@ -47,6 +47,12 @@ const [loading, setLoading] = useState(false);
             await axios.put(url, file, {
                 headers: {
                     'Content-Type': file.type
+                },
+                onUploadProgress: progressEvent => {
+                  const percentCompleted = Math.round(
+                    (progressEvent.loaded * 100) / (progressEvent.total || 1)
+                  );
+                  setUploadProgress(percentCompleted);
                 },
               //   onUploadProgress: (progressEvent: ProgressEvent) => {
               //     setProgress(Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1)));

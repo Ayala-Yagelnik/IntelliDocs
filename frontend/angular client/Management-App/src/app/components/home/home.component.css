@@ -1,0 +1,98 @@
+.home-page {
+    font-family: 'Inter', sans-serif;
+    background-color: #fefefe;
+    color: #333;
+    padding: 20px;
+  
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+  
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #10a37f;
+      }
+  
+      .subheading {
+        font-size: 1.2rem;
+        color: #555;
+      }
+    }
+  
+    .stats-container {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 40px;
+  
+      .stat-card {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        width: 30%;
+        
+        h3 {
+          font-size: 1.5rem;
+          color: #10a37f;
+        }
+  
+        .stat-value {
+          font-size: 2rem;
+          font-weight: 700;
+          color: #333;
+        }
+      }
+    }
+  
+    .user-management {
+      margin-bottom: 40px;
+  
+      h2 {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 20px;
+      }
+  
+      .user-table {
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  
+        .user-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 15px;
+          border-bottom: 1px solid #e0e0e0;
+  
+          .user-col {
+            font-size: 1rem;
+            color: #555;
+          }
+  
+          .action-btn {
+            background-color: #10a37f;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+  
+            &:hover {
+              background-color: #0e8c6b;
+            }
+          }
+        }
+      }
+    }
+  
+    .footer {
+      text-align: center;
+      font-size: 1rem;
+      color: #777;
+      margin-top: 40px;
+    }
+  }
+  
