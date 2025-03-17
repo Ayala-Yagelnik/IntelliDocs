@@ -17,11 +17,9 @@ export const login = createAsyncThunk(
 );
 
 export const register = createAsyncThunk<
-{
-  token: string;
-  user: User;  
-},
-  { email: string; password: string; username: string }>
+{ token: string; user: User },
+{ email: string; password: string; username: string },
+{ rejectValue: string }>
 (
   'auth/register',
   async (userData: { email: string; password: string; username: string }, thunkAPI) => {

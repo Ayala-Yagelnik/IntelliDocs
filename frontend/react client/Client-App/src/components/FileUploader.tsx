@@ -3,6 +3,7 @@ import { Button, Box, Typography, TextField, CircularProgress } from '@mui/mater
 // import { motion } from 'framer-motion';
 // import { useState } from 'react';
 import axios from 'axios';
+import { AxiosProgressEvent } from 'axios'; // הוספת ייבוא מתאים
 
 // צבעים וקונפיגורציות
 // const primaryColor = "#10a37f";
@@ -16,8 +17,10 @@ const FileUploader = () => {
     const [progress, setProgress] = useState(0);
 const [loading, setLoading] = useState(false);
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setFile(event.target.files[0]);
-    };
+      const files = event.target.files;
+      if (!files || files.length === 0) return; 
+      setFile(files[0]);   
+     };
 
     const handleUpload = async () => {
         if (!file) {
@@ -46,7 +49,7 @@ const [loading, setLoading] = useState(false);
                 headers: {
                     'Content-Type': file.type
                 },
-                onUploadProgress: (progressEvent: ProgressEvent) => {
+                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
                   setProgress(Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1)));
               }
 
