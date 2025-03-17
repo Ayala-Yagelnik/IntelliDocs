@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { register, login } from '../store/authSlice';
 import { StoreType } from '../models/storeModel';
 import { useTransition } from 'react';
+import { AppDispatch } from '../store/store';
 
 // Colors and Configurations
 const primaryColor = "#10a37f";
@@ -17,7 +18,7 @@ const AuthForm = ({ isRegister = false }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
     const error = useSelector((state: StoreType) => state.auth.error);
     const loading = useSelector((state: StoreType) => state.auth.loading);
@@ -28,7 +29,7 @@ const AuthForm = ({ isRegister = false }) => {
         startTransition(async () => {
         try {
             if (isRegister) {
-        const registerResponse = await dispatch(register({ username, email, password })).unwrap();
+        const registerResponse = await dispatch(register({ username, email, password })).unwrap()as { token: string };
                 console.log('Registration successful:', registerResponse);
                 }
             const response = await dispatch(login({ email, password })).unwrap();
