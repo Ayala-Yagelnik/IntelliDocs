@@ -16,5 +16,22 @@ namespace IntelliDocs.Data
         public DbSet<UserFile> Files { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.UserFiles)
+                .WithOne(uf => uf.Author)
+                .HasForeignKey(uf => uf.AuthorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserFile>()
+                .HasOne(uf => uf.Author)
+                .WithMany(u => u.UserFiles)
+                .HasForeignKey(uf => uf.AuthorId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

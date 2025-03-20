@@ -15,7 +15,7 @@ namespace IntelliDocs.Service.Services
             var accessKey = Environment.GetEnvironmentVariable("AWS_ACCESSKEY");
             var secretKey = Environment.GetEnvironmentVariable("AWS_SECRETKEY");
             var region = Environment.GetEnvironmentVariable("AWS_REGION");
-            _bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME") ?? throw new ArgumentNullException("AWS BucketName is missing");
+            _bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
             
             if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKey) || string.IsNullOrEmpty(region))
             {

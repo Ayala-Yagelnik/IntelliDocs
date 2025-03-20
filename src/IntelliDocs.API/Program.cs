@@ -14,14 +14,17 @@ using System.Text.Json.Serialization;
 using IntelliDocs.Service.services;
 using Amazon.S3;
 using IntelliDocs.API;
+using DotNetEnv;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+Env.Load("settings.env");
+
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    options.UseMySql(Environment.GetEnvironmentVariable("CONNECTION_STRING") ,
-    // options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+    //options.UseMySql(Environment.GetEnvironmentVariable("CONNECTION_STRING") ,
+     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
     ServerVersion.Parse("8.0.33-mysql"),
     mySqlOptions => mySqlOptions.EnableRetryOnFailure());
 });
