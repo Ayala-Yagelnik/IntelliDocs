@@ -31,7 +31,7 @@ users:any[]=[];
     this.fileService.getTotalStorageUsed().subscribe(
       (data) => {
         this.totalStorageInGB = data.totalStorageInGB;
-        this.loading=false;
+        // this.loading=false;
       },
       (error) => {
         console.error('Error fetching total storage:', error);

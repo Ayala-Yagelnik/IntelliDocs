@@ -1,41 +1,78 @@
 .storage-container {
-  background-color: #f7f9fc;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  padding: 24px;
-  margin: 20px;
   max-width: 800px;
+  margin: auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
+
 .total-storage {
   color: #10a37f;
   margin-bottom: 16px;
   font-size: 1.5rem;
   font-weight: 600;
 }
+
 .section-title {
   margin-bottom: 12px;
   font-size: 1.25rem;
   color: #333;
 }
+
 .storage-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 8px;
 }
-th, td {
+
+th,
+td {
   padding: 12px;
   border-bottom: 1px solid #ddd;
   text-align: left;
 }
+
 th {
   background-color: #10a37f;
   color: white;
   font-weight: 600;
 }
+
 tr:hover {
   background-color: #e8f5f2;
   transition: background-color 0.3s;
 }
+
 td {
   color: #555;
+}
+
+.loading {
+  font-size: 1.2rem;
+  color: #10a37f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #10a37f;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
