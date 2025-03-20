@@ -27,7 +27,7 @@ namespace IntelliDocs.Core.Entities
         public int RoleId { get; set; }
         [ForeignKey("RoleId")]
         public Role Role { get; set; }
-        public List<UserFile> UserFiles { get; set; }
+        public List<UserFile>? UserFiles { get; set; }=new List<UserFile>();
 
     }
 }

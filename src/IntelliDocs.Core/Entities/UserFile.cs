@@ -22,6 +22,6 @@ namespace IntelliDocs.Core.Entities
         public int AuthorId { get; set; }
         [ForeignKey("AuthorId")]
         public required User Author { get; set; }
-        public List<UserFile>? SharedUsers { get; set; }    
+        public List<User>? SharedUsers { get; set; }    
     }
 }
