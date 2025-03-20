@@ -17,7 +17,6 @@ COPY ["IntelliDocs.API/IntelliDocs.API.csproj", "IntelliDocs.API/"]
 COPY ["IntelliDocs.Core/IntelliDocs.Core.csproj", "IntelliDocs.Core/"]
 COPY ["IntelliDocs.Data/IntelliDocs.Data.csproj", "IntelliDocs.Data/"]
 COPY ["IntelliDocs.Service/IntelliDocs.Service.csproj", "IntelliDocs.Service/"]
-USER root
 RUN dotnet restore "./IntelliDocs.API/IntelliDocs.API.csproj"
 COPY . .
 WORKDIR "/src/IntelliDocs.API"
