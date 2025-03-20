@@ -7,7 +7,6 @@
 .DS_Store
 .env
 src/IntelliDocs.API/settings.env
-
 # User-specific files
 *.rsuser
 *.suo
