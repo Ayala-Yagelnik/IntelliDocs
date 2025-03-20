@@ -28,7 +28,7 @@ namespace IntelliDocs.Service.Services
 
         public string GenerateJwtToken(User user)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
@@ -43,8 +43,8 @@ namespace IntelliDocs.Service.Services
                 claims.Add(new Claim(ClaimTypes.Role, user.Role.NameRole));
             }
             var token = new JwtSecurityToken(
-                _configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
+                Environment.GetEnvironmentVariable("JWT_ISSUER"),
+                Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
                 claims,
                 expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: credentials
