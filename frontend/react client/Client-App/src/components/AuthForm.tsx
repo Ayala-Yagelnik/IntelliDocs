@@ -7,6 +7,7 @@ import { register, login } from '../store/authSlice';
 import { StoreType } from '../models/storeModel';
 import { useTransition } from 'react';
 import { AppDispatch } from '../store/store';
+import { setCurrentUser } from '../store/userSlice'; 
 
 // Colors and Configurations
 const primaryColor = "#10a37f";
@@ -23,17 +24,23 @@ const AuthForm = ({ isRegister = false }) => {
     const error = useSelector((state: StoreType) => state.auth.error);
     const loading = useSelector((state: StoreType) => state.auth.loading);
     const [isPending, startTransition] = useTransition();
-
+const user=useSelector((state: StoreType) => state.users.user)
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         startTransition(async () => {
         try {
+            let userData;
             if (isRegister) {
-        const registerResponse = await dispatch(register({ username, email, password })).unwrap()as { token: string };
-                console.log('Registration successful:', registerResponse);
+         userData = await dispatch(register({ username, email, password })).unwrap();
                 }
-            const response = await dispatch(login({ email, password })).unwrap() as { token: string };
-            localStorage.setItem('token', response.token);
+              
+             userData = await dispatch(login({ email, password })).unwrap() ;
+            
+console.log("userData: ",userData);
+            localStorage.setItem('token', userData.token);
+            dispatch(setCurrentUser(userData.user));
+            console.log("Current user:",user );
+
             navigate('/');
         } catch (err) {
             console.error('Auth failed:', err);

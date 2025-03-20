@@ -77,7 +77,11 @@ const userSlice = createSlice({
     loading: false,
     error: null as string | null,
   },
-  reducers: {},
+  reducers: {
+    setCurrentUser(state, action) {
+      state.user = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsers.fulfilled, (state, action) => {
@@ -130,4 +134,6 @@ const userSlice = createSlice({
   },
 });
 
+
+export const { setCurrentUser } = userSlice.actions; 
 export default userSlice;

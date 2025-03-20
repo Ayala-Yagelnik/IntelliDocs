@@ -16,7 +16,8 @@ namespace IntelliDocs.Core.Services
         Task<UserDTO> UpdateAsync(int id, UserDTO user);
         Task<bool> DeleteAsync(int id);
         Task<IEnumerable<FileDTO>> GetUserFilesByUserIdAsync(int userId);
-
+        Task<bool> ReactivateUserAsync(int id);
+        Task<List<UserStorageUsageDto>> GetUserStorageUsageAsync();
 
     }
 }

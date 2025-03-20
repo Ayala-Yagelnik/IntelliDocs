@@ -60,5 +60,34 @@ namespace IntelliDocs.API.Controllers
         {
             return await _userService.DeleteAsync(id) ? Ok() : NotFound();
         }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPatch("{id}/reactivate")]
+        public async Task<IActionResult> Reactivate(int id)
+        {
+            var result = await _userService.ReactivateUserAsync(id);
+            if (!result)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpGet("storage-usage")]
+        public async Task<IActionResult> GetUserStorageUsage()
+        {
+            try
+            {
+                var storageUsage = await _userService.GetUserStorageUsageAsync();
+                return Ok(storageUsage);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception for debugging
+                Console.WriteLine($"Error in GetUserStorageUsage: {ex.Message}");
+                return StatusCode(500, "An error occurred while fetching storage usage.");
+            }
+        }
     }
 }

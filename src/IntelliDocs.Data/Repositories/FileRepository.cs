@@ -32,5 +32,10 @@ namespace IntelliDocs.Data.Repositories
         {
             return await _dbSet.AnyAsync(f => f.FileName == fileName);
         }
+        public async Task<long> SumFileSizeAsync()
+        {
+            return await _dbSet.SumAsync(f => f.FileSize);
+        }
+     
     }
 }

@@ -17,5 +17,6 @@ namespace IntelliDocs.Core.IServices
         public Task<FileDTO> ShareFileAsync(int fileId, int userId);
         public Task<IEnumerable<UserFile>> SearchFilesAsync(string query, int userId);
         public Task<bool> DeleteFileAsync(int fileId);
+       public Task<double> GetTotalStorageUsedAsync();
     }
 }

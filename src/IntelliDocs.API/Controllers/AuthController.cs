@@ -61,6 +61,4 @@ namespace IntelliDocs.API.Controllers
             return Ok(user);
         }
     }
-
-
 }

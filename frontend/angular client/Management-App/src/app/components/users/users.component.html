@@ -1,0 +1,53 @@
+<div class="users-container">
+    <h2>All Users</h2>
+
+    @if (loading) {
+    <div class="loading">
+        <span class="spinner"></span> Loading users...
+    </div>
+    }
+
+    @if (!loading && users.length > 0) {
+    <table class="users-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (user of users; track user.id) {
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    <span class="status" [class.active]="user.isActive" [class.inactive]="!user.isActive">
+                        {{ user.accountStatus=="Active" ? 'Active' : 'Inactive' }}
+                    </span>
+                </td>
+                <td>
+                    @if (user.isActive ) {
+                    <button (click)="deactivateUser(user.id)" class="deactivate-btn">
+                        Deactivate
+                    </button>
+                    }
+                    @else {
+                    <button (click)="reactivateUser(user.id)" class="reactivate-btn">
+                        Reactivate
+                    </button>
+                    }
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    }
+
+    @if (!loading && users.length === 0) {
+    <div class="no-users">
+        No users found.
+    </div>
+    }
+</div>

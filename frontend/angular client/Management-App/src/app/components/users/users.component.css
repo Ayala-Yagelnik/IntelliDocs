@@ -1,0 +1,112 @@
+.users-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  h2 {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .loading {
+    font-size: 1.2rem;
+    color: #10a37f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #10a37f;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .users-table th, .users-table td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  .users-table th {
+    background: #f5f5f5;
+    color: #333;
+  }
+  
+  .status {
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+  }
+  
+  .status.active {
+    color: #686868;
+    /* background: rgba(124, 124, 124, 0.1); */
+    background: rgba(16, 163, 127, 0.1);
+  }
+  
+  .status.inactive {
+    color: #686868;
+    background: rgba(217, 83, 79, 0.1);
+  }
+  
+  .deactivate-btn {
+    padding: 8px 12px;
+    border: none;
+    color: #ff0800;
+    background-color: white;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .deactivate-btn:hover {
+    background: #ff0800;
+    color:white
+  }
+  
+  .no-users {
+    font-size: 1.2rem;
+    color: #777;
+    margin-top: 1rem;
+  }
+  .reactivate-btn {
+    padding: 8px 12px;
+    border: none;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    color: #28a745;
+    background-color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .reactivate-btn:hover {
+    background-color: #218838;
+    color: white;
+  }

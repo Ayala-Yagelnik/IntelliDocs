@@ -1,4 +1,5 @@
-﻿using IntelliDocs.Core.Entities;
+﻿using IntelliDocs.Core.DTOs;
+using IntelliDocs.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace IntelliDocs.Core.IRepositories
     {
         Task<User> GetUserByEmailAsync(string email);
         Task<bool> ExistsByEmailAsync(string email);
+        Task<bool> ReactivateAsync(int id);
+        Task<List<UserStorageUsageDto>> GetUserStorageUsageAsync();
     }
 }

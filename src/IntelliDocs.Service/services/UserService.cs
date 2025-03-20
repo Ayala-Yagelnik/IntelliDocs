@@ -79,6 +79,26 @@ namespace IntelliDocs.Service.Services
             return _mapper.Map<List<FileDTO>>(files);
         }
 
+        public async Task<bool> ReactivateUserAsync(int id)
+        {
+            var result = await _repository.Users.ReactivateAsync(id);
+            if (result)
+            {
+                await _repository.SaveAsync(); 
+            }
+            return result;
+        }
+        public async Task<List<UserStorageUsageDto>> GetUserStorageUsageAsync()
+        {
+            var users = await _repository.Users.GetAllAsync();
+            var storageUsage = users.Select(user => new UserStorageUsageDto
+            {
+                Username = user.Username,
+                Email = user.Email,
+                StorageUsed = user.UserFiles.Sum(file => file.FileSize) / (1024.0 * 1024.0)
+            }).ToList();
 
+            return storageUsage;
+        }
     }
 }

@@ -36,6 +36,8 @@
     text-decoration: none;
     color: #1e1e1e;
     transition: color 0.3s ease;
+    background-color: transparent;
+    border: none;
   }
   
   .nav-item:hover {

@@ -1,18 +1,32 @@
 <nav class="navbar">
-    <div class="navbar-container">
-      <div class="logo">
-        <a href="#">IntelliDocs</a>
-      </div>
-      <ul class="nav-links">
-        <li><a href="#" class="nav-item">Home</a></li>
-        <li><a href="#" class="nav-item">Features</a></li>
-        <li><a href="#" class="nav-item">Pricing</a></li>
-        <li><a href="#" class="nav-item">Contact</a></li>
-      </ul>
-      <div class="auth-buttons">
-        <button class="btn login-btn">Login</button>
-        <button class="btn signup-btn">Sign Up</button>
-      </div>
+  <div class="navbar-container">
+    <div class="logo">
+      <a href="#">IntelliDocs</a>
     </div>
-  </nav>
-  
+    @if (isLoggedIn) {
+    <ul class="nav-links">
+      <button mat-button class="nav-item" [routerLink]="['/users']">
+        Users
+      </button>
+      <li><a href="#" class="nav-item">Home</a></li>
+      <button mat-button class="nav-item" [routerLink]="['/files/storage']">
+        Storage
+      </button>
+      <li><a href="#" class="nav-item">Pricing</a></li>
+      <li><a href="#" class="nav-item">Contact</a></li>
+    </ul>
+    }
+    <div class="auth-buttons">
+      @if (isLoggedIn) {
+      <button mat-button class="btn login-btn" [routerLink]="['/']" (click)="logout()">
+        Logout
+      </button>
+      }
+      @else{
+      <button mat-button class="btn login-btn" [routerLink]="['/login']">
+        Login
+      </button>
+      }
+    </div>
+  </div>
+</nav>

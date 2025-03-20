@@ -8,6 +8,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Amazon.S3;
 using Amazon.S3.Model;
+using IntelliDocs.API.PostEntity;
+using IntelliDocs.Service.Services;
+using IntelliDocs.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace IntelliDocs.API.Controllers
 {
@@ -15,15 +19,41 @@ namespace IntelliDocs.API.Controllers
     [Route("api/[controller]")]
     public class FilesController : ControllerBase
     {
+        private readonly IUserService _usersService;
         private readonly IUserFileService _userFileService;
         private readonly IS3Service _s3Service;
         private readonly IAmazonS3 _s3Client;
 
-        public FilesController(IUserFileService fileService, IS3Service s3Server, IAmazonS3 s3Client)
+        public FilesController(IUserService userService, IUserFileService fileService, IS3Service s3Server, IAmazonS3 s3Client)
         {
+            _usersService = userService;
             _userFileService = fileService;
             _s3Service = s3Server;
             _s3Client = s3Client;
+        }
+
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadFile([FromBody] FileDTO fileDto)
+        {
+            if (fileDto == null || string.IsNullOrEmpty(fileDto.FileName))
+                return BadRequest("Invalid file data.");
+            try
+            {
+                var savedFile = await _userFileService.UploadFileAsync(fileDto);
+                return Ok(savedFile);
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the exception for debugging
+                Console.WriteLine($"Database update error: {ex.Message}");
+                return StatusCode(500, "An error occurred while saving the file metadata.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+                return StatusCode(500, "An unexpected error occurred.");
+            }
         }
 
         [Authorize(Policy = "UserOrAdmin")]
@@ -66,6 +96,14 @@ namespace IntelliDocs.API.Controllers
         public async Task<ActionResult> Delete(int id)
         {
             return await _userFileService.DeleteFileAsync(id) ? Ok(true) : NotFound();
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpGet("total-storage")]
+        public async Task<IActionResult> GetTotalStorageUsed()
+        {
+            var totalStorageInGB = await _userFileService.GetTotalStorageUsedAsync();
+            return Ok(new { totalStorageInGB });
         }
     }
 }

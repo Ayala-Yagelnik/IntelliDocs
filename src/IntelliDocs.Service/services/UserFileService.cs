@@ -5,6 +5,7 @@ using IntelliDocs.Core.IServices;
 using AutoMapper;
 using IntelliDocs.Core.DTOs;
 using IntelliDocs.Data.Repositories;
+using System.Net.Http.Json;
 
 
 namespace IntelliDocs.Service.Services
@@ -21,14 +22,26 @@ namespace IntelliDocs.Service.Services
 
         public async Task<FileDTO> UploadFileAsync(FileDTO fileDto)
         {
+            Console.WriteLine($"FileDTO: {System.Text.Json.JsonSerializer.Serialize(fileDto)}");
+            if (fileDto.AuthorId <= 0)
+                throw new ArgumentException("Invalid AuthorId.");
+
             var file = _mapper.Map<UserFile>(fileDto);
-            var f = await _repository.Files.AddAsync(file);
-            if (f == null)
+
+            // Ensure the Author exists in the database
+            var authorExists = await _repository.Users.GetByIdAsync(fileDto.AuthorId);
+            if (authorExists == null)
+                throw new Exception("Author not found.");
+
+            var savedFile = await _repository.Files.AddAsync(file);
+
+            if (savedFile == null)
             {
-                throw null;
+                throw new Exception("Failed to save file metadata.");
             }
+
             await _repository.SaveAsync();
-            return _mapper.Map<FileDTO>(f);
+            return _mapper.Map<FileDTO>(savedFile);
         }
 
         //TODO: Implement the method
@@ -72,6 +85,11 @@ namespace IntelliDocs.Service.Services
             return _mapper.Map<FileDTO>(file);
         }
 
-   
+        public async Task<double> GetTotalStorageUsedAsync()
+        {
+            // Assuming you have a `FileSize` property in bytes in your file entity
+            var totalBytes = await _repository.Files.SumFileSizeAsync();
+            return totalBytes / (1024.0 * 1024.0 * 1024.0); 
+        }
     }
 }

@@ -1,0 +1,23 @@
+<div>
+    <h3>Total Storage Used: {{ totalStorageInGB | number:'1.7-7' }} GB</h3>
+  
+    <h4>Storage Usage by Users:</h4>
+    <table class="storage-table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Storage Used (MB)</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(user of users;track user.id){
+        <tr>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.storageUsed | number:'1.2-2' }}</td>
+          
+        </tr>}
+      </tbody>
+    </table>
+  </div>
