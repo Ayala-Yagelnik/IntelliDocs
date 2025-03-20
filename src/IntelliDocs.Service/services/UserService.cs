@@ -88,14 +88,14 @@ namespace IntelliDocs.Service.Services
             }
             return result;
         }
-        public async Task<List<UserStorageUsageDto>> GetUserStorageUsageAsync()
+        public async Task<List<UserStorageDto>> GetUserStorageUsageAsync()
         {
             var users = await _repository.Users.GetAllAsync();
-            var storageUsage = users.Select(user => new UserStorageUsageDto
+            var storageUsage = users.Select(user => new UserStorageDto
             {
                 Username = user.Username,
                 Email = user.Email,
-                StorageUsed = user.UserFiles.Sum(file => file.FileSize) / (1024.0 * 1024.0)
+                StorageUsed = user.UserFiles?.Sum(file => file.FileSize) ??0 / (1024.0 * 1024.0)
             }).ToList();
 
             return storageUsage;

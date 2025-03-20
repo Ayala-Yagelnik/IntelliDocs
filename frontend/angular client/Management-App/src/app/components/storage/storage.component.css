@@ -1,0 +1,41 @@
+.storage-container {
+  background-color: #f7f9fc;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 24px;
+  margin: 20px;
+  max-width: 800px;
+}
+.total-storage {
+  color: #10a37f;
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.section-title {
+  margin-bottom: 12px;
+  font-size: 1.25rem;
+  color: #333;
+}
+.storage-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+th {
+  background-color: #10a37f;
+  color: white;
+  font-weight: 600;
+}
+tr:hover {
+  background-color: #e8f5f2;
+  transition: background-color 0.3s;
+}
+td {
+  color: #555;
+}

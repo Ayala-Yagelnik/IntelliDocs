@@ -31,6 +31,7 @@ users:any[]=[];
     this.fileService.getTotalStorageUsed().subscribe(
       (data) => {
         this.totalStorageInGB = data.totalStorageInGB;
+        this.loading=false;
       },
       (error) => {
         console.error('Error fetching total storage:', error);
@@ -42,6 +43,7 @@ users:any[]=[];
     this.userService.getUserStorageUsage().subscribe(
       (data) => {
         this.users = data.sort((a, b) => b.storageUsed - a.storageUsed);
+        this.loading = false;
       },
       (error) => {
         console.error('Error fetching user storage usage:', error);

@@ -9,7 +9,10 @@ namespace IntelliDocs.Data.Repositories
     public class UserRepository : Repository<User>, IUserRepository
     {
         public UserRepository(DataContext context) : base(context) { }
-
+        public async Task<List<User>> GetAllAsync()
+        {
+            return await _dbSet.Include(u => u.UserFiles).ToListAsync();
+        }
         public async Task<User?> GetUserByEmailAsync(string email)
         {
             return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
@@ -47,9 +50,9 @@ namespace IntelliDocs.Data.Repositories
             return true;
         }
 
-        public async Task<List<UserStorageUsageDto>> GetUserStorageUsageAsync()
+        public async Task<List<UserStorageDto>> GetUserStorageUsageAsync()
         {
-            return await _dbSet.Select(user => new UserStorageUsageDto
+            return await _dbSet.Select(user => new UserStorageDto
             {
                 Username = user.Username,
                 Email = user.Email,

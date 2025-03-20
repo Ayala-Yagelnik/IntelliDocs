@@ -13,6 +13,6 @@ namespace IntelliDocs.Core.IRepositories
         Task<User> GetUserByEmailAsync(string email);
         Task<bool> ExistsByEmailAsync(string email);
         Task<bool> ReactivateAsync(int id);
-        Task<List<UserStorageUsageDto>> GetUserStorageUsageAsync();
+        Task<List<UserStorageDto>> GetUserStorageUsageAsync();
     }
 }
