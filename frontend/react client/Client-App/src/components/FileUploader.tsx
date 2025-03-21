@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { StoreType } from '../models/storeModel';
+import FileList from "./FileList";
 
 // Design Tokens
 const primaryColor = "#10a37f";
@@ -25,6 +26,10 @@ const FileUploader = () => {
   };
 
   const handleUpload = async () => {
+    if (!user || !user.id) {
+      alert("User is not logged in or invalid.");
+      return;
+    }
     if (!file) {
       alert("Please select a file first!");
       return;
@@ -59,8 +64,7 @@ console.log("fileMetadata: ",fileMetadata);
 console.log("file: ",file);
 
 await axios.post("http://localhost:5046/api/Files/upload", fileMetadata, {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-});
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}`}});
 
       alert("File uploaded successfully!");
     } catch (error) {
@@ -72,6 +76,7 @@ await axios.post("http://localhost:5046/api/Files/upload", fileMetadata, {
   };
 
   return (
+    <>
     <Box
       sx={{
         display: "flex",
@@ -124,6 +129,8 @@ await axios.post("http://localhost:5046/api/Files/upload", fileMetadata, {
         {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Upload"}
       </MotionButton>
     </Box>
+    <FileList />
+        </>
   );
 };
 

@@ -17,6 +17,7 @@ export const Nav = () => (
             <Box>
                 <Button component={Link} to="/register" sx={{ color: primaryColor }}>Sign up</Button>
                 <Button component={Link} to="/login" sx={{ color: primaryColor }}>Sign in</Button>
+                <Button component={Link} to="/fileUpload" sx={{ color: primaryColor }}>file upload</Button>
             </Box>
             <Tab component={Link} to="/" label="Home" />
         </Toolbar>

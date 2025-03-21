@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { User } from '../models/user';
 
@@ -14,8 +14,8 @@ export const fetchUsers = createAsyncThunk(
         },
       });
       return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as { message: string }).message);
     }
   }
 );
@@ -30,8 +30,8 @@ export const fetchUserById = createAsyncThunk(
         },
       });
       return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as { message: string }).message);
     }
   }
 );
@@ -47,8 +47,8 @@ export const updateUser = createAsyncThunk(
         },
       });
       return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as { message: string }).message);
     }
   }
 );
@@ -63,8 +63,8 @@ export const deleteUser = createAsyncThunk(
         },
       });
       return userId;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as { message: string }).message);
     }
   }
 );
@@ -73,13 +73,16 @@ const userSlice = createSlice({
   name: 'users',
   initialState: {
     users: [] as User[],
-    user: {} as User,
+    user: null as User | null,
     loading: false,
     error: null as string | null,
   },
   reducers: {
-    setCurrentUser(state, action) {
+    setCurrentUser(state, action: PayloadAction<User>) {
       state.user = action.payload;
+    },
+    clearCurrentUser(state) {
+      state.user = null;
     },
   },
   extraReducers: (builder) => {
@@ -135,5 +138,5 @@ const userSlice = createSlice({
 });
 
 
-export const { setCurrentUser } = userSlice.actions; 
+export const { setCurrentUser,clearCurrentUser } = userSlice.actions; 
 export default userSlice;
