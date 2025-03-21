@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+  
 namespace IntelliDocs.Core.Entities
-{
+{ 
     [Table("User")]
     public class User
     {
@@ -28,6 +28,6 @@ namespace IntelliDocs.Core.Entities
         [ForeignKey("RoleId")]
         public Role Role { get; set; }
         public List<UserFile>? UserFiles { get; set; }=new List<UserFile>();
-
+  
     }
-}
+} 
