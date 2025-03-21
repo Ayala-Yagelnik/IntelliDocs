@@ -16,6 +16,8 @@ namespace IntelliDocs.Core.Entities
         [MaxLength(50)]
         public string NameRole { get; set; }
 
+        public List<User> Users { get; set; }
+
         public List<Permission> Permissions { get; set; }
     }
 }

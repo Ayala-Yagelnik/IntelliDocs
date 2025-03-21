@@ -11,7 +11,7 @@ namespace IntelliDocs.Data.Repositories
         public UserRepository(DataContext context) : base(context) { }
         public async Task<List<User>> GetAllAsync()
         {
-            return await _dbSet.Include(u => u.UserFiles).ToListAsync();
+            return await _dbSet.Include(u => u.Files).ToListAsync();
         }
         public async Task<User?> GetUserByEmailAsync(string email)
         {
@@ -56,7 +56,7 @@ namespace IntelliDocs.Data.Repositories
             {
                 Username = user.Username,
                 Email = user.Email,
-                StorageUsed = user.UserFiles.Sum(f => f.FileSize)
+                StorageUsed = user.Files.Sum(f => f.FileSize)
             }).ToListAsync();
         }
     }

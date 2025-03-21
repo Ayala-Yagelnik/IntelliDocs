@@ -21,17 +21,25 @@ namespace IntelliDocs.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.UserFiles)
-                .WithOne(uf => uf.Author)
-                .HasForeignKey(uf => uf.AuthorId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserFile>()
-                .HasOne(uf => uf.Author)
-                .WithMany(u => u.UserFiles)
-                .HasForeignKey(uf => uf.AuthorId)
-                .OnDelete(DeleteBehavior.Cascade);
+               .HasOne(f => f.Author)
+               .WithMany()
+               .HasForeignKey(f => f.AuthorId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+               .HasOne(u => u.Role)
+               .WithMany(r => r.Users)
+               .HasForeignKey(u => u.RoleId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+               .HasMany(u => u.Files)
+               .WithMany(f => f.SharedUsers);
+
+            modelBuilder.Entity<UserFile>()
+               .Ignore(f => f.Author);
         }
     }
 }
