@@ -23,12 +23,14 @@ Env.Load("settings.env");
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    options.UseMySql(Environment.GetEnvironmentVariable("CONNECTION_STRING") ,
-    //  options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+    options.UseMySql(Environment.GetEnvironmentVariable("CONNECTION_STRING"),
     ServerVersion.Parse("8.0.33-mysql"),
-    mySqlOptions => mySqlOptions.EnableRetryOnFailure());
-});
+    mySqlOptions => mySqlOptions.EnableRetryOnFailure())
+           .EnableSensitiveDataLogging()
+           .LogTo(Console.WriteLine, LogLevel.Information);
+    //  options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
 
+});
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
