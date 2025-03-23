@@ -39,7 +39,7 @@ const FileUploader = () => {
 
     try {
       // Get presigned URL from server
-      const response = await axios.get("http://localhost:5046/api/Files/upload-url", {
+      const response = await axios.get("https://intellidocs-server.onrender.com/api/Files/upload-url", {
         params: { fileName: file.name, contentType: file.type },
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
@@ -63,7 +63,7 @@ const FileUploader = () => {
 console.log("fileMetadata: ",fileMetadata);
 console.log("file: ",file);
 
-await axios.post("http://localhost:5046/api/Files/upload", fileMetadata, {
+await axios.post("https://intellidocs-server.onrender.com/api/Files/upload", fileMetadata, {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}`}});
 
       alert("File uploaded successfully!");

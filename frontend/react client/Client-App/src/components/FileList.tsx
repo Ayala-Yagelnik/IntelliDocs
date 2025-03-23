@@ -10,7 +10,7 @@ const FileList: React.FC = () => {
       const fetchFiles = async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await axios.get<File[]>('http://localhost:5046/api/Files', {
+          const response = await axios.get<File[]>('https://intellidocs-server.onrender.com/api/Files', {
             headers: { Authorization: `Bearer ${token}` },
           });
           setFiles(response.data);
