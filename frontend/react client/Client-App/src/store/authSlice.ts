@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { User } from '../models/user';
 
-const API_URL = "http://localhost:5046/api/Auth";
+const API_URL = "https://intellidocs-server.onrender.com/api/Auth";
+// const API_URL = "http://localhost:5046/api/Auth";
 
 export const login = createAsyncThunk(
   'auth/login',
@@ -10,8 +11,8 @@ export const login = createAsyncThunk(
     try {
       const response = await axios.post(`${API_URL}/login`, { email, password });
       return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
     }
   }
 );
@@ -32,8 +33,8 @@ export const register = createAsyncThunk<
 
       );
       return response.data as { token: string; user: User };
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
     }
   }
 );
@@ -48,8 +49,8 @@ export const setAdmin = createAsyncThunk(
         },
       });
       return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
     }
   }
 );
