@@ -7,7 +7,7 @@ import { UserLogin } from '../models/user.model';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = "http://localhost:5046/api/Auth";
+  private apiUrl = "https://intellidocs-server.onrender.com/api/Auth";
   private loggedIn = new BehaviorSubject<boolean>(this.hasToken());
 
   constructor(private http: HttpClient) { }

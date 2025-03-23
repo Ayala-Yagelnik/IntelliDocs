@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
     providedIn: 'root'
 })
 export class FileService {
-    private apiUrl = "http://localhost:5046/api/Files";
+    private apiUrl = "https://intellidocs-server.onrender.com/api/Files";
 
     constructor(private http: HttpClient) { }
 

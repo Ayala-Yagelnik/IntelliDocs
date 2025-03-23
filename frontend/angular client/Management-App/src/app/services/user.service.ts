@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = "http://localhost:5046/api/users";
+  private apiUrl = "https://intellidocs-server.onrender.com/api/users";
 
   constructor(private http: HttpClient) {}
 
