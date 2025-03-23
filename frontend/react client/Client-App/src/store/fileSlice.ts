@@ -2,7 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { File } from "../models/file";
 
-const API_URL = "http://localhost:5046/api/Files";
+const API_URL = "https://intellidocs-server.onrender.com/api/Files";
+// const API_URL = "http://localhost:5046/api/Files";
 
 export const fetchUserFiles = createAsyncThunk<File[], void, { rejectValue: { error: string } }>(
   'files/fetch',
@@ -42,8 +43,8 @@ export const uploadFile = createAsyncThunk(
           'Authorization': `Bearer ${localStorage.getItem('token')}`        },
       });
       return response.data as File;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
     }
   }
 );
@@ -59,8 +60,8 @@ export const shareFile = createAsyncThunk(
         },
       });
       return { fileId, userId };
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
     }
   }
 );
@@ -76,8 +77,8 @@ export const searchFiles = createAsyncThunk(
         },
       });
       return response.data as File[];
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
     }
   }
 );
@@ -92,8 +93,8 @@ export const deleteFile = createAsyncThunk(
         },
       });
       return fileId;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
     }
   }
 );

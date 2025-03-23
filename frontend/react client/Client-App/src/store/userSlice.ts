@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { User } from '../models/user';
 
-const API_URL = "http://localhost:5046/api/Users";
+// const API_URL = "http://localhost:5046/api/Users";
+const API_URL = "https://intellidocs-server.onrender.com/api/Users";
 
 export const fetchUsers = createAsyncThunk(
   'users/fetchAll',
