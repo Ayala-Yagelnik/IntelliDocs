@@ -43,28 +43,29 @@ const FileUploader = () => {
         params: { fileName: file.name, contentType: file.type },
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-
+      console.log("response: ", response);
       const { url, bucketName, region } = response.data as { url: string; bucketName: string; region: string };
-
+      console.log("url: ", url);
       // Upload file to S3 using the presigned URL
       await axios.put(url, file, {
         headers: { "Content-Type": file.type },
       });
       const fileUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${user.name}/${file.name}`;
 
-   // Save file metadata in the database
-   const fileMetadata = {
-    fileName: file.name,
-    filePath: fileUrl, 
-    fileSize: file.size,
-    fileType: file.type,
-    authorId: user.id,
-};
-console.log("fileMetadata: ",fileMetadata);
-console.log("file: ",file);
+      // Save file metadata in the database
+      const fileMetadata = {
+        fileName: file.name,
+        filePath: fileUrl,
+        fileSize: file.size,
+        fileType: file.type,
+        authorId: user.id,
+      };
+      console.log("fileMetadata: ", fileMetadata);
+      console.log("file: ", file);
 
-await axios.post("https://intellidocs-server.onrender.com/api/Files/upload", fileMetadata, {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}`}});
+      await axios.post("https://intellidocs-server.onrender.com/api/Files/upload", fileMetadata, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
 
       alert("File uploaded successfully!");
     } catch (error) {
@@ -77,60 +78,60 @@ await axios.post("https://intellidocs-server.onrender.com/api/Files/upload", fil
 
   return (
     <>
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        mt: 6,
-        p: 3,
-        background: "#fff",
-        borderRadius: "12px",
-        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-        maxWidth: "400px",
-        mx: "auto",
-      }}
-    >
-          
-
-      <Typography variant="h4" sx={{ color: textColor, mb: 2 }}>
-        Upload File
-      </Typography>
-
-      <TextField
-        type="file"
-        onChange={handleFileChange}
+      <Box
         sx={{
-          mb: 2,
-          "& input": {
-            cursor: "pointer",
-          },
-        }}
-        InputLabelProps={{ shrink: true }}
-      />
-
-      <MotionButton
-        variant="contained"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={handleUpload}
-        disabled={loading}
-        sx={{
-          backgroundColor: primaryColor,
-          color: "#fff",
-          px: 3,
-          py: 1,
-          borderRadius: "8px",
-          textTransform: "none",
-          "&:hover": { backgroundColor: hoverColor },
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          mt: 6,
+          p: 3,
+          background: "#fff",
+          borderRadius: "12px",
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          maxWidth: "400px",
+          mx: "auto",
         }}
       >
-        {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Upload"}
-      </MotionButton>
-    </Box>
-    <FileList />
-        </>
+
+
+        <Typography variant="h4" sx={{ color: textColor, mb: 2 }}>
+          Upload File
+        </Typography>
+
+        <TextField
+          type="file"
+          onChange={handleFileChange}
+          sx={{
+            mb: 2,
+            "& input": {
+              cursor: "pointer",
+            },
+          }}
+          InputLabelProps={{ shrink: true }}
+        />
+
+        <MotionButton
+          variant="contained"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleUpload}
+          disabled={loading}
+          sx={{
+            backgroundColor: primaryColor,
+            color: "#fff",
+            px: 3,
+            py: 1,
+            borderRadius: "8px",
+            textTransform: "none",
+            "&:hover": { backgroundColor: hoverColor },
+          }}
+        >
+          {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Upload"}
+        </MotionButton>
+      </Box>
+      <FileList />
+    </>
   );
 };
 
