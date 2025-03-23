@@ -1,45 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserById, updateUser } from '../store/userSlice';
-import { StoreType } from '../models/storeModel';
-import { useParams, useNavigate } from 'react-router-dom';
-import { AppDispatch } from '../store/store';
+import React, { useState } from 'react';
+import { Container, TextField, Typography, Box } from '@mui/material';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { fetchUserById, updateUser } from '../store/userSlice';
+// import { StoreType } from '../models/storeModel';
+// import { useParams, useNavigate } from 'react-router-dom';
+// import { AppDispatch } from '../store/store';
 
 const UpdateUserForm: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-  const user = useSelector((state: StoreType) => state.users.user);
-  const loading = useSelector((state: StoreType) => state.users.loading);
-  const error = useSelector((state: StoreType) => state.users.error);
+  // const { id } = useParams<{ id: string }>();
+  // const dispatch = useDispatch<AppDispatch>();
+  // const navigate = useNavigate();
+  // const user = useSelector((state: StoreType) => state.users.user);
+  // const loading = useSelector((state: StoreType) => state.users.loading);
+  // const error = useSelector((state: StoreType) => state.users.error);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchUserById(id));
-    }
-  }, [dispatch, id]);
+  // useEffect(() => {
+    // if (id) {
+    //   dispatch(fetchUserById(id));
+    // }
+  // }, [dispatch, id]);
 
-  useEffect(() => {
-    if (user) {
-      setName(user.name);
-      setEmail(user.email);
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     setName(user.name);
+  //     setEmail(user.email);
+  //   }
+  // }, [user]);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (id) {
-      try {
-        await dispatch(updateUser({ id, user: { ...user, name, email } })).unwrap();
-        navigate('/profile');
-      } catch (err) {
-        console.error('Update failed:', err);
-      }
-    }
-  };
+  // const handleSubmit = async (event: React.FormEvent) => {
+  //   event.preventDefault();
+  //   if (id) {
+  //     try {
+  //       await dispatch(updateUser({ id, user: { ...user, id, name, email } })).unwrap();
+  //       navigate('/profile');
+  //     } catch (err) {
+  //       console.error('Update failed:', err);
+  //     }
+  //   }
+  // };
 
   return (
     <Container maxWidth="sm">
@@ -48,7 +48,7 @@ const UpdateUserForm: React.FC = () => {
           עדכון פרטי משתמש
         </Typography>
       </Box>
-      <form onSubmit={handleSubmit}>
+      {/* <form onSubmit={handleSubmit}> */}
         <Box mb={2}>
           <TextField
             label="Name"
@@ -68,17 +68,17 @@ const UpdateUserForm: React.FC = () => {
             required
           />
         </Box>
-        {error && (
+        {/* {error && ( */}
           <Box mb={2}>
-            <Alert severity="error">{error}</Alert>
+            {/* <Alert severity="error">{error}</Alert> */}
           </Box>
-        )}
+        {/* )} */}
         <Box textAlign="center">
-          <Button type="submit" variant="contained" color="primary" disabled={loading}>
+          {/* <Button type="submit" variant="contained" color="primary" disabled={loading}> */}
             עדכן
-          </Button>
+          {/* </Button> */}
         </Box>
-      </form>
+      {/* </form> */}
     </Container>
   );
 };
