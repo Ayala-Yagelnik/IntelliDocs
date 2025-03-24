@@ -51,7 +51,7 @@ const FileUploader = () => {
         headers: { "Content-Type": file.type },
       });
       const fileUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${user.name}/${file.name}`;
-
+console.log("fileUrl: ", fileUrl);
       // Save file metadata in the database
       const fileMetadata = {
         fileName: file.name,
