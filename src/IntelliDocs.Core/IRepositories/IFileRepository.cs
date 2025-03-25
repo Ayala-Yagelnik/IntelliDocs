@@ -8,5 +8,7 @@ namespace IntelliDocs.Core.IRepositories
         Task<UserFile> GetFileByFileNameAsync(string fileName);
         Task<bool> ExistsByFileNameAsync(string fileName);
         Task<long> SumFileSizeAsync();
+        Task<UserFile> ToggleStar(int id, UserFile updatedFile);
+
     }
 }

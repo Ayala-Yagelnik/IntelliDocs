@@ -25,6 +25,7 @@ const FileUploader = () => {
 
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
   const user = useSelector((state: StoreType) => state.users.user);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +48,7 @@ const FileUploader = () => {
 
     const bucketName = import.meta.env.VITE_AWS_BUCKET_NAME;
     const region = import.meta.env.VITE_AWS_REGION;
-    
+
     if (!bucketName || !region) {
       console.error("Environment variables are missing:", {
         bucketName,
@@ -64,13 +65,13 @@ const FileUploader = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       console.log("response: ", response);
-      const { url } = response.data as { url: string; b: string; r: string };  
-          console.log("url: ", url);
+      const { url } = response.data as { url: string; b: string; r: string };
+      console.log("url: ", url);
       // Upload file to S3 using the presigned URL
       await axios.put(url, file, {
         headers: { "Content-Type": file.type },
       });
-      console.log("user: ",user)
+      console.log("user: ", user)
       const fileUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${user.username}/${file.name}`;
       console.log("fileUrl: ", fileUrl);
       // Save file metadata in the database
@@ -84,9 +85,10 @@ const FileUploader = () => {
       console.log("fileMetadata: ", fileMetadata);
       console.log("file: ", file);
 
-      await axios.post("https://intellidocs-server.onrender.com/api/Files/upload", fileMetadata, {
+      const savedFile = await axios.post("https://intellidocs-server.onrender.com/api/Files/upload", fileMetadata, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
+      setFiles((prevFiles) => [...prevFiles, savedFile.data as File]);
 
       alert("File uploaded successfully!");
     } catch (error) {

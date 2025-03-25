@@ -1,11 +1,12 @@
 export interface File {
+    isStarred: boolean;
     id: number;
-    name: string;
-    size: number;
-    type: string;
+    fileName: string;
+    fileSize: number;
+    fileType: string;
     createdAt: Date;
     updatedAt: Date;
     userId: string;
-    path: string;
+    filePath: string;
     content: ArrayBuffer;
 }

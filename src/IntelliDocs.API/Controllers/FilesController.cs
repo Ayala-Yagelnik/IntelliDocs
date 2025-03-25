@@ -121,5 +121,20 @@ namespace IntelliDocs.API.Controllers
             var totalStorageInGB = await _userFileService.GetTotalStorageUsedAsync();
             return Ok(new { totalStorageInGB });
         }
+
+        [HttpPatch("{id}/star")]
+        public async Task<IActionResult> ToggleStarFile(int id, [FromBody] bool isStarred)
+        {
+            try
+            {
+                await _userFileService.ToggleStarFileAsync(id, isStarred);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error starring file: {ex.Message}");
+                return StatusCode(500, "An error occurred while starring the file.");
+            }
+        }
     }
 }

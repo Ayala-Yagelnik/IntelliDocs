@@ -97,5 +97,19 @@ namespace IntelliDocs.Service.Services
             var totalBytes = await _repository.Files.SumFileSizeAsync();
             return totalBytes / (1024.0 * 1024.0 * 1024.0);
         }
+
+        public async Task<bool> ToggleStarFileAsync(int fileId, bool isStarred)
+        {
+            var file = await _repository.Files.GetByIdAsync(fileId);
+            if (file == null)
+            {
+                throw new Exception("File not found.");
+            }
+            file.IsStarred = isStarred;
+            await _repository.Files.ToggleStar(fileId, file);
+            await _repository.SaveAsync();
+
+            return true;
+        }
     }
 }

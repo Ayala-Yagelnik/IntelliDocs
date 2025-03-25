@@ -19,5 +19,6 @@ namespace IntelliDocs.Core.IServices
         public Task<IEnumerable<UserFile>> SearchFilesAsync(string query, int userId);
         public Task<bool> DeleteFileAsync(int fileId);
        public Task<double> GetTotalStorageUsedAsync();
+       public Task<bool> ToggleStarFileAsync(int fileId,bool isStarred);
     }
 }
