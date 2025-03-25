@@ -25,7 +25,7 @@ const FileUploader = () => {
 
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
+  const [ files,setFiles] = useState<File[]>([]);
   const user = useSelector((state: StoreType) => state.users.user);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +55,7 @@ const FileUploader = () => {
         region,
       });
       alert("Environment variables are not properly configured.");
+      console.log(files);
       return;
     }
 
@@ -88,7 +89,7 @@ const FileUploader = () => {
       const savedFile = await axios.post("https://intellidocs-server.onrender.com/api/Files/upload", fileMetadata, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
-      setFiles((prevFiles) => [...prevFiles, savedFile.data as File]);
+      setFiles((prevFiles: File[]) => [...prevFiles, savedFile.data as File]);
 
       alert("File uploaded successfully!");
     } catch (error) {
