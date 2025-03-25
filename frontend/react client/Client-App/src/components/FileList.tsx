@@ -10,71 +10,60 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 
 const FileList: React.FC = () => {
-
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const user = useSelector((state: StoreType) => state.users.user);
 
-
   const fetchFiles = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get<File[]>(`https://intellidocs-server.onrender.com/api/Files/user-files/${user?.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("Files:", response.data);
+      const response = await axios.get<File[]>(
+        `https://intellidocs-server.onrender.com/api/Files/user-files/${user?.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setFiles(response.data);
     } catch (error) {
-      console.error("Error fetching files:", error);
-      alert("Failed to fetch files. Please try again.");
+      console.error('Error fetching files:', error);
+      alert('Failed to fetch files. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-
   const handleDelete = async (fileId: number) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`https://intellidocs-server.onrender.com/api/Files/${fileId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `https://intellidocs-server.onrender.com/api/Files/${fileId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setFiles((prevFiles) => prevFiles.filter((file) => file.id !== fileId));
-      alert("File deleted successfully!");
     } catch (error) {
-      console.error("Error deleting file:", error);
-      alert("Failed to delete file. Please try again.");
+      console.error('Error deleting file:', error);
+      alert('Failed to delete file. Please try again.');
     }
   };
 
   const handleShare = (file: File) => {
-    // Implement sharing logic here (e.g., copy link or open a modal)
     alert(`Share link: ${file.filePath}`);
   };
 
   const handleStar = async (fileId: number, isStarred: boolean) => {
     try {
       const token = localStorage.getItem('token');
-      console.log("File ID:", fileId);
-      console.log("Is Starred:", !isStarred);
       await axios.patch(
         `https://intellidocs-server.onrender.com/api/Files/${fileId}/star`,
-        { isStarred: !isStarred },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        !isStarred,
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
       );
       setFiles((prevFiles) =>
-        prevFiles.map((file) =>
-          file.id === fileId ? { ...file, isStarred: !isStarred } : file
-        )
+        prevFiles.map((file) => (file.id === fileId ? { ...file, isStarred: !isStarred } : file))
       );
     } catch (error) {
-      console.error("Error starring file:", error);
-      alert("Failed to star file. Please try again.");
+      console.error('Error starring file:', error);
+      alert('Failed to star file. Please try again.');
     }
   };
-
 
   useEffect(() => {
     fetchFiles();
@@ -82,7 +71,7 @@ const FileList: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+      <Box className="flex justify-center items-center h-screen">
         <CircularProgress />
       </Box>
     );
@@ -90,53 +79,39 @@ const FileList: React.FC = () => {
 
   if (files.length === 0) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <Typography variant="h6">No files found.</Typography>
+      <Box className="flex justify-center items-center h-screen">
+        <Typography variant="h6" className="text-gray-700">No files found.</Typography>
       </Box>
     );
   }
 
   return (
-    <Box p={4}>
-      <Typography variant="h4" gutterBottom>
-        Your Files
-      </Typography>
-      <Grid container spacing={3}>
-        {files.map((file: File) => (
+    <Box className="p-10 bg-gray-50 min-h-screen">
+      <Typography variant="h4" gutterBottom className="text-gray-800 mb-6 font-semibold">Your Files</Typography>
+      <Grid container spacing={4}>
+        {files.map((file) => (
           <Grid item xs={12} sm={6} md={4} key={file.id}>
-            <Card>
+            <Card className="rounded-2xl shadow-md transition-transform transform hover:scale-105 bg-white">
               <CardMedia
                 component="img"
                 height="140"
                 image={file.fileType?.startsWith('image') ? file.filePath : '/placeholder.png'}
                 alt={file.fileName}
+                className="rounded-t-2xl"
               />
-              <CardContent>
-                <Typography variant="h6">{file.fileName}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Size: {(file.fileSize / 1024).toFixed(2)} KB
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Type: {file.fileType}
-                </Typography>
-                <Box mt={2} display="flex" justifyContent="space-between">
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleDelete(file.id)}
-                  >
+              <CardContent className="p-4">
+                <Typography variant="h6" className="text-teal-600 font-semibold mb-2">{file.fileName}</Typography>
+                <Typography variant="body2" className="text-gray-500">Size: {(file.fileSize / 1024).toFixed(2)} KB</Typography>
+                <Typography variant="body2" className="text-gray-500">Type: {file.fileType}</Typography>
+                <Box className="mt-4 flex justify-between">
+                  <IconButton onClick={() => handleDelete(file.id)} className="text-red-500 hover:text-red-700">
                     <DeleteIcon />
                   </IconButton>
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleShare(file)}
-                  >
+                  <IconButton onClick={() => handleShare(file)} className="text-blue-500 hover:text-blue-700">
                     <ShareIcon />
                   </IconButton>
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleStar(file.id, file.isStarred)}
-                  >
-                    {file.isStarred ? <StarIcon /> : <StarBorderIcon />}
+                  <IconButton onClick={() => handleStar(file.id, file.isStarred)}>
+                    {file.isStarred ? <StarIcon className="text-yellow-500" /> : <StarBorderIcon className="text-gray-400" />}
                   </IconButton>
                 </Box>
               </CardContent>
