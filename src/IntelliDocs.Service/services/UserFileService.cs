@@ -20,6 +20,12 @@ namespace IntelliDocs.Service.Services
             _mapper = mapper;
         }
 
+        public async Task<IEnumerable<FileDTO>> GetFilesByUserIdAsync(int userId)
+        {
+            var userFiles = await _repository.Files.GetFilesByUserIdAsync(userId);
+            return _mapper.Map<IEnumerable<FileDTO>>(userFiles);
+        }
+
         public async Task<FileDTO> UploadFileAsync(FileDTO fileDto)
         {
             Console.WriteLine($"FileDTO: {System.Text.Json.JsonSerializer.Serialize(fileDto)}");
@@ -89,7 +95,7 @@ namespace IntelliDocs.Service.Services
         {
             // Assuming you have a `FileSize` property in bytes in your file entity
             var totalBytes = await _repository.Files.SumFileSizeAsync();
-            return totalBytes / (1024.0 * 1024.0 * 1024.0); 
+            return totalBytes / (1024.0 * 1024.0 * 1024.0);
         }
     }
 }

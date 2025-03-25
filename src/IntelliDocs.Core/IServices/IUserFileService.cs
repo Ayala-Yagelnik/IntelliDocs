@@ -10,6 +10,7 @@ namespace IntelliDocs.Core.IServices
 {
     public interface IUserFileService
     {
+       public Task<IEnumerable<FileDTO>> GetFilesByUserIdAsync(int userId);
         public Task<IEnumerable<FileDTO>> GetAllFiles();
         public Task<FileDTO> GetFileById(int id);
 

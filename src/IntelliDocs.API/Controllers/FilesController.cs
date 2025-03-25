@@ -33,6 +33,22 @@ namespace IntelliDocs.API.Controllers
         }
 
         [Authorize(Policy = "UserOrAdmin")]
+        [HttpGet("user-files/{userId}")]
+        public async Task<IActionResult> GetUserFiles(int userId)
+        {
+            try
+            {
+                var files = await _userFileService.GetFilesByUserIdAsync(userId);
+                return Ok(files);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching files for user {userId}: {ex.Message}");
+                return StatusCode(500, "An error occurred while fetching user files.");
+            }
+        }
+
+        [Authorize(Policy = "UserOrAdmin")]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromBody] FileDTO fileDto)
         {
