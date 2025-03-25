@@ -44,7 +44,6 @@ namespace IntelliDocs.Data.Repositories
                 throw new Exception("File not found.");
             }
 
-            // עדכון השדות
             file.IsStarred = updatedFile.IsStarred;
 
             _dbSet.Update(file);

@@ -121,12 +121,14 @@ namespace IntelliDocs.API.Controllers
             var totalStorageInGB = await _userFileService.GetTotalStorageUsedAsync();
             return Ok(new { totalStorageInGB });
         }
-
+        
+        [Authorize(Policy = "UserOrAdmin")]
         [HttpPatch("{id}/star")]
         public async Task<IActionResult> ToggleStarFile(int id, [FromBody] bool isStarred)
         {
             try
             {
+                Console.WriteLine($"File ID: {id}, Is Starred: {isStarred}");
                 await _userFileService.ToggleStarFileAsync(id, isStarred);
                 return NoContent();
             }

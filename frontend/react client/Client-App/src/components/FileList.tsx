@@ -55,6 +55,8 @@ const FileList: React.FC = () => {
   const handleStar = async (fileId: number, isStarred: boolean) => {
     try {
       const token = localStorage.getItem('token');
+      console.log("File ID:", fileId);
+      console.log("Is Starred:", !isStarred);
       await axios.patch(
         `https://intellidocs-server.onrender.com/api/Files/${fileId}/star`,
         { isStarred: !isStarred },
