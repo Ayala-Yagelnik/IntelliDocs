@@ -8,6 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import FileUploader from './FileUploader';
 
 const FileList: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
@@ -86,6 +87,8 @@ const FileList: React.FC = () => {
   }
 
   return (
+    <>
+    <FileUploader />
     <Box className="p-10 bg-gray-50 min-h-screen">
       <Typography variant="h4" gutterBottom className="text-gray-800 mb-6 font-semibold">Your Files</Typography>
       <Grid container spacing={4}>
@@ -120,6 +123,7 @@ const FileList: React.FC = () => {
         ))}
       </Grid>
     </Box>
+    </>
   );
 };
 

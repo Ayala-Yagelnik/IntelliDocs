@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { StoreType } from '../models/storeModel';
-import FileList from "./FileList";
 
 // Design Tokens
 const primaryColor = "#10a37f";
@@ -154,7 +153,6 @@ const FileUploader = () => {
           {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Upload"}
         </MotionButton>
       </Box>
-      <FileList />
     </>
   );
 };
