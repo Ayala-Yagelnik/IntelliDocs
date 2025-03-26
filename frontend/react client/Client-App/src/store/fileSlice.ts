@@ -33,7 +33,7 @@ export const uploadFile = createAsyncThunk(
   'files/upload',
   async (file: File, thunkAPI) => {
     const formData = new FormData();
-    formData.append('file', new Blob([file.content], { type: file.type }), file.name);
+    formData.append('file', new Blob([file.content], { type: file.fileType }), file.fileName);
     try {
       const response = await axios.post(`${API_URL}/upload`,
         //  file,
