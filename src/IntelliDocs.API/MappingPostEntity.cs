@@ -13,8 +13,8 @@ namespace IntelliDocs.API
             CreateMap<FilePost, FileDTO>().ReverseMap();
             CreateMap<PermissionPost, PermissionDTO>().ReverseMap();
             CreateMap<RolePost, RoleDTO>().ReverseMap();
-             CreateMap<UserDTO, User>()
-                .ForMember(dest => dest.Role, opt => opt.Ignore()).ReverseMap(); 
+            CreateMap<UserDTO, User>()
+               .ForMember(dest => dest.Role, opt => opt.Ignore()).ReverseMap();
         }
     }
 }

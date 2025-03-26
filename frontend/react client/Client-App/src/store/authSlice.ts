@@ -2,8 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { User } from '../models/user';
 
-const API_URL = "https://intellidocs-server.onrender.com/api/Auth";
-// const API_URL = "http://localhost:5046/api/Auth";
+// const API_URL = "https://intellidocs-server.onrender.com/api/Auth";
+const API_URL = "http://localhost:5046/api/Auth";
 
 export const login = createAsyncThunk(
   'auth/login',
@@ -62,7 +62,12 @@ const authSlice = createSlice({
     loading: false,
     error: null as string | null,
   },
-  reducers: {},
+  reducers: {
+    logout: (state) => {
+      state.user = null; 
+      localStorage.removeItem('token'); 
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state, action) => {
@@ -100,4 +105,5 @@ const authSlice = createSlice({
   },
 });
 
+export const { logout } = authSlice.actions;
 export default authSlice;

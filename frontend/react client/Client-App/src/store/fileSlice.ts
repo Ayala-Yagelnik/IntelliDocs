@@ -2,8 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { File } from "../models/file";
 
-const API_URL = "https://intellidocs-server.onrender.com/api/Files";
-// const API_URL = "http://localhost:5046/api/Files";
+// const API_URL = "https://intellidocs-server.onrender.com/api/Files";
+const API_URL = "http://localhost:5046/api/Files";
 
 export const fetchUserFiles = createAsyncThunk<File[], void, { rejectValue: { error: string } }>(
   'files/fetch',
@@ -15,6 +15,7 @@ export const fetchUserFiles = createAsyncThunk<File[], void, { rejectValue: { er
         },
       });
       return response.data as File[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (e.response) {
         if (e.response.status === 401) {
@@ -33,7 +34,7 @@ export const uploadFile = createAsyncThunk(
   'files/upload',
   async (file: File, thunkAPI) => {
     const formData = new FormData();
-    formData.append('file', new Blob([file.content], { type: file.type }), file.name);
+    formData.append('file', new Blob([file.content], { type: file.fileType }), file.fileName);
     try {
       const response = await axios.post(`${API_URL}/upload`,
         //  file,

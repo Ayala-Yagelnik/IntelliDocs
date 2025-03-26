@@ -22,6 +22,7 @@ namespace IntelliDocs.Core.Entities
         public int AuthorId { get; set; }
         [ForeignKey("AuthorId")]
         public User Author { get; set; }
-        public List<User> SharedUsers { get; set; }    
+        public List<User> SharedUsers { get; set; }  
+         public bool IsStarred { get; set; }  
     }
 }
