@@ -8,5 +8,6 @@ namespace IntelliDocs.Core.DTOs
         public long FileSize { get; set; }
         public string FileType { get; set; } = string.Empty;
         public int AuthorId { get; set; }
+        public bool IsStarred { get; set; }
     }
 }
