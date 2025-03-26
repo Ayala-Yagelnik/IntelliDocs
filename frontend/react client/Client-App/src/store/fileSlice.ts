@@ -100,6 +100,23 @@ export const deleteFile = createAsyncThunk(
   }
 );
 
+export const starFile = createAsyncThunk(
+  'files/star',
+  async ({fileId, isStarred}: {fileId:number, isStarred:boolean},thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `${API_URL}/${fileId}/star`,
+        !isStarred,
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+      );
+      return fileId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
+    }
+  }
+);
+
 const fileSlice = createSlice({
   name: 'files',
   initialState: { list: [] as File[], loading: true },
@@ -158,6 +175,17 @@ const fileSlice = createSlice({
         console.error('failed', action.payload);
       })
       .addCase(deleteFile.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(starFile.fulfilled, (state, action) => {
+        state.list = state.list.filter(file => file.id !== action.payload);
+        state.loading = false;
+      })
+      .addCase(starFile.rejected, (state, action) => {
+        state.loading = false;
+        console.error('failed', action.payload);
+      })
+      .addCase(starFile.pending, (state) => {
         state.loading = true;
       });
   },
