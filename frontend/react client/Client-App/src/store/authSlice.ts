@@ -2,8 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { User } from '../models/user';
 
-const API_URL = "https://intellidocs-server.onrender.com/api/Auth";
-// const API_URL = "http://localhost:5046/api/Auth";
+// const API_URL = "https://intellidocs-server.onrender.com/api/Auth";
+const API_URL = "http://localhost:5046/api/Auth";
 
 export const login = createAsyncThunk(
   'auth/login',

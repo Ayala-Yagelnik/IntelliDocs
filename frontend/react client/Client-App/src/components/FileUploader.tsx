@@ -1,37 +1,57 @@
 import { useState } from "react";
-import { Button, Box, Typography, TextField, CircularProgress } from "@mui/material";
-import { motion } from "framer-motion";
+import { Button, Box, Typography, CircularProgress, styled, Paper, CardContent, Card, CardHeader } from "@mui/material";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { StoreType } from '../models/storeModel';
-
-// Design Tokens
-const primaryColor = "#10a37f";
-const hoverColor = "#0e8c6b";
-const textColor = "#333";
+import { CloudUpload as CloudUploadIcon } from "@mui/icons-material"
 
 
+// Define theme colors
+const primaryColor = "#10a37f" 
+const hoverColor = "#0e8e6d"
+const textColor = "#343541"
+const lightGrayColor = "#f7f7f8"
+const borderColor = "#e5e5e6"
 
-// Animated Button with Hover Effect
-const MotionButton = motion(Button);
 
-// import dotenv from "dotenv";
-// dotenv.config();
+// Styled components
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+})
 
+const UploadBox = styled(Paper)(({ theme }) => ({
+  border: `1px dashed ${borderColor}`,
+  borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(3),
+  textAlign: "center",
+  cursor: "pointer",
+  backgroundColor: "transparent",
+  transition: "background-color 0.2s",
+  "&:hover": {
+    backgroundColor: lightGrayColor,
+  },
+}))
 
 const FileUploader = () => {
-
 
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [ files,setFiles] = useState<File[]>([]);
   const user = useSelector((state: StoreType) => state.users.user);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-    setFile(files[0]);
-  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0])
+    }
+  }
 
   const handleUpload = async () => {
     if (!user || !user.id) {
@@ -96,65 +116,90 @@ const FileUploader = () => {
       alert("Error uploading file");
     } finally {
       setLoading(false);
+      setFile(null);
     }
   };
 
   return (
-    <>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          mt: 6,
-          p: 3,
-          background: "#fff",
-          borderRadius: "12px",
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-          maxWidth: "400px",
-          mx: "auto",
-        }}
-      >
+    <Card
+      sx={{
+        maxWidth: 400,
+        mx: "auto",
+        boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.05)",
+        border: `1px solid ${borderColor}`,
+        borderRadius: 2,
+      }}
+    >
+      <CardHeader
+        title={
+          <Typography
+            variant="h6"
+            align="center"
+            sx={{
+              fontWeight: 500,
+              color: textColor,
+            }}
+          >
+            Upload File
+          </Typography>
+        }
+        sx={{ pb: 1 }}
+      />
+      <CardContent sx={{ pt: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <UploadBox>
+            <Button
+              component="label"
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                width: "100%",
+                height: "100%",
+                py: 2,
+                textTransform: "none",
+                color: "text.secondary",
+              }}
+            >
+              <CloudUploadIcon sx={{ fontSize: 40, color: "text.disabled", mb: 1 }} />
+              <Typography variant="body2" color="text.secondary">
+                {file ? file.name : "Select a file to upload"}
+              </Typography>
+              <VisuallyHiddenInput type="file" onChange={handleFileChange} />
+            </Button>
+          </UploadBox>
 
-
-        <Typography variant="h4" sx={{ color: textColor, mb: 2 }}>
-          Upload File
-        </Typography>
-
-        <TextField
-          type="file"
-          onChange={handleFileChange}
-          sx={{
-            mb: 2,
-            "& input": {
-              cursor: "pointer",
-            },
-          }}
-          InputLabelProps={{ shrink: true }}
-        />
-
-        <MotionButton
-          variant="contained"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleUpload}
-          disabled={loading}
-          sx={{
-            backgroundColor: primaryColor,
-            color: "#fff",
-            px: 3,
-            py: 1,
-            borderRadius: "8px",
-            textTransform: "none",
-            "&:hover": { backgroundColor: hoverColor },
-          }}
-        >
-          {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Upload"}
-        </MotionButton>
-      </Box>
-    </>
+          <Button
+            onClick={handleUpload}
+            disabled={!file || loading}
+            variant="contained"
+            fullWidth
+            sx={{
+              bgcolor: primaryColor,
+              color: "white",
+              py: 1.5,
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: 500,
+              "&:hover": {
+                bgcolor: hoverColor,
+                transform: "scale(1.02)",
+              },
+              "&:active": {
+                transform: "scale(0.98)",
+              },
+              transition: "transform 0.2s, background-color 0.2s",
+            }}
+          >
+            {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Upload"}
+          </Button>
+        </Box>
+      </CardContent>
+    </Card>
   );
 };
 
+
 export default FileUploader;
+
+
