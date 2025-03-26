@@ -1,21 +1,25 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { User } from "../models/user";
 import { File } from "../models/file";
 
 // const API_URL = "https://intellidocs-server.onrender.com/api/Files";
 const API_URL = "http://localhost:5046/api/Files";
 
-export const fetchUserFiles = createAsyncThunk<File[], void, { rejectValue: { error: string } }>(
+export const fetchUserFiles = createAsyncThunk(
   'files/fetch',
-  async (_, thunkAPI) => {
+  async (userId:number, thunkAPI) => {
     try {
-      const response = await axios.get(API_URL, {
+      console.log("fetching files");
+      const response = await axios.get<File[]>(
+        `${API_URL}/user-files/${userId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
+      console.log("response: ", response);
       return response.data as File[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (e.response) {
         if (e.response.status === 401) {
@@ -32,19 +36,46 @@ export const fetchUserFiles = createAsyncThunk<File[], void, { rejectValue: { er
 
 export const uploadFile = createAsyncThunk(
   'files/upload',
-  async (file: File, thunkAPI) => {
-    const formData = new FormData();
-    formData.append('file', new Blob([file.content], { type: file.fileType }), file.fileName);
+  async ({ file, user }: { file:File; user:User }, thunkAPI) => {
     try {
-      const response = await axios.post(`${API_URL}/upload`,
-        //  file,
-         formData,
-          {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`        },
+      const bucketName = import.meta.env.VITE_AWS_BUCKET_NAME;
+      const region = import.meta.env.VITE_AWS_REGION;
+
+      if (!bucketName || !region) {
+        throw new Error("Environment variables are not properly configured.");
+      }
+
+      // Get presigned URL from server
+      const presignedResponse = await axios.get(`${API_URL}/upload-url`, {
+        params: { fileName: file.fileName, contentType: file.fileType },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      return response.data as File;
+
+      const { url } = presignedResponse.data as { url: string};
+
+      // Upload file to S3 using the presigned URL
+      await axios.put(url, file, {
+        headers: { "Content-Type": file.fileType },
+      });
+
+      const fileUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${user.username}/${file.fileName}`;
+
+      // Save file metadata in the database
+      const fileMetadata = {
+        fileName: file.fileName,
+        filePath: fileUrl,
+        fileSize: file.fileSize,
+        fileType: file.fileType,
+        authorId: user.id,
+      };
+
+      const savedFileResponse = await axios.post(`${API_URL}/upload`, fileMetadata, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+
+      return savedFileResponse.data as File;
     } catch (error) {
+      console.error("Error uploading file:", (error as Error).message);
       return thunkAPI.rejectWithValue((error as Error).message);
     }
   }
@@ -102,7 +133,7 @@ export const deleteFile = createAsyncThunk(
 
 export const starFile = createAsyncThunk(
   'files/star',
-  async ({fileId, isStarred}: {fileId:number, isStarred:boolean},thunkAPI) => {
+  async ({ fileId, isStarred }: { fileId: number, isStarred: boolean }, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
@@ -119,19 +150,23 @@ export const starFile = createAsyncThunk(
 
 const fileSlice = createSlice({
   name: 'files',
-  initialState: { list: [] as File[], loading: true },
+  initialState: { list: [] as File[], loading: false },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchUserFiles.fulfilled, (state, action) => {
         state.list = action.payload;
+        console.log(state.list);
+        console.log("fetchUserFiles.fulfilled");
         state.loading = false;
       })
       .addCase(fetchUserFiles.rejected, (state, action) => {
         state.loading = false;
+        console.log("fetchUserFiles.rejected");
         console.error('failed', action.payload);
       })
       .addCase(fetchUserFiles.pending, (state) => {
+        console.log("fetchUserFiles.pending");
         state.loading = true;
       })
       .addCase(uploadFile.fulfilled, (state, action) => {
@@ -140,7 +175,7 @@ const fileSlice = createSlice({
       })
       .addCase(uploadFile.rejected, (state, action) => {
         state.loading = false;
-        console.error('failed', action.payload);
+        console.error('Upload failed:', action.payload);
       })
       .addCase(uploadFile.pending, (state) => {
         state.loading = true;
