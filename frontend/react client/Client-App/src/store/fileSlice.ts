@@ -84,15 +84,18 @@ export const uploadFile = createAsyncThunk(
 export const shareFile = createAsyncThunk(
   'files/share',
   async ({ fileId, userId }: { fileId: number, userId: number }, thunkAPI) => {
+    console.log("Sharing file:", fileId, "with user:", userId);
     try {
-      await axios.post(`${API_URL}/share`, { fileId, userId }, {
+      const response = await axios.post(`${API_URL}/share`, { fileId, userId }, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
       });
+      console.log("File shared successfully:", response.data);
       return { fileId, userId };
     } catch (error) {
+      console.error("Error sharing file:", error);
       return thunkAPI.rejectWithValue((error as Error).message);
     }
   }

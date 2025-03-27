@@ -28,7 +28,8 @@ namespace IntelliDocs.Service.Services
 
         public string GenerateJwtToken(User user)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")));
+            var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? throw new InvalidOperationException("JWT_KEY environment variable is not set.");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
@@ -62,7 +63,7 @@ namespace IntelliDocs.Service.Services
                 return Result<bool>.Failure("User not found");
             }
 
-            _repository.Users.UpdateAsync(user.Id, user);
+            await _repository.Users.UpdateAsync(user.Id, user);
             await _repository.SaveAsync();
 
             return Result<bool>.Success(true);
@@ -80,14 +81,18 @@ namespace IntelliDocs.Service.Services
                 }
             }
 
-            return null;
+            throw new InvalidOperationException("Invalid email or password.");
         }
 
         public async Task<Result<AuthResult>> LoginAsync(UserLoginModel model)
         {
-            User user = await ValidateUser(model.Email, model.Password);
+            User? user = await ValidateUser(model.Email, model.Password);
             if (user != null)
             {
+                user.LastLogin = DateTime.UtcNow;
+                await _repository.Users.UpdateAsync(user.Id, user);
+                await _repository.SaveAsync();
+                // Generate JWT token
                 var token = GenerateJwtToken(user);
                 var userDto = new UserDTO
                 {
@@ -101,6 +106,7 @@ namespace IntelliDocs.Service.Services
                     User = userDto,
                     Token = token
                 };
+
                 return Result<AuthResult>.Success(response);
             }
 

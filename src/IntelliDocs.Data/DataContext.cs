@@ -9,36 +9,39 @@ using System.Threading.Tasks;
 
 namespace IntelliDocs.Data
 {
-    public class DataContext : DbContext
-    {
-        public DataContext(DbContextOptions<DataContext> options) : base(options) { }
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserFile> Files { get; set; }
-        public DbSet<Role> Roles { get; set; }
+   public class DataContext : DbContext
+   {
+      public DataContext(DbContextOptions<DataContext> options) : base(options) { }
+      public DbSet<User> Users { get; set; }
+      public DbSet<UserFile> Files { get; set; }
+      public DbSet<Role> Roles { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
+      protected override void OnModelCreating(ModelBuilder modelBuilder)
+      {
+         base.OnModelCreating(modelBuilder);
 
 
-            modelBuilder.Entity<UserFile>()
-               .HasOne(f => f.Author)
-               .WithMany()
-               .HasForeignKey(f => f.AuthorId)
-               .OnDelete(DeleteBehavior.Restrict);
+         modelBuilder.Entity<UserFile>()
+     .HasOne(f => f.Author)
+     .WithMany(u => u.CreatedFiles)
+     .HasForeignKey(f => f.AuthorId)
+     .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<User>()
-               .HasOne(u => u.Role)
-               .WithMany(r => r.Users)
-               .HasForeignKey(u => u.RoleId)
-               .OnDelete(DeleteBehavior.Restrict);
+         modelBuilder.Entity<User>()
+            .HasOne(u => u.Role)
+            .WithMany(r => r.Users)
+            .HasForeignKey(u => u.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<User>()
-               .HasMany(u => u.Files)
-               .WithMany(f => f.SharedUsers);
+        modelBuilder.Entity<User>()
+        .HasMany(u => u.SharedFiles)
+        .WithMany(f => f.SharedUsers)
+        .UsingEntity<Dictionary<string, object>>(
+            "UserFileShare",
+            j => j.HasOne<UserFile>().WithMany().HasForeignKey("FileId"),
+            j => j.HasOne<User>().WithMany().HasForeignKey("UserId"));
 
-            modelBuilder.Entity<UserFile>()
-               .Ignore(f => f.Author);
-        }
-    }
+       
+      }
+   }
 }

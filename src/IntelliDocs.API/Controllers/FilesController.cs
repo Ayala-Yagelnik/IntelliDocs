@@ -107,6 +107,7 @@ namespace IntelliDocs.API.Controllers
         [HttpPost("share")]
         public async Task<IActionResult> ShareFile(int fileId, int userId)
         {
+            Console.WriteLine($"Attempting to share file with ID: {fileId} for user ID: {userId}");
             await _userFileService.ShareFileAsync(fileId, userId);
             return Ok();
         }
