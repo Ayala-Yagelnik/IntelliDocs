@@ -7,7 +7,12 @@ namespace IntelliDocs.Data.Repositories
     public class FileRepository : Repository<UserFile>, IFileRepository
     {
         public FileRepository(DataContext context) : base(context) { }
-
+        public async Task<UserFile?> GetByIdAsync(int id)
+        {
+            return await _dbSet
+                .Include(f => f.SharedUsers) 
+                .FirstOrDefaultAsync(f => f.Id == id);
+        }
         public async Task<UserFile?> GetFileByKeyAsync(string key)
         {
             return await _dbSet.FirstOrDefaultAsync(f => f.FileKey == key);
