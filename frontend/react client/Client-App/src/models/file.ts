@@ -7,6 +7,6 @@ export interface File {
     createdAt: Date;
     updatedAt: Date;
     userId: string;
-    filePath: string;
+    fileKey: string;
     content: ArrayBuffer;
 }
