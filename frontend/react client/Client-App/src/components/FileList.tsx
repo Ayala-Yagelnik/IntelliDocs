@@ -65,7 +65,7 @@ const FileList: React.FC = () => {
                         <ShareIcon />
                       </IconButton>
                       <IconButton onClick={() => starFile({ fileId: file.id, isStarred: file.isStarred })}>
-                        {file.isStarred && <StarIcon className="text-yellow-500" />}
+                        {file.isStarred && <StarIcon style={{color:"yellow"}} className="text-yellow-500" />}
                         {!file.isStarred && <StarBorderIcon className="text-gray-400" />}
                       </IconButton>
                     </Box>
