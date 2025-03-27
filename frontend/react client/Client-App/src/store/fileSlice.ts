@@ -58,12 +58,12 @@ export const uploadFile = createAsyncThunk(
         headers: { "Content-Type": fileUpload.fileType },
       });
 
-      const fileUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${user.username}/${fileUpload.fileName}`;
+      const fileKey = `${user.username}/${fileUpload.fileName}`;
 
       // Save file metadata in the database
       const fileMetadata = {
         fileName: fileUpload.fileName,
-        filePath: fileUrl,
+        fileKey: fileKey,
         fileSize: fileUpload.fileSize,
         fileType: fileUpload.fileType,
         authorId: user.id,
