@@ -95,7 +95,7 @@ namespace IntelliDocs.Service.Services
             {
                 Username = user.Username,
                 Email = user.Email,
-                StorageUsed = user.Files?.Sum(file => file.FileSize) ??0 / (1024.0 * 1024.0)
+                StorageUsed = user.CreatedFiles?.Sum(file => file.FileSize) ??0 / (1024.0 * 1024.0)
             }).ToList();
 
             return storageUsage;
