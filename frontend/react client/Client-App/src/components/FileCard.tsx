@@ -28,26 +28,42 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, userId }) => {
   }, [dispatch, file.fileKey, presignedUrl]);
 
 
-  const handleDownload = async () => {
-    console.log("presignedUrl", presignedUrl);
+  // const handleDownload = async () => {
+  //   console.log("presignedUrl", presignedUrl);
+  //   if (presignedUrl) {
+  //     try {
+  //       const link = document.createElement('a');
+  //       link.href = presignedUrl;
+  //       document.body.appendChild(link);
+
+  //       if (file.fileName) {
+  //         link.setAttribute('download', file.fileName);
+  //       }
+
+  //       link.click();
+  //       document.body.removeChild(link);
+  //     } catch (err) {
+  //       console.error(`Error downloading file: ${err}`);
+  //       throw err;
+  //     }
+  //   };
+  // };
+  const handleDownload = () => {
     if (presignedUrl) {
-      try {
-        const link = document.createElement('a');
-        link.href = presignedUrl;
-        document.body.appendChild(link);
+      const link = document.createElement("a");
+      link.href = presignedUrl;
+      link.download = file.fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-        if (file.fileName) {
-          link.setAttribute('download', file.fileName);
-        }
-
-        link.click();
-        document.body.removeChild(link);
-      } catch (err) {
-        console.error(`Error downloading file: ${err}`);
-        throw err;
-      }
-    };
+      console.info("Your recording is being downloaded to your device.");
+    } else {
+      console.error("No presigned URL available for download.");
+    }
   };
+
+
 
   return (
     <Card
@@ -57,11 +73,31 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, userId }) => {
         backgroundColor: '#fff',
       }}>
       <CardMedia
-        component="img"
+        component={
+          file.fileType.startsWith("image/")
+            ? "img"
+            : file.fileType === "application/pdf"
+              ? "iframe"
+              : file.fileType.startsWith("video/")
+                ? "video"
+                : "div"
+        }
         height="140"
-        image={presignedUrl || '/placeholder.jpg'}
+        image={file.fileType.startsWith("image/") ? presignedUrl : undefined}
+        src={file.fileType === "application/pdf" || file.fileType.startsWith("video/") ? presignedUrl : undefined}
         alt={file.fileName}
-        sx={{ borderRadius: '8px 8px 0 0' }}
+        controls={file.fileType.startsWith("video/") ? true : undefined}
+        sx={{
+          borderRadius: "8px 8px 0 0",
+          backgroundColor: file.fileType.startsWith("txt/")
+            ? "#f5f5f5"
+            : file.fileType === "application/pdf"
+              ? "#e0e0e0"
+              : undefined,
+          display: file.fileType.startsWith("text/") ? "flex" : undefined,
+          justifyContent: file.fileType.startsWith("text/") ? "center" : undefined,
+          alignItems: file.fileType.startsWith("txt/") ? "center" : undefined,
+        }}
       />
       <CardContent className="p-4">
         <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#202124', marginBottom: 1 }}>
