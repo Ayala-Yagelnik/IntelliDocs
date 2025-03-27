@@ -7,7 +7,7 @@ namespace IntelliDocs.Data.Repositories
     public class FileRepository : Repository<UserFile>, IFileRepository
     {
         public FileRepository(DataContext context) : base(context) { }
-        public async Task<UserFile?> GetByIdAsync(int id)
+        public new async Task<UserFile?> GetByIdAsync(int id)
         {
             return await _dbSet
                 .Include(f => f.SharedUsers) 
@@ -23,9 +23,14 @@ namespace IntelliDocs.Data.Repositories
             return await _dbSet.Where(file => file.AuthorId == userId).ToListAsync();
         }
 
-        public async Task<UserFile?> GetFileByFileNameAsync(string fileName)
+        public async Task<UserFile> GetFileByFileNameAsync(string fileName)
         {
-            return await _dbSet.FirstOrDefaultAsync(f => f.FileName == fileName);
+            var file = await _dbSet.FirstOrDefaultAsync(f => f.FileName == fileName);
+            if (file == null)
+            {
+                throw new Exception("File not found.");
+            }
+            return file;
         }
 
         public async Task<bool> ExistsByFileNameAsync(string fileName)

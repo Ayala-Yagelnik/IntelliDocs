@@ -21,7 +21,7 @@ namespace IntelliDocs.Core.Entities
         public DateTime UploadDate { get; set; }
         public int AuthorId { get; set; }
         [ForeignKey("AuthorId")]
-        public User Author { get; set; }
+        public required User Author { get; set; }
         public List<User> SharedUsers { get; set; } = new();
 
         public bool IsStarred { get; set; }
