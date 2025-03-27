@@ -15,7 +15,7 @@ namespace IntelliDocs.Data.Repositories
 
         public async Task<List<Role>> GetFull()
         {
-            return await _dbSet.Include(r => r.Permissions).ToListAsync();
+            return await _dbSet.Include(r => r.Users).ToListAsync();
         }
 
         public async Task<Role> GetRoleByName(string name)
