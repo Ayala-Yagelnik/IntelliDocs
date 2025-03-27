@@ -53,12 +53,36 @@ namespace IntelliDocs.Service.Services
         //TODO: Implement the method
         public async Task<FileDTO> ShareFileAsync(int fileId, int userId)
         {
-            var file = _repository.Files.GetByIdAsync(fileId);
-            if (file is null)
+            Console.WriteLine($"Attempting to share file with ID: {fileId} for user ID: {userId}");
+
+            if (fileId <= 0 || userId <= 0)
             {
+                throw new Exception("Invalid fileId or userId");
+            }
+
+            var file = await _repository.Files.GetByIdAsync(fileId);
+            if (file == null)
+            {
+                Console.WriteLine($"File with ID {fileId} not found.");
                 throw new Exception("File not found");
             }
+
+            var user = await _repository.Users.GetByIdAsync(userId);
+            if (user == null)
+            {
+                Console.WriteLine($"User with ID {userId} not found.");
+                throw new Exception("User not found");
+            }
+            // הוסף את המשתמש לרשימת המשתמשים ששיתפו את הקובץ
+            file.SharedUsers.Add(user);
+            user.SharedFiles.Add(file);
+
+            // שמור את השינויים במסד הנתונים
             await _repository.SaveAsync();
+
+            Console.WriteLine($"File with ID {fileId} successfully shared with user ID {userId}.");
+
+            // החזר את הקובץ כ-FileDTO
             return _mapper.Map<FileDTO>(file);
         }
 
