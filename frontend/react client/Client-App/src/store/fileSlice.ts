@@ -36,7 +36,7 @@ export const fetchUserFiles = createAsyncThunk(
 
 export const uploadFile = createAsyncThunk(
   'files/upload',
-  async ({ file, user }: { file:File; user:User }, thunkAPI) => {
+  async ({ fileUpload , user }: { fileUpload: { fileName: string; fileType: string; fileSize: number }; user: User }, thunkAPI) => {
     try {
       const bucketName = import.meta.env.VITE_AWS_BUCKET_NAME;
       const region = import.meta.env.VITE_AWS_REGION;
@@ -47,25 +47,25 @@ export const uploadFile = createAsyncThunk(
 
       // Get presigned URL from server
       const presignedResponse = await axios.get(`${API_URL}/upload-url`, {
-        params: { fileName: file.fileName, contentType: file.fileType },
+        params: { fileName: fileUpload.fileName, contentType: fileUpload.fileType },
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
 
       const { url } = presignedResponse.data as { url: string};
 
       // Upload file to S3 using the presigned URL
-      await axios.put(url, file, {
-        headers: { "Content-Type": file.fileType },
+      await axios.put(url, fileUpload, {
+        headers: { "Content-Type": fileUpload.fileType },
       });
 
-      const fileUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${user.username}/${file.fileName}`;
+      const fileUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${user.username}/${fileUpload.fileName}`;
 
       // Save file metadata in the database
       const fileMetadata = {
-        fileName: file.fileName,
+        fileName: fileUpload.fileName,
         filePath: fileUrl,
-        fileSize: file.fileSize,
-        fileType: file.fileType,
+        fileSize: fileUpload.fileSize,
+        fileType: fileUpload.fileType,
         authorId: user.id,
       };
 
