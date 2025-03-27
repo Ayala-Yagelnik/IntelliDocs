@@ -84,11 +84,23 @@ namespace IntelliDocs.API.Controllers
         }
 
         [Authorize(Policy = "UserOrAdmin")]
-        [HttpGet("download-url/{fileName}")]
-        public async Task<IActionResult> GetDownloadUrl(string fileName)
+        [HttpGet("download-url")]
+        public async Task<IActionResult> GetDownloadUrl([FromQuery]string fileName)
         {
-            var url = await _s3Service.GetDownloadUrlAsync(fileName);
-            return Ok(new { downloadUrl = url });
+           if (string.IsNullOrEmpty(fileName))
+            {
+                return BadRequest("File name is required.");
+            }
+
+            try
+            {
+                var url = await _s3Service.GetDownloadUrlAsync(fileName);
+                return Ok(new { presignedUrl = url });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error generating pre-signed URL: {ex.Message}");
+            }
         }
 
         [Authorize(Policy = "UserOrAdmin")]

@@ -20,7 +20,7 @@ namespace IntelliDocs.Core
             {
                 IsSuccess = true,
                 Data = data,
-                StatusCode = 200 // OK
+                StatusCode = 200
             };
         }
 
