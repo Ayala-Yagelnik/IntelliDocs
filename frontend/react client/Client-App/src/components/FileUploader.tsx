@@ -65,7 +65,7 @@ const FileUploader = () => {
     }
   
    
-    dispatch(uploadFile({ file: file as unknown as  File, user }));
+    dispatch(uploadFile({ file: file as  File, user }));
     setFile(null);
   };
 
