@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from 'react';
 import { Box, Typography, Grid, CircularProgress } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,31 +24,34 @@ const FileList: React.FC = () => {
     }
   }, [dispatch, user?.id]);
 
-  useEffect(() => {
-    if (user?.id === -1) {
-      navigate('/'); 
-    }}
-,[user]);
+
   return (
     <>
-      <FileUploader />
-      {user?.id === -1}
-      {loading &&
-        (<Box className="flex justify-center items-center h-screen">
+      <Box sx={{ padding: 2, backgroundColor: '#f1f3f4' }}>
+        <FileUploader />
+      </Box>
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
           <CircularProgress />
-        </Box>)
-      }
-      {files.length === 0 && !loading &&
-        (<Box className="flex justify-center items-center h-screen">
-          <Typography variant="h6" className="text-gray-700">No files found.</Typography>
-        </Box>)
-      }
-      {!loading && files.length > 0 && (
-        <Box className="p-10 bg-gray-50 min-h-screen">
-          <Typography variant="h4" gutterBottom className="text-gray-800 mb-6 font-semibold">Your Files</Typography>
-          <Grid container spacing={4}>
+        </Box>
+      )}
+
+        {files.length === 0 && !loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+          <Typography variant="h6" sx={{ color: 'gray' }}>
+            No files found.
+          </Typography>
+        </Box>
+      )}
+
+       {!loading && files.length > 0 && (
+        <Box sx={{ padding: 4, backgroundColor: '#f1f3f4', minHeight: '100vh' }}>
+          <Typography variant="h5" sx={{ marginBottom: 2, fontWeight: 'bold', color: '#202124' }}>
+            Your Files
+          </Typography>
+          <Grid container spacing={3}>
             {files.map((file) => (
-              <Grid item xs={12} sm={6} md={4} key={file.id}>
+              <Grid item xs={12} sm={6} md={4} lg={3} key={file.id}>
                 <FileCard file={file} userId={user?.id ?? -1} />
               </Grid>
             ))}
