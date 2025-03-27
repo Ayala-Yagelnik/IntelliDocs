@@ -119,6 +119,7 @@ export const deleteFile = createAsyncThunk(
   'files/delete',
   async (fileId: number, thunkAPI) => {
     try {
+      console.log("deleting file");
       await axios.delete(`${API_URL}/${fileId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -187,9 +188,7 @@ const fileSlice = createSlice({
         state.loading = false;
         console.error('failed', action.payload);
       })
-      .addCase(shareFile.pending, (state) => {
-        state.loading = true;
-      })
+      
       .addCase(searchFiles.fulfilled, (state, action) => {
         state.list = action.payload;
         state.loading = false;
@@ -209,20 +208,16 @@ const fileSlice = createSlice({
         state.loading = false;
         console.error('failed', action.payload);
       })
-      .addCase(deleteFile.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(starFile.fulfilled, (state, action) => {
-        state.list = state.list.filter(file => file.id !== action.payload);
+        state.list = state.list.map(file =>
+          file.id === action.payload ? { ...file, isStarred: !file.isStarred } : file
+        );
         state.loading = false;
       })
       .addCase(starFile.rejected, (state, action) => {
         state.loading = false;
         console.error('failed', action.payload);
       })
-      .addCase(starFile.pending, (state) => {
-        state.loading = true;
-      });
   },
 });
 
