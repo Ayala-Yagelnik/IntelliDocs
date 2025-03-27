@@ -1,21 +1,25 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { User } from "../models/user";
 import { File } from "../models/file";
 
 // const API_URL = "https://intellidocs-server.onrender.com/api/Files";
 const API_URL = "http://localhost:5046/api/Files";
 
-export const fetchUserFiles = createAsyncThunk<File[], void, { rejectValue: { error: string } }>(
+export const fetchUserFiles = createAsyncThunk(
   'files/fetch',
-  async (_, thunkAPI) => {
+  async (userId: number, thunkAPI) => {
     try {
-      const response = await axios.get(API_URL, {
+      console.log("fetching files");
+      const response = await axios.get<File[]>(
+        `${API_URL}/user-files/${userId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
+      console.log("response: ", response);
       return response.data as File[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (e.response) {
         if (e.response.status === 401) {
@@ -32,19 +36,46 @@ export const fetchUserFiles = createAsyncThunk<File[], void, { rejectValue: { er
 
 export const uploadFile = createAsyncThunk(
   'files/upload',
-  async (file: File, thunkAPI) => {
-    const formData = new FormData();
-    formData.append('file', new Blob([file.content], { type: file.fileType }), file.fileName);
+  async ({ fileUpload, user }: { fileUpload: { fileName: string; fileType: string; fileSize: number }; user: User }, thunkAPI) => {
     try {
-      const response = await axios.post(`${API_URL}/upload`,
-        //  file,
-         formData,
-          {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`        },
+      const bucketName = import.meta.env.VITE_AWS_BUCKET_NAME;
+      const region = import.meta.env.VITE_AWS_REGION;
+
+      if (!bucketName || !region) {
+        throw new Error("Environment variables are not properly configured.");
+      }
+
+      // Get presigned URL from server
+      const presignedResponse = await axios.get(`${API_URL}/upload-url`, {
+        params: { fileName: fileUpload.fileName, contentType: fileUpload.fileType },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      return response.data as File;
+
+      const { url } = presignedResponse.data as { url: string };
+
+      // Upload file to S3 using the presigned URL
+      await axios.put(url, fileUpload, {
+        headers: { "Content-Type": fileUpload.fileType },
+      });
+
+      const fileUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${user.username}/${fileUpload.fileName}`;
+
+      // Save file metadata in the database
+      const fileMetadata = {
+        fileName: fileUpload.fileName,
+        filePath: fileUrl,
+        fileSize: fileUpload.fileSize,
+        fileType: fileUpload.fileType,
+        authorId: user.id,
+      };
+
+      const savedFileResponse = await axios.post(`${API_URL}/upload`, fileMetadata, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+
+      return savedFileResponse.data as File;
     } catch (error) {
+      console.error("Error uploading file:", (error as Error).message);
       return thunkAPI.rejectWithValue((error as Error).message);
     }
   }
@@ -88,6 +119,7 @@ export const deleteFile = createAsyncThunk(
   'files/delete',
   async (fileId: number, thunkAPI) => {
     try {
+      console.log("deleting file");
       await axios.delete(`${API_URL}/${fileId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -100,21 +132,68 @@ export const deleteFile = createAsyncThunk(
   }
 );
 
+export const starFile = createAsyncThunk(
+  'files/star',
+  async ({ fileId, isStarred }: { fileId: number, isStarred: boolean }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `${API_URL}/${fileId}/star`,
+        !isStarred,
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+      );
+      return fileId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
+    }
+  }
+);
+
+export const fetchPresignedUrl = createAsyncThunk(
+  'files/fetchPresignedUrl',
+  async (file:File, thunkAPI) => {
+    try {
+      const response = await axios.get(`${API_URL}/download-url`, {
+        params: { fileName: file.fileKey },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = response.data as { presignedUrl: string };
+      return { fileName: file.fileKey, presignedUrl: data.presignedUrl };
+    } catch (error) {
+      console.error('Error fetching pre-signed URL:', (error as Error).message);
+      return thunkAPI.rejectWithValue((error as Error).message);
+    }
+  }
+);
+
+
+
+
 const fileSlice = createSlice({
   name: 'files',
-  initialState: { list: [] as File[], loading: true },
+  initialState: {
+    list: [] as File[],
+    loading: false,
+    presignedUrls: {} as Record<string, string>
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchUserFiles.fulfilled, (state, action) => {
         state.list = action.payload;
+        console.log(state.list);
+        console.log("fetchUserFiles.fulfilled");
         state.loading = false;
       })
       .addCase(fetchUserFiles.rejected, (state, action) => {
         state.loading = false;
+        console.log("fetchUserFiles.rejected");
         console.error('failed', action.payload);
       })
       .addCase(fetchUserFiles.pending, (state) => {
+        console.log("fetchUserFiles.pending");
         state.loading = true;
       })
       .addCase(uploadFile.fulfilled, (state, action) => {
@@ -123,7 +202,7 @@ const fileSlice = createSlice({
       })
       .addCase(uploadFile.rejected, (state, action) => {
         state.loading = false;
-        console.error('failed', action.payload);
+        console.error('Upload failed:', action.payload);
       })
       .addCase(uploadFile.pending, (state) => {
         state.loading = true;
@@ -135,9 +214,7 @@ const fileSlice = createSlice({
         state.loading = false;
         console.error('failed', action.payload);
       })
-      .addCase(shareFile.pending, (state) => {
-        state.loading = true;
-      })
+
       .addCase(searchFiles.fulfilled, (state, action) => {
         state.list = action.payload;
         state.loading = false;
@@ -157,8 +234,22 @@ const fileSlice = createSlice({
         state.loading = false;
         console.error('failed', action.payload);
       })
-      .addCase(deleteFile.pending, (state) => {
-        state.loading = true;
+      .addCase(starFile.fulfilled, (state, action) => {
+        state.list = state.list.map(file =>
+          file.id === action.payload ? { ...file, isStarred: !file.isStarred } : file
+        );
+        state.loading = false;
+      })
+      .addCase(starFile.rejected, (state, action) => {
+        state.loading = false;
+        console.error('failed', action.payload);
+      })
+      .addCase(fetchPresignedUrl.fulfilled, (state, action) => {
+        const { fileName, presignedUrl } = action.payload;
+        state.presignedUrls[fileName] = presignedUrl; 
+      })
+      .addCase(fetchPresignedUrl.rejected, (_state,action) => {
+        console.error('Failed to fetch pre-signed URL:', action.payload);
       });
   },
 });
