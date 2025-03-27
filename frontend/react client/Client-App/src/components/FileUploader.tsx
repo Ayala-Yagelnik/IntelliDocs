@@ -5,7 +5,7 @@ import { StoreType } from '../models/storeModel';
 import { CloudUpload as CloudUploadIcon } from "@mui/icons-material"
 import { uploadFile } from "../store/fileSlice";
 import { AppDispatch } from "../store/store";
-import { File } from "../models/file";
+// import { File } from "../models/file";
 
 // Define theme colors
 const primaryColor = "#10a37f" 
@@ -65,7 +65,12 @@ const FileUploader = () => {
     }
   
    
-    dispatch(uploadFile({ file: file as  File, user }));
+    const fileUpload = {
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size,
+    };
+    dispatch(uploadFile({ fileUpload, user }));
     setFile(null);
   };
 
@@ -112,7 +117,7 @@ const FileUploader = () => {
             >
               <CloudUploadIcon sx={{ fontSize: 40, color: "text.disabled", mb: 1 }} />
               <Typography variant="body2" color="text.secondary">
-                {file ? file.fileName : "Select a file to upload"}
+                {file ? file.name : "Select a file to upload"}
               </Typography>
               <VisuallyHiddenInput type="file" onChange={handleFileChange} />
             </Button>
