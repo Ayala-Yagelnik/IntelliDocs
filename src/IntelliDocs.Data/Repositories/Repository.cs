@@ -19,7 +19,12 @@ namespace IntelliDocs.Data.Repositories
 
         public async Task<T> GetByIdAsync(int id)
         {
-            return await _dbSet.FindAsync(id);
+            var entity = await _dbSet.FindAsync(id);
+            if (entity == null)
+            {
+                throw new InvalidOperationException("Entity not found.");
+            }
+            return entity;
         }
 
         public async Task<T> AddAsync(T entity)
@@ -45,7 +50,7 @@ namespace IntelliDocs.Data.Repositories
             var existingEntity = await _dbSet.FindAsync(id);
             if (existingEntity == null)
             {
-                return null;
+                throw new InvalidOperationException("Entity not found.");
             }
 
             _dbSet.Entry(existingEntity).CurrentValues.SetValues(entity);
