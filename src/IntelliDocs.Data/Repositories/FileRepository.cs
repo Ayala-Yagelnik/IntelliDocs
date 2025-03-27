@@ -8,14 +8,9 @@ namespace IntelliDocs.Data.Repositories
     {
         public FileRepository(DataContext context) : base(context) { }
 
-        public async Task<UserFile?> GetFileByPathAsync(string path)
+        public async Task<UserFile?> GetFileByKeyAsync(string key)
         {
-            return await _dbSet.FirstOrDefaultAsync(f => f.FilePath == path);
-        }
-
-        public async Task<bool> ExistsByPathAsync(string path)
-        {
-            return await _dbSet.AnyAsync(f => f.FilePath == path);
+            return await _dbSet.FirstOrDefaultAsync(f => f.FileKey == key);
         }
 
         public async Task<IEnumerable<UserFile>> GetFilesByUserIdAsync(int userId)

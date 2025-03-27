@@ -18,6 +18,5 @@ namespace IntelliDocs.Core.Entities
 
         public List<User> Users { get; set; }
 
-        public List<Permission> Permissions { get; set; }
     }
 }
