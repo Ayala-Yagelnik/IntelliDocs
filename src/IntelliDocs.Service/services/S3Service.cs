@@ -38,14 +38,14 @@ namespace IntelliDocs.Service.Services
             return await Task.FromResult(_s3Client.GetPreSignedURL(request));
         }
 
-        public async Task<string> GetDownloadUrlAsync(string fileName)
+        public async Task<string> GetDownloadUrlAsync(string key)
         {
             var request = new GetPreSignedUrlRequest
             {
                 BucketName = _bucketName,
-                Key = fileName,
+                Key = key,
                 Verb = HttpVerb.GET,
-                Expires = DateTime.UtcNow.AddMinutes(30)
+                Expires = DateTime.UtcNow.AddDays(7)
             };
 
             return await Task.FromResult(_s3Client.GetPreSignedURL(request));
