@@ -90,8 +90,10 @@ namespace IntelliDocs.Service.Services
             if (user != null)
             {
                 user.LastLogin = DateTime.UtcNow;
+                Console.WriteLine("Updating LastLogin...");
                 await _repository.Users.UpdateAsync(user.Id, user);
                 await _repository.SaveAsync();
+                Console.WriteLine("LastLogin updated successfully.");
                 // Generate JWT token
                 var token = GenerateJwtToken(user);
                 var userDto = new UserDTO
