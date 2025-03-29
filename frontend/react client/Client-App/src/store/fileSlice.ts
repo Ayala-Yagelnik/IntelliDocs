@@ -178,9 +178,9 @@ export const fetchPresignedUrl = createAsyncThunk(
 
 export const fetchSharedFiles = createAsyncThunk(
   "files/fetchShared",
-  async (_, thunkAPI) => {
+  async (userId: number, thunkAPI) => {
     try {
-      const response = await axios.get<MyFile[]>(`${API_URL}/shared-files`, {
+      const response = await axios.get<MyFile[]>(`${API_URL}/shared-files/${userId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -197,7 +197,8 @@ export const fetchSharedFiles = createAsyncThunk(
 const fileSlice = createSlice({
   name: 'files',
   initialState: {
-    list: [] as MyFile[],
+    files: [] as MyFile[],
+    shareFile: [] as MyFile[],
     loading: false,
     presignedUrls: null as Record<string, string>|null
   },
@@ -205,8 +206,8 @@ const fileSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchUserFiles.fulfilled, (state, action) => {
-        state.list = action.payload;
-        console.log(state.list);
+        state.files = action.payload;
+        console.log(state.files);
         console.log("fetchUserFiles.fulfilled");
         state.loading = false;
       })
@@ -220,7 +221,7 @@ const fileSlice = createSlice({
         state.loading = true;
       })
       .addCase(uploadFile.fulfilled, (state, action) => {
-        state.list.push(action.payload);
+        state.files.push(action.payload);
         state.loading = false;
       })
       .addCase(uploadFile.rejected, (state, action) => {
@@ -239,7 +240,7 @@ const fileSlice = createSlice({
       })
 
       .addCase(searchFiles.fulfilled, (state, action) => {
-        state.list = action.payload;
+        state.files = action.payload;
         state.loading = false;
       })
       .addCase(searchFiles.rejected, (state, action) => {
@@ -250,7 +251,7 @@ const fileSlice = createSlice({
         state.loading = true;
       })
       .addCase(deleteFile.fulfilled, (state, action) => {
-        state.list = state.list.filter(file => file.id !== action.payload);
+        state.files = state.files.filter(file => file.id !== action.payload);
         state.loading = false;
       })
       .addCase(deleteFile.rejected, (state, action) => {
@@ -258,7 +259,7 @@ const fileSlice = createSlice({
         console.error('failed', action.payload);
       })
       .addCase(starFile.fulfilled, (state, action) => {
-        state.list = state.list.map(file =>
+        state.files = state.files.map(file =>
           file.id === action.payload ? { ...file, isStarred: !file.isStarred } : file
         );
         state.loading = false;
@@ -278,7 +279,7 @@ const fileSlice = createSlice({
         console.error('Failed to fetch pre-signed URL:', action.payload);
       })
       .addCase(fetchSharedFiles.fulfilled, (state, action) => {
-        state.list = action.payload; // Update the list with shared files
+        state.shareFile = action.payload; 
         state.loading = false;
       })
       .addCase(fetchSharedFiles.rejected, (state, action) => {
