@@ -1,4 +1,4 @@
-export interface File {
+export interface MyFile {
     isStarred: boolean;
     id: number;
     fileName: string;

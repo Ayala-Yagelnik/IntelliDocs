@@ -65,12 +65,7 @@ const FileUploader = () => {
     }
   
    
-    const fileUpload = {
-      fileName: file.name,
-      fileType: file.type,
-      fileSize: file.size,
-    };
-    dispatch(uploadFile({ fileUpload, user }));
+    dispatch(uploadFile({ fileUpload: file, user }));
     setFile(null);
   };
 

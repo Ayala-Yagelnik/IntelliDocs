@@ -18,15 +18,25 @@ import PersonIcon from "@mui/icons-material/Person";
 import LinkIcon from "@mui/icons-material/Link";
 import CloseIcon from "@mui/icons-material/Close";
 import EmailIcon from "@mui/icons-material/Email";
+import { shareFile } from "../store/fileSlice";
+import { AppDispatch } from "../store/store";
+import { useDispatch } from "react-redux";
+import { MyFile } from "../models/myfile";
 
 interface ShareDialogProps {
   open: boolean;
   onClose: () => void;
+  file:MyFile;
 }
 
-const ShareDialog = ({ open, onClose }: ShareDialogProps) => {
+const ShareDialog = ({file, open, onClose }: ShareDialogProps) => {
   const [email, setEmail] = useState("");
   const [permission, setPermission] = useState("Can view");
+  const dispatch = useDispatch<AppDispatch>();
+
+    const handaleShare=()=> {
+       dispatch(shareFile({ fileId: file.id, email }))
+    }
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -65,7 +75,14 @@ const ShareDialog = ({ open, onClose }: ShareDialogProps) => {
           </FormControl>
         </Box>
 
-        <Button fullWidth variant="contained" startIcon={<EmailIcon />} sx={{ mt: 2, bgcolor: "#8ab4f8" }}>
+        <Button fullWidth variant="contained" startIcon={<EmailIcon />} sx={{ mt: 2, bgcolor: "#8ab4f8" }}
+        onClick={() => {
+          // Handle send invite logic here
+          console.log("Invite sent to:", email, "with permission:", permission);
+          handaleShare();
+          onClose();
+        }}
+        >
           Send Invite
         </Button>
 
