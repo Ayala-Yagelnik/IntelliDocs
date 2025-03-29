@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { User } from "../models/user";
-import { File } from "../models/file";
+import { MyFile } from "../models/myfile";
 
 // const API_URL = "https://intellidocs-server.onrender.com/api/Files";
 const API_URL = "http://localhost:5046/api/Files";
@@ -11,14 +11,14 @@ export const fetchUserFiles = createAsyncThunk(
   async (userId: number, thunkAPI) => {
     try {
       console.log("fetching files");
-      const response = await axios.get<File[]>(
+      const response = await axios.get<MyFile[]>(
         `${API_URL}/user-files/${userId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
       console.log("response: ", response);
-      return response.data as File[];
+      return response.data as MyFile[];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (e.response) {
@@ -36,7 +36,7 @@ export const fetchUserFiles = createAsyncThunk(
 
 export const uploadFile = createAsyncThunk(
   'files/upload',
-  async ({ fileUpload, user }: { fileUpload: { fileName: string; fileType: string; fileSize: number }; user: User }, thunkAPI) => {
+  async ({ fileUpload, user }: { fileUpload:File, user: User }, thunkAPI) => {
     try {
       const bucketName = import.meta.env.VITE_AWS_BUCKET_NAME;
       const region = import.meta.env.VITE_AWS_REGION;
@@ -47,25 +47,30 @@ export const uploadFile = createAsyncThunk(
 
       // Get presigned URL from server
       const presignedResponse = await axios.get(`${API_URL}/upload-url`, {
-        params: { fileName: fileUpload.fileName, contentType: fileUpload.fileType },
+        params: {
+           fileName: fileUpload.name
+          , contentType: fileUpload.type
+         },
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
 
-      const { url } = presignedResponse.data as { url: string };
 
+      const { url } = presignedResponse.data as { url: string };
+      console.log("presigned URL:", url);
       // Upload file to S3 using the presigned URL
       await axios.put(url, fileUpload, {
-        headers: { "Content-Type": fileUpload.fileType },
+       
+        headers: { "Content-Type": fileUpload.type },
       });
-
-      const fileKey = `${user.username}/${fileUpload.fileName}`;
+      console.log(fileUpload.type);
+      const fileKey = `${user.username}/${fileUpload.name}`;
 
       // Save file metadata in the database
       const fileMetadata = {
-        fileName: fileUpload.fileName,
+        fileName: fileUpload.name,
         fileKey: fileKey,
-        fileSize: fileUpload.fileSize,
-        fileType: fileUpload.fileType,
+        fileSize: fileUpload.size,
+        fileType: fileUpload.type,
         authorId: user.id,
       };
 
@@ -73,7 +78,7 @@ export const uploadFile = createAsyncThunk(
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
 
-      return savedFileResponse.data as File;
+      return savedFileResponse.data as MyFile;
     } catch (error) {
       console.error("Error uploading file:", (error as Error).message);
       return thunkAPI.rejectWithValue((error as Error).message);
@@ -83,17 +88,17 @@ export const uploadFile = createAsyncThunk(
 
 export const shareFile = createAsyncThunk(
   'files/share',
-  async ({ fileId, userId }: { fileId: number, userId: number }, thunkAPI) => {
-    console.log("Sharing file:", fileId, "with user:", userId);
+  async ({ fileId, email }: { fileId: number, email: string }, thunkAPI) => {
+    console.log("Sharing file:", fileId, "with email:", email);
     try {
-      const response = await axios.post(`${API_URL}/share`, { fileId, userId }, {
+      const response = await axios.post(`${API_URL}/share`, { fileId, email }, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
       });
       console.log("File shared successfully:", response.data);
-      return { fileId, userId };
+      return { fileId, email };
     } catch (error) {
       console.error("Error sharing file:", error);
       return thunkAPI.rejectWithValue((error as Error).message);
@@ -111,7 +116,7 @@ export const searchFiles = createAsyncThunk(
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
-      return response.data as File[];
+      return response.data as MyFile[];
     } catch (error) {
       return thunkAPI.rejectWithValue((error as Error).message);
     }
@@ -154,10 +159,10 @@ export const starFile = createAsyncThunk(
 
 export const fetchPresignedUrl = createAsyncThunk(
   'files/fetchPresignedUrl',
-  async (file:File, thunkAPI) => {
+  async (file: { fileKey: string }, thunkAPI) => {
     try {
       const response = await axios.get(`${API_URL}/download-url`, {
-        params: { fileName: file.fileKey },
+        params: { filekey: file.fileKey },
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -171,15 +176,30 @@ export const fetchPresignedUrl = createAsyncThunk(
   }
 );
 
-
+export const fetchSharedFiles = createAsyncThunk(
+  "files/fetchShared",
+  async (_, thunkAPI) => {
+    try {
+      const response = await axios.get<MyFile[]>(`${API_URL}/shared-files`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching shared files:", (error as Error).message);
+      return thunkAPI.rejectWithValue((error as Error).message);
+    }
+  }
+);
 
 
 const fileSlice = createSlice({
   name: 'files',
   initialState: {
-    list: [] as File[],
+    list: [] as MyFile[],
     loading: false,
-    presignedUrls: {} as Record<string, string>
+    presignedUrls: null as Record<string, string>|null
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -249,10 +269,24 @@ const fileSlice = createSlice({
       })
       .addCase(fetchPresignedUrl.fulfilled, (state, action) => {
         const { fileName, presignedUrl } = action.payload;
-        state.presignedUrls[fileName] = presignedUrl; 
+        if (!state.presignedUrls) {
+          state.presignedUrls = {};
+        }
+        state.presignedUrls[fileName] = presignedUrl;
       })
       .addCase(fetchPresignedUrl.rejected, (_state,action) => {
         console.error('Failed to fetch pre-signed URL:', action.payload);
+      })
+      .addCase(fetchSharedFiles.fulfilled, (state, action) => {
+        state.list = action.payload; // Update the list with shared files
+        state.loading = false;
+      })
+      .addCase(fetchSharedFiles.rejected, (state, action) => {
+        state.loading = false;
+        console.error("Failed to fetch shared files:", action.payload);
+      })
+      .addCase(fetchSharedFiles.pending, (state) => {
+        state.loading = true;
       });
   },
 });

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardMedia, Typography, Box, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
@@ -6,48 +6,31 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import DownloadIcon from '@mui/icons-material/Download';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteFile, fetchPresignedUrl, shareFile, starFile } from '../store/fileSlice';
+import { deleteFile, fetchPresignedUrl, starFile } from '../store/fileSlice';
 import { AppDispatch } from '../store/store';
-import { File } from '../models/file';
+import { MyFile } from '../models/myfile';
 import { StoreType } from '../models/storeModel';
+import ShareFile from './ShareFile';
 
 interface FileCardProps {
-  file: File;
+  file: MyFile;
   userId: number;
 }
 
-const FileCard: React.FC<FileCardProps> = React.memo(({ file, userId }) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const presignedUrl = useSelector((state: StoreType) => state.files.presignedUrls[file.fileKey]);
+const FileCard: React.FC<FileCardProps> = React.memo(({ file,  }) => {
+    const dispatch = useDispatch<AppDispatch>();
+  const presignedUrl = useSelector((state: StoreType) => state.files.presignedUrls?.[file.fileKey] || null);
+  const [open,setOpen]=useState(false);
 
   useEffect(() => {
+    console.log(presignedUrl);
+    
     if (!presignedUrl) {
       dispatch(fetchPresignedUrl(file));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, file.fileKey, presignedUrl]);
+  }, [dispatch, file, file.fileKey, presignedUrl]);
 
-
-  // const handleDownload = async () => {
-  //   console.log("presignedUrl", presignedUrl);
-  //   if (presignedUrl) {
-  //     try {
-  //       const link = document.createElement('a');
-  //       link.href = presignedUrl;
-  //       document.body.appendChild(link);
-
-  //       if (file.fileName) {
-  //         link.setAttribute('download', file.fileName);
-  //       }
-
-  //       link.click();
-  //       document.body.removeChild(link);
-  //     } catch (err) {
-  //       console.error(`Error downloading file: ${err}`);
-  //       throw err;
-  //     }
-  //   };
-  // };
+ 
   const handleDownload = () => {
     if (presignedUrl) {
       const link = document.createElement("a");
@@ -66,6 +49,7 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, userId }) => {
 
 
   return (
+    <>
     <Card
       sx={{
         borderRadius: 2,
@@ -83,8 +67,8 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, userId }) => {
                 : "div"
         }
         height="140"
-        image={file.fileType.startsWith("image/") ? presignedUrl : undefined}
-        src={file.fileType === "application/pdf" || file.fileType.startsWith("video/") ? presignedUrl : undefined}
+        image={file.fileType.startsWith("image/") ? presignedUrl || undefined : undefined}
+        src={ presignedUrl|| undefined}
         alt={file.fileName}
         controls={file.fileType.startsWith("video/") ? true : undefined}
         sx={{
@@ -119,7 +103,9 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, userId }) => {
           </IconButton>
 
           <IconButton
-            onClick={() => userId !== -1 && dispatch(shareFile({ fileId: file.id, userId }))}
+            onClick={() => setOpen(true)
+              // userId !== -1 && dispatch(shareFile({ fileId: file.id, userId }))
+            }
             sx={{ color: 'gray', '&:hover': { color: 'blue' } }}
           >
             <ShareIcon />
@@ -141,6 +127,8 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, userId }) => {
         </Box>
       </CardContent>
     </Card>
+    <ShareFile file={file} open={open} onClose={()=>setOpen(false)}/>
+    </>
   );
 });
 
