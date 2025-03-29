@@ -33,9 +33,9 @@ export const Home = () => (
               >
                   Learn More
               </MotionButton>
-              {/* <ShareFile open={true} onClose={() => {}} /> */}
           </Box>
           <FileGridToggle />
+          {/* <ShareFile open={true} onClose={() => {}} /> */}
 
       </motion.div>
   </Container>

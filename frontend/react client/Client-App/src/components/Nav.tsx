@@ -34,7 +34,7 @@ const Nav: React.FC = () => {
                     {user && (
                         <>
                             <Button component={Link} to="/files" sx={{ color: primaryColor }}>My Files</Button> 
-                            <Button component={Link} to="/files" sx={{ color: primaryColor }}>Files Shared With Me</Button> 
+                            <Button component={Link} to="/filesShared" sx={{ color: primaryColor }}>Files Shared With Me</Button> 
                             <Button component={Link} to="/" onClick={handleLogout} sx={{ color: primaryColor }}>log out</Button>
                         </>
                     )}
