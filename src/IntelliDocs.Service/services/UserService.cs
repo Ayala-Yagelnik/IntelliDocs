@@ -100,5 +100,15 @@ namespace IntelliDocs.Service.Services
 
             return storageUsage;
         }
+
+        public async Task<IEnumerable<UserFile>> GetSharedFilesAsync(int userId)
+        {
+            var files=await _repository.Users.GetSharedFilesAsync(userId);
+            if (files == null)
+            {
+                return null;
+            }
+            return files;
+        }
     }
 }

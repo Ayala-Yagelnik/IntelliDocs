@@ -15,8 +15,9 @@ namespace IntelliDocs.Data
       public DbSet<User> Users { get; set; }
       public DbSet<UserFile> Files { get; set; }
       public DbSet<Role> Roles { get; set; }
+        public DbSet<Folder> Folders { get; set; }
 
-      protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
       {
          base.OnModelCreating(modelBuilder);
 
