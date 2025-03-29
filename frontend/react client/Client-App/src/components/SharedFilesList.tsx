@@ -7,12 +7,14 @@ import { StoreType } from "../models/storeModel";
 import { AppDispatch } from "../store/store";
 
 const SharedFilesList: React.FC = () => {
-  const { list: sharedFiles, loading } = useSelector((state: StoreType) => state.files);
   const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: StoreType) => state.users.user);
+  const loading=useSelector((state:StoreType)=>state.files.loading);
+  const sharedFiles=useSelector((state:StoreType)=>state.files.shareFile);
 
   useEffect(() => {
     // Fetch shared files when the component mounts
-    dispatch(fetchSharedFiles());
+    dispatch(fetchSharedFiles(user.id));
   }, [dispatch]);
 
   if (loading) {

@@ -74,7 +74,7 @@ const userSlice = createSlice({
   name: 'users',
   initialState: {
     users: [] as User[],
-    user: null as User | null,
+    user: {} as User,
     loading: false,
     error: null as string | null,
   },
@@ -83,7 +83,7 @@ const userSlice = createSlice({
       state.user = action.payload;
     },
     clearCurrentUser(state) {
-      state.user = null;
+      state.user = { id: 0, username: '', email: '', password: '',  createdAt: new Date(),updatedAt:new Date() };
     },
   },
   extraReducers: (builder) => {
