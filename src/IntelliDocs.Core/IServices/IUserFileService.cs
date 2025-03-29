@@ -13,9 +13,10 @@ namespace IntelliDocs.Core.IServices
        public Task<IEnumerable<FileDTO>> GetFilesByUserIdAsync(int userId);
         public Task<IEnumerable<FileDTO>> GetAllFiles();
         public Task<FileDTO> GetFileById(int id);
+        public Task<IEnumerable<FileDTO>> GetSharedFilesAsync(int userId);
 
         public Task<FileDTO> UploadFileAsync(FileDTO file);
-        public Task<FileDTO> ShareFileAsync(int fileId, int userId);
+        public Task<FileDTO> ShareFileAsync(int fileId, string email);
         public Task<IEnumerable<UserFile>> SearchFilesAsync(string query, int userId);
         public Task<bool> DeleteFileAsync(int fileId);
        public Task<double> GetTotalStorageUsedAsync();

@@ -49,6 +49,23 @@ namespace IntelliDocs.API.Controllers
         }
 
         [Authorize(Policy = "UserOrAdmin")]
+        [HttpGet("shared-files/{userId}")]
+        public async Task<IActionResult> GetSharedFiles(int userId)
+        {
+            try
+            {
+                var sharedFiles = await _userFileService.GetSharedFilesAsync(userId);
+                return Ok(sharedFiles);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching shared files for user {userId}: {ex.Message}");
+                return StatusCode(500, "An error occurred while fetching user files.");
+            }
+        }
+
+
+        [Authorize(Policy = "UserOrAdmin")]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromBody] FileDTO fileDto)
         {
@@ -76,6 +93,7 @@ namespace IntelliDocs.API.Controllers
         [HttpGet("upload-url")]
         public async Task<IActionResult> GetUploadUrl([FromQuery] string fileName, [FromQuery] string contentType)
         {
+            Console.WriteLine($"Generating upload URL for file: {fileName} with content type: {contentType}");
             if (string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(contentType))
                 return BadRequest("Missing file name or content type");
             var userName = HttpContext?.User?.Identity?.Name;
@@ -85,16 +103,16 @@ namespace IntelliDocs.API.Controllers
 
         [Authorize(Policy = "UserOrAdmin")]
         [HttpGet("download-url")]
-        public async Task<IActionResult> GetDownloadUrl([FromQuery]string fileName)
+        public async Task<IActionResult> GetDownloadUrl([FromQuery] string filekey)
         {
-           if (string.IsNullOrEmpty(fileName))
+            if (string.IsNullOrEmpty(filekey))
             {
                 return BadRequest("File name is required.");
             }
 
             try
             {
-                var url = await _s3Service.GetDownloadUrlAsync(fileName);
+                var url = await _s3Service.GetDownloadUrlAsync(filekey);
                 return Ok(new { presignedUrl = url });
             }
             catch (Exception ex)
@@ -105,10 +123,10 @@ namespace IntelliDocs.API.Controllers
 
         [Authorize(Policy = "UserOrAdmin")]
         [HttpPost("share")]
-        public async Task<IActionResult> ShareFile(int fileId, int userId)
+        public async Task<IActionResult> ShareFile([FromBody] ShareFileRequest request)
         {
-            Console.WriteLine($"Attempting to share file with ID: {fileId} for user ID: {userId}");
-            await _userFileService.ShareFileAsync(fileId, userId);
+            Console.WriteLine($"Attempting to share file with ID: {request.FileId} for email: {request.Email}");
+            await _userFileService.ShareFileAsync(request.FileId, request.Email);
             return Ok();
         }
 
@@ -134,7 +152,7 @@ namespace IntelliDocs.API.Controllers
             var totalStorageInGB = await _userFileService.GetTotalStorageUsedAsync();
             return Ok(new { totalStorageInGB });
         }
-        
+
         [Authorize(Policy = "UserOrAdmin")]
         [HttpPatch("{id}/star")]
         public async Task<IActionResult> ToggleStarFile(int id, [FromBody] bool isStarred)

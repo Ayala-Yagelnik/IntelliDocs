@@ -14,5 +14,6 @@ namespace IntelliDocs.Core.IRepositories
         Task<bool> ExistsByEmailAsync(string email);
         Task<bool> ReactivateAsync(int id);
         Task<List<UserStorageDto>> GetUserStorageUsageAsync();
+        Task<List<UserFile>> GetSharedFilesAsync(int userId);
     }
 }
