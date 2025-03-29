@@ -15,8 +15,8 @@ namespace IntelliDocs.Data.Repositories
         }
         public async Task<User> GetUserByEmailAsync(string email)
         {
-            var user= await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
-            if  (user == null)
+            var user = await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
             {
                 throw new InvalidOperationException("User not found.");
             }
@@ -54,10 +54,15 @@ namespace IntelliDocs.Data.Repositories
             _dbSet.Update(entity);
             return true;
         }
-  public async Task<List<UserFile>> GetSharedFilesAsync(int userId)
+        public async Task<IEnumerable<UserFile>> GetSharedFilesAsync(int userId)
         {
-            var user = await _dbSet.FirstOrDefaultAsync(u => u.Id == userId);
-            return user?.SharedFiles ?? new List<UserFile>();                
+            var user = await _dbSet.Include(u => u.SharedFiles).FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                throw new Exception($"User with ID {userId} not found.");
+            }
+
+            return user.SharedFiles;
         }
         public async Task<List<UserStorageDto>> GetUserStorageUsageAsync()
         {

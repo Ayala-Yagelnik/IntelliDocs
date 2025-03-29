@@ -112,6 +112,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 //services extensions
+builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserFileService, UserFileService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
