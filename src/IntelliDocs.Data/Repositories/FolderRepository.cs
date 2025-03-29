@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace IntelliDocs.Data.Repositories
 {
-    class FolderRepository:Repository<Folder>,IFolderRepository
+   public class FolderRepository:Repository<Folder>,IFolderRepository
     {
         public FolderRepository(DataContext context) : base(context){}
 
