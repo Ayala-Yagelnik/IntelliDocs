@@ -9,20 +9,25 @@ namespace IntelliDocs.Data.Repositories
     public class UserRepository : Repository<User>, IUserRepository
     {
         public UserRepository(DataContext context) : base(context) { }
-        public async Task<List<User>> GetAllAsync()
+        public new async Task<List<User>> GetAllAsync()
         {
             return await _dbSet.Include(u => u.CreatedFiles).ToListAsync();
         }
-        public async Task<User?> GetUserByEmailAsync(string email)
+        public async Task<User> GetUserByEmailAsync(string email)
         {
-            return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
+            var user= await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
+            if  (user == null)
+            {
+                throw new InvalidOperationException("User not found.");
+            }
+            return user;
         }
 
         public async Task<bool> ExistsByEmailAsync(string email)
         {
             return await _dbSet.AnyAsync(u => u.Email == email);
         }
-        public async Task<bool> DeleteAsync(int id)
+        public new async Task<bool> DeleteAsync(int id)
         {
             var existingEntity = await _dbSet.FindAsync(id);
             if (existingEntity == null)

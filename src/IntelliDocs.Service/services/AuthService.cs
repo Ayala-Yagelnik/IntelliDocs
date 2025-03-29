@@ -86,14 +86,14 @@ namespace IntelliDocs.Service.Services
 
         public async Task<Result<AuthResult>> LoginAsync(UserLoginModel model)
         {
-            User? user = await ValidateUser(model.Email, model.Password);
+            var user = await ValidateUser(model.Email, model.Password);
             if (user != null)
             {
+                Console.WriteLine("Updating LastLogin...",user.LastLogin);
                 user.LastLogin = DateTime.UtcNow;
-                Console.WriteLine("Updating LastLogin...");
                 await _repository.Users.UpdateAsync(user.Id, user);
                 await _repository.SaveAsync();
-                Console.WriteLine("LastLogin updated successfully.");
+                Console.WriteLine("LastLogin updated successfully.",user.LastLogin);
                 // Generate JWT token
                 var token = GenerateJwtToken(user);
                 var userDto = new UserDTO
@@ -135,7 +135,7 @@ namespace IntelliDocs.Service.Services
                 return Result<bool>.Failure("Email already exists");
             }
 
-            var result = _repository.Users.AddAsync(user);
+            var result =await _repository.Users.AddAsync(user);
             if (result == null)
             {
                 return Result<bool>.Failure("Failed to register user.");

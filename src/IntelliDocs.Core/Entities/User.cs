@@ -27,7 +27,7 @@ namespace IntelliDocs.Core.Entities
         public string AccountStatus { get; set; } = "Active";
         public int RoleId { get; set; }
         [ForeignKey("RoleId")]
-        public Role Role { get; set; }
+        public required Role Role { get; set; }
         public List<UserFile> CreatedFiles { get; set; } =new();
         public List<UserFile> SharedFiles { get; set; } = new();
 
