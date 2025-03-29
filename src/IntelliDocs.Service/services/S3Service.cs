@@ -16,7 +16,7 @@ namespace IntelliDocs.Service.Services
             var secretKey = Environment.GetEnvironmentVariable("AWS_SECRETKEY");
             var region = Environment.GetEnvironmentVariable("AWS_REGION");
             _bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
-            
+
             if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKey) || string.IsNullOrEmpty(region))
             {
                 throw new ArgumentNullException("AWS credentials or region are missing");
@@ -45,7 +45,7 @@ namespace IntelliDocs.Service.Services
                 BucketName = _bucketName,
                 Key = key,
                 Verb = HttpVerb.GET,
-                Expires = DateTime.UtcNow.AddDays(7)
+                Expires = DateTime.UtcNow.AddDays(7),
             };
 
             return await Task.FromResult(_s3Client.GetPreSignedURL(request));

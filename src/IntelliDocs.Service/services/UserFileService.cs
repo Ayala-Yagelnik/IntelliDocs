@@ -26,6 +26,20 @@ namespace IntelliDocs.Service.Services
             return _mapper.Map<IEnumerable<FileDTO>>(userFiles);
         }
 
+
+public async Task<IEnumerable<FileDTO>> GetSharedFilesAsync(int userId)
+{
+    var sharedFiles = await _repository.Users.GetSharedFilesAsync(userId);
+    return sharedFiles.Select(file => new FileDTO
+    {
+        Id = file.Id,
+        FileName = file.FileName,
+        FileKey = file.FileKey,
+        FileSize = file.FileSize,
+        FileType = file.FileType,
+        AuthorId = file.AuthorId,
+    });
+}
         public async Task<FileDTO> UploadFileAsync(FileDTO fileDto)
         {
             Console.WriteLine($"FileDTO: {System.Text.Json.JsonSerializer.Serialize(fileDto)}");
@@ -33,14 +47,14 @@ namespace IntelliDocs.Service.Services
                 throw new ArgumentException("Invalid AuthorId.");
 
             var file = _mapper.Map<UserFile>(fileDto);
-
+            file.UploadDate = DateTime.UtcNow;
             // Ensure the Author exists in the database
             var authorExists = await _repository.Users.GetByIdAsync(fileDto.AuthorId);
             if (authorExists == null)
                 throw new Exception("Author not found.");
-
+            authorExists.CreatedFiles.Add(file);
             var savedFile = await _repository.Files.AddAsync(file);
-
+            await _repository.Users.UpdateAsync(fileDto.AuthorId, authorExists);
             if (savedFile == null)
             {
                 throw new Exception("Failed to save file metadata.");
@@ -51,15 +65,15 @@ namespace IntelliDocs.Service.Services
         }
 
         //TODO: Implement the method
-        public async Task<FileDTO> ShareFileAsync(int fileId, int userId)
+        public async Task<FileDTO> ShareFileAsync(int fileId, string email)
         {
-            Console.WriteLine($"Attempting to share file with ID: {fileId} for user ID: {userId}");
+            Console.WriteLine($"Attempting to share file with ID: {fileId} for user ID: {email}");
 
-            if (fileId <= 0 || userId <= 0)
+            if (fileId <= 0)
             {
-                throw new Exception("Invalid fileId or userId");
+                throw new Exception("Invalid fileId ");
             }
-
+            var user = await _repository.Users.GetUserByEmailAsync(email);
             var file = await _repository.Files.GetByIdAsync(fileId);
             if (file == null)
             {
@@ -67,10 +81,9 @@ namespace IntelliDocs.Service.Services
                 throw new Exception("File not found");
             }
 
-            var user = await _repository.Users.GetByIdAsync(userId);
             if (user == null)
             {
-                Console.WriteLine($"User with ID {userId} not found.");
+                Console.WriteLine($"User with ID {email} not found.");
                 throw new Exception("User not found");
             }
             // הוסף את המשתמש לרשימת המשתמשים ששיתפו את הקובץ
@@ -80,7 +93,7 @@ namespace IntelliDocs.Service.Services
             // שמור את השינויים במסד הנתונים
             await _repository.SaveAsync();
 
-            Console.WriteLine($"File with ID {fileId} successfully shared with user ID {userId}.");
+            Console.WriteLine($"File with ID {fileId} successfully shared with user ID {email}.");
 
             // החזר את הקובץ כ-FileDTO
             return _mapper.Map<FileDTO>(file);

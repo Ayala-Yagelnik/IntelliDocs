@@ -54,7 +54,11 @@ namespace IntelliDocs.Data.Repositories
             _dbSet.Update(entity);
             return true;
         }
-
+  public async Task<List<UserFile>> GetSharedFilesAsync(int userId)
+        {
+            var user = await _dbSet.FirstOrDefaultAsync(u => u.Id == userId);
+            return user?.SharedFiles ?? new List<UserFile>();                
+        }
         public async Task<List<UserStorageDto>> GetUserStorageUsageAsync()
         {
             return await _dbSet.Select(user => new UserStorageDto
