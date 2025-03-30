@@ -48,7 +48,7 @@ namespace IntelliDocs.Service.Services
                 Expires = DateTime.UtcNow.AddDays(7),
                 ResponseHeaderOverrides = new ResponseHeaderOverrides
                 {
-                    ContentDisposition = $"attachment; filename=\"{key}\"" 
+                    ContentDisposition = $"attachment; filename=\"{key.Substring(key.IndexOf('/'))}\""
                 }
             };
 
