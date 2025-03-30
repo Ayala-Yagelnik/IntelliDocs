@@ -37,11 +37,10 @@ const SharedFilesList: React.FC = () => {
     else {
       navigate("/");
     }
-  }, [dispatch, user?.id]);
+  }, [dispatch, navigate, user.id]);
 
 
   const handleViewChange = (
-    event: React.MouseEvent<HTMLElement>,
     newView: string | null
   ) => {
     if (newView !== null) {
@@ -109,7 +108,7 @@ const SharedFilesList: React.FC = () => {
         <ToggleButtonGroup
           value={isGridView ? "grid" : "list"}
           exclusive
-          onChange={handleViewChange}
+          onChange={(_, newView) => handleViewChange(newView)}
           sx={{
             borderRadius: "30px",
             overflow: "hidden",

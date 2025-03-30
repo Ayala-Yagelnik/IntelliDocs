@@ -41,12 +41,11 @@ const FileList: React.FC = () => {
     } else {
       dispatch(fetchUserFiles(user?.id ?? -1));
     }
-  }, [dispatch, user?.id]);
+  }, [dispatch, navigate, user?.id]);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
   const handleViewChange = (
-    event: React.MouseEvent<HTMLElement>,
     newView: string | null
   ) => {
     if (newView !== null) {
@@ -83,15 +82,15 @@ const FileList: React.FC = () => {
           <ToggleButtonGroup
             value={isGridView ? "grid" : "list"}
             exclusive
-            onChange={handleViewChange}
+            onChange={(_, newView) => handleViewChange(newView)}
             sx={{
               borderRadius: "30px",
               overflow: "hidden",
-              backgroundColor: "#e0e0e0", 
+              backgroundColor: "#e0e0e0",
               "& .MuiToggleButton-root": {
                 border: "none",
                 padding: "8px 16px",
-                color: textColor, 
+                color: textColor,
                 fontWeight: "500",
                 "&.Mui-selected": {
                   backgroundColor: primaryColor,
@@ -114,14 +113,14 @@ const FileList: React.FC = () => {
           <Button
             variant="contained"
             sx={{
-              backgroundColor: primaryColor, 
+              backgroundColor: primaryColor,
               color: "#fff",
               textTransform: "none",
               fontWeight: "500",
               padding: "8px 16px",
               borderRadius: "10px",
               "&:hover": {
-                backgroundColor: hoverColor, 
+                backgroundColor: hoverColor,
               },
             }}
             onClick={handleOpenModal}
@@ -210,8 +209,8 @@ const FileList: React.FC = () => {
                   alignItems: "center",
                   padding: "12px 16px",
                   borderBottom: "1px solid #e5e7eb",
-                  backgroundColor: "#fff", 
-                  color: textColor, 
+                  backgroundColor: "#fff",
+                  color: textColor,
                 }}
               >
                 <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Name</Typography>
