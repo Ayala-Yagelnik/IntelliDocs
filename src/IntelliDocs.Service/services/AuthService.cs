@@ -132,7 +132,7 @@ namespace IntelliDocs.Service.Services
 
             if (await _repository.Users.GetUserByEmailAsync(user.Email) != null)
             {
-                return Result<bool>.Failure("Email already exists");
+                return Result<bool>.Failure("Email is already in use");
             }
 
             var result =await _repository.Users.AddAsync(user);
