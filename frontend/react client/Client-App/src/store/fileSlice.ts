@@ -3,7 +3,7 @@ import axios from "axios";
 import { User } from "../models/user";
 import { MyFile } from "../models/myfile";
 
-const API_URL = `${import.meta.env.VITE_BASE_URL}/Files"`;
+const API_URL = `${import.meta.env.VITE_BASE_URL}/Files`;
 
 export const fetchUserFiles = createAsyncThunk(
   'files/fetch',
