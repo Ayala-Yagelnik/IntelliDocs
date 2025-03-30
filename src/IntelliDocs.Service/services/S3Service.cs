@@ -46,6 +46,10 @@ namespace IntelliDocs.Service.Services
                 Key = key,
                 Verb = HttpVerb.GET,
                 Expires = DateTime.UtcNow.AddDays(7),
+                ResponseHeaderOverrides = new ResponseHeaderOverrides
+                {
+                    ContentDisposition = $"attachment; filename=\"{key}\"" 
+                }
             };
 
             return await Task.FromResult(_s3Client.GetPreSignedURL(request));
