@@ -5,7 +5,6 @@ import { StoreType } from '../models/storeModel';
 import { CloudUpload as CloudUploadIcon } from "@mui/icons-material"
 import { uploadFile } from "../store/fileSlice";
 import { AppDispatch } from "../store/store";
-// import { File } from "../models/file";
 
 // Define theme colors
 const primaryColor = "#10a37f" 
@@ -50,7 +49,7 @@ const FileUploader = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0] as unknown as File)
+      setFile(e.target.files[0])
     }
   }
 
