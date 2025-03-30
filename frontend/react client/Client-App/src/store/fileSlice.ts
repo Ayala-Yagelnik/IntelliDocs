@@ -10,7 +10,6 @@ export const fetchUserFiles = createAsyncThunk(
   'files/fetch',
   async (userId: number, thunkAPI) => {
     try {
-      console.log("fetching files");
       const response = await axios.get<MyFile[]>(
         `${API_URL}/user-files/${userId}`, {
         headers: {
@@ -18,7 +17,7 @@ export const fetchUserFiles = createAsyncThunk(
         },
       });
       console.log("response: ", response);
-      return response.data as MyFile[];
+      return response.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (e.response) {
@@ -57,6 +56,7 @@ export const uploadFile = createAsyncThunk(
 
       const { url } = presignedResponse.data as { url: string };
       console.log("presigned URL:", url);
+      console.log("fileUpload:", fileUpload); 
       // Upload file to S3 using the presigned URL
       await axios.put(url, fileUpload, {
        
@@ -72,6 +72,7 @@ export const uploadFile = createAsyncThunk(
         fileSize: fileUpload.size,
         fileType: fileUpload.type,
         authorId: user.id,
+        createdAt: fileUpload.lastModified,
       };
 
       const savedFileResponse = await axios.post(`${API_URL}/upload`, fileMetadata, {
@@ -185,6 +186,7 @@ export const fetchSharedFiles = createAsyncThunk(
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
+      console.log("fetchSharedFiles: ", response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching shared files:", (error as Error).message);
@@ -208,7 +210,6 @@ const fileSlice = createSlice({
       .addCase(fetchUserFiles.fulfilled, (state, action) => {
         state.files = action.payload;
         console.log(state.files);
-        console.log("fetchUserFiles.fulfilled");
         state.loading = false;
       })
       .addCase(fetchUserFiles.rejected, (state, action) => {

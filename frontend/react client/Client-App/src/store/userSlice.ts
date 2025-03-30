@@ -23,7 +23,7 @@ export const fetchUsers = createAsyncThunk(
 
 export const fetchUserById = createAsyncThunk(
   'user/fetchById',
-  async (userId: string, thunkAPI) => {
+  async (userId: number, thunkAPI) => {
     try {
       const response = await axios.get(`${API_URL}/${userId}`, {
         headers: {
