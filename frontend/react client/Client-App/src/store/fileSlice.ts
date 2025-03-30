@@ -3,8 +3,8 @@ import axios from "axios";
 import { User } from "../models/user";
 import { MyFile } from "../models/myfile";
 
-// const API_URL = "https://intellidocs-server.onrender.com/api/Files";
-const API_URL = "http://localhost:5046/api/Files";
+const API_URL = "https://intellidocs-server.onrender.com/api/Files";
+// const API_URL = "http://localhost:5046/api/Files";
 
 export const fetchUserFiles = createAsyncThunk(
   'files/fetch',
@@ -35,7 +35,7 @@ export const fetchUserFiles = createAsyncThunk(
 
 export const uploadFile = createAsyncThunk(
   'files/upload',
-  async ({ fileUpload, user }: { fileUpload:File, user: User }, thunkAPI) => {
+  async ({ fileUpload, user }: { fileUpload: File, user: User }, thunkAPI) => {
     try {
       const bucketName = import.meta.env.VITE_AWS_BUCKET_NAME;
       const region = import.meta.env.VITE_AWS_REGION;
@@ -47,19 +47,19 @@ export const uploadFile = createAsyncThunk(
       // Get presigned URL from server
       const presignedResponse = await axios.get(`${API_URL}/upload-url`, {
         params: {
-           fileName: fileUpload.name
+          fileName: fileUpload.name
           , contentType: fileUpload.type
-         },
+        },
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
 
 
       const { url } = presignedResponse.data as { url: string };
       console.log("presigned URL:", url);
-      console.log("fileUpload:", fileUpload); 
+      console.log("fileUpload:", fileUpload);
       // Upload file to S3 using the presigned URL
       await axios.put(url, fileUpload, {
-       
+
         headers: { "Content-Type": fileUpload.type },
       });
       console.log(fileUpload.type);
@@ -72,11 +72,14 @@ export const uploadFile = createAsyncThunk(
         fileSize: fileUpload.size,
         fileType: fileUpload.type,
         authorId: user.id,
-        createdAt: fileUpload.lastModified,
+        uploadDate: new Date().toISOString(),
       };
-
+      console.log("fileMetadata:", fileMetadata);
       const savedFileResponse = await axios.post(`${API_URL}/upload`, fileMetadata, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+
       });
 
       return savedFileResponse.data as MyFile;
@@ -95,7 +98,6 @@ export const shareFile = createAsyncThunk(
       const response = await axios.post(`${API_URL}/share`, { fileId, email }, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
         },
       });
       console.log("File shared successfully:", response.data);
@@ -202,7 +204,7 @@ const fileSlice = createSlice({
     files: [] as MyFile[],
     shareFile: [] as MyFile[],
     loading: false,
-    presignedUrls: null as Record<string, string>|null
+    presignedUrls: null as Record<string, string> | null
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -276,11 +278,11 @@ const fileSlice = createSlice({
         }
         state.presignedUrls[fileName] = presignedUrl;
       })
-      .addCase(fetchPresignedUrl.rejected, (_state,action) => {
+      .addCase(fetchPresignedUrl.rejected, (_state, action) => {
         console.error('Failed to fetch pre-signed URL:', action.payload);
       })
       .addCase(fetchSharedFiles.fulfilled, (state, action) => {
-        state.shareFile = action.payload; 
+        state.shareFile = action.payload;
         state.loading = false;
       })
       .addCase(fetchSharedFiles.rejected, (state, action) => {

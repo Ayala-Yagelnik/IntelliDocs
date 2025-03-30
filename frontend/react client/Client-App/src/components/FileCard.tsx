@@ -11,6 +11,36 @@ import { AppDispatch } from '../store/store';
 import { MyFile } from '../models/myfile';
 import { StoreType } from '../models/storeModel';
 import ShareFile from './ShareFile';
+import { getFileIcon } from '../utils/utils';
+
+// export const downloadFileWithPresignedUrl = async (fileName: string): Promise<void> => {
+//   try {
+//     // Use getPresignedUrl to fetch the presigned URL for downloading
+//     const presignedUrl = await getPresignedUrl(fileName, 'download');
+
+//     console.log("Presigned URL received for download:", presignedUrl);
+
+//     await (async () => {
+//       const downloadResponse = await axios.get(presignedUrl, {
+//         responseType: 'blob',
+
+//       });
+
+//       // Create a blob URL and trigger the download
+//       const url = window.URL.createObjectURL(new Blob([downloadResponse.data as BlobPart]));
+//       const link = document.createElement('a');
+//       link.href = url;
+//       link.setAttribute('download', fileName);
+//       document.body.appendChild(link);
+//       link.click();
+//       link.remove();
+//     });
+//   } catch (error) {
+//     console.error('Error downloading file:', error);
+//     alert('Error downloading file');
+//   }
+// };
+
 
 interface FileCardProps {
   file: MyFile;
@@ -56,6 +86,11 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
           borderRadius: 2,
           boxShadow: 3,
           backgroundColor: '#fff',
+          // width: 250,
+          height: "100%",
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
         }}>
         <CardMedia
           component={
@@ -69,7 +104,7 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
           }
           height="140"
           image={file.fileType.startsWith("image/") ? presignedUrl || undefined : undefined}
-          src={presignedUrl || undefined}
+          src={file.fileType === "application/pdf" ? presignedUrl || undefined : undefined}
           alt={file.fileName}
           controls={file.fileType.startsWith("video/") ? true : undefined}
           sx={{
@@ -79,13 +114,46 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
               : file.fileType === "application/pdf"
                 ? "#e0e0e0"
                 : undefined,
-            display: file.fileType.startsWith("text/") ? "flex" : undefined,
-            justifyContent: file.fileType.startsWith("text/") ? "center" : undefined,
-            alignItems: file.fileType.startsWith("txt/") ? "center" : undefined,
+            display: file.fileType.startsWith("image/") || file.fileType === "application/pdf" || file.fileType.startsWith("video/")
+              ? "block"
+              : "none", // הסתרת המדיה אם לא ניתן להציג אותה
+            objectFit: "cover",
+            height: 150,
           }}
         />
-        <CardContent className="p-4">
-          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#202124', marginBottom: 1 }}>
+        {!(file.fileType.startsWith("image/") || file.fileType === "application/pdf" || file.fileType.startsWith("video/")) && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: 150,
+              backgroundColor: "#f5f5f5",
+            }}
+          >
+            {getFileIcon(file.fileType)}
+          </Box>
+        )}
+        <CardContent
+
+          sx={{
+            flexGrow: 1,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Typography variant="h6" sx={{
+            fontWeight: 'bold',
+            color: '#202124',
+            marginBottom: 1,
+            marginLeft: 2,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            maxWidth: "150px",
+          }}>
             {file.fileName}
           </Typography>
           <Typography variant="body2" sx={{ color: 'gray' }}>
