@@ -17,21 +17,19 @@ export const login = createAsyncThunk(
   }
 );
 
-export const register = createAsyncThunk<
-{ token: string; user: User },
-{ email: string; password: string; username: string },
-{ rejectValue: string }>
-(
+export const register = createAsyncThunk(
   'auth/register',
   async (userData: { email: string; password: string; username: string }, thunkAPI) => {
     try {
-      const response = await axios.post(`${API_URL}/register`,{
+      const response = await axios.post(`${API_URL}/register`, {
         email: userData.email,
         password: userData.password,
         username: userData.username,
-      }
-
-      );
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+    });
       return response.data as { token: string; user: User };
     } catch (error) {
       return thunkAPI.rejectWithValue((error as Error).message);
@@ -64,14 +62,14 @@ const authSlice = createSlice({
   },
   reducers: {
     logout: (state) => {
-      state.user = null; 
-      localStorage.removeItem('token'); 
+      state.user = null;
+      localStorage.removeItem('token');
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state, action) => {
-        state.user = action.payload as User; 
+        state.user = action.payload as User;
         state.loading = false;
       })
       .addCase(login.rejected, (state, action) => {
