@@ -4,9 +4,12 @@ export interface MyFile {
     fileName: string;
     fileSize: number;
     fileType: string;
-    createdAt: Date;
-    updatedAt: Date;
-    userId: string;
+    uploadDate: Date;
+    authorId: number;
     fileKey: string;
-    content: ArrayBuffer;
+    author: {
+        id: number;
+        username: string;
+        email: string;
+    };
 }
