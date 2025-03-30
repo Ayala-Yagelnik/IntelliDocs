@@ -32,7 +32,9 @@ const SharedFilesList: React.FC = () => {
   const navigate = useNavigate();
   useEffect(() => {
     if (user?.id) {
-      dispatch(fetchSharedFiles(user.id));
+      dispatch(fetchSharedFiles(user.id)).then((response) => {
+        console.log("Shared Files Response:", response.payload);
+      });
     }
     else {
       navigate("/");
