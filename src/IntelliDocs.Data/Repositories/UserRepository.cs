@@ -56,7 +56,7 @@ namespace IntelliDocs.Data.Repositories
         }
         public async Task<IEnumerable<UserFile>> GetSharedFilesAsync(int userId)
         {
-            var user = await _dbSet.Include(u => u.SharedFiles).FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _dbSet.Include(u => u.SharedFiles).ThenInclude(uf => uf.Author).FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
             {
                 throw new Exception($"User with ID {userId} not found.");
