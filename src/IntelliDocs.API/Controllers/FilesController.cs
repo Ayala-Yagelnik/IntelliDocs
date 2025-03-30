@@ -39,7 +39,24 @@ namespace IntelliDocs.API.Controllers
             try
             {
                 var files = await _userFileService.GetFilesByUserIdAsync(userId);
-                return Ok(files);
+                var filesWithAuthors = files.Select(file => new
+                {
+                    file.Id,
+                    file.FileName,
+                    file.FileSize,
+                    file.FileType,
+                    file.UploadDate,
+                    file.AuthorId,
+                    file.FileKey,
+                    Author = file.Author != null ? new AuthorDTO
+                    {
+                        Id = file.Author.Id,
+                        Username = file.Author.Username,
+                        Email = file.Author.Email
+                    } : null
+                });
+
+                return Ok(filesWithAuthors);
             }
             catch (Exception ex)
             {
