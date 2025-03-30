@@ -13,10 +13,10 @@ import { StoreType } from '../models/storeModel';
 import ShareFile from './ShareFile';
 import { getFileIcon } from '../utils/utils';
 
-// export const downloadFileWithPresignedUrl = async (fileName: string): Promise<void> => {
+// export const downloadFileWithPresignedUrl = async (fileKey: string): Promise<void> => {
 //   try {
 //     // Use getPresignedUrl to fetch the presigned URL for downloading
-//     const presignedUrl = await getPresignedUrl(fileName, 'download');
+//     const presignedUrl = await getPresignedUrl(fileKey, 'download');
 
 //     console.log("Presigned URL received for download:", presignedUrl);
 
@@ -30,7 +30,7 @@ import { getFileIcon } from '../utils/utils';
 //       const url = window.URL.createObjectURL(new Blob([downloadResponse.data as BlobPart]));
 //       const link = document.createElement('a');
 //       link.href = url;
-//       link.setAttribute('download', fileName);
+//       link.setAttribute('download', fileKey);
 //       document.body.appendChild(link);
 //       link.click();
 //       link.remove();
@@ -61,24 +61,40 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
   }, [dispatch, file, file.fileKey, presignedUrl]);
 
 
+  // const handleDownload = () => {
+  //   if (presignedUrl) {
+  //     const encodedFileName = encodeURIComponent(file.fileName);
+  //     const link = document.createElement("a");
+  //     link.href = `${presignedUrl}&fileName=${encodedFileName}`;
+  //     link.download = file.fileName;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+
+  //     console.info("Your file is being downloaded to your device.");
+  //   } else {
+  //     console.error("No presigned URL available for download.");
+  //   }
+  // };
+
   const handleDownload = () => {
     if (presignedUrl) {
       const encodedFileName = encodeURIComponent(file.fileName);
       const link = document.createElement("a");
       link.href = `${presignedUrl}&fileName=${encodedFileName}`;
-      link.download = file.fileName;
+  
+      // תמיד להוריד את הקובץ, גם אם הוא פתוח בדפדפן
+      link.setAttribute('download', file.fileName);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
+  
       console.info("Your file is being downloaded to your device.");
     } else {
       console.error("No presigned URL available for download.");
     }
   };
-
-
-
+  
   return (
     <>
       <Card
@@ -116,7 +132,7 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
                 : undefined,
             display: file.fileType.startsWith("image/") || file.fileType === "application/pdf" || file.fileType.startsWith("video/")
               ? "block"
-              : "none", // הסתרת המדיה אם לא ניתן להציג אותה
+              : "none", 
             objectFit: "cover",
             height: 150,
           }}
@@ -131,7 +147,7 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
               backgroundColor: "#f5f5f5",
             }}
           >
-            {getFileIcon(file.fileType)}
+            {React.cloneElement(getFileIcon(file.fileType), { fontSize: "large" })}
           </Box>
         )}
         <CardContent

@@ -1,7 +1,5 @@
 import { Container, Typography, Box,Button} from "@mui/material";
 import { motion } from "framer-motion";
-// import ShareFile from "./ShareFile";
-import FileGridToggle from "./FileGridToggle";
 
 // צבעים וקונפיגורציות
 const primaryColor = "#10a37f";
@@ -34,8 +32,6 @@ export const Home = () => (
                   Learn More
               </MotionButton>
           </Box>
-          <FileGridToggle />
-          {/* <ShareFile open={true} onClose={() => {}} /> */}
 
       </motion.div>
   </Container>
