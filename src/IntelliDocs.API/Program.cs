@@ -112,6 +112,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 //services extensions
+builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserFileService, UserFileService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -119,6 +120,7 @@ builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped<IFileRepository, FileRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IFolderRepository,FolderRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IS3Service, S3Service>();

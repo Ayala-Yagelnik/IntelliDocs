@@ -9,8 +9,10 @@ namespace IntelliDocs.Core
         public AutoMapperProfile()
         {
             CreateMap<UserDTO, User>()
-                           .ForMember(dest => dest.Role, opt => opt.Ignore());
-            CreateMap<UserFile, FileDTO>().ReverseMap();
+             .ForMember(dest => dest.Role, opt => opt.Ignore());
+            CreateMap<User, AuthorDTO>();
+            CreateMap<UserFile, FileDTO>()
+            .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author));
             CreateMap<RoleDTO, Role>().ReverseMap();
         }
     }

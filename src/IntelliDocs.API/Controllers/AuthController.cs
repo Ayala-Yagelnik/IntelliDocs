@@ -37,14 +37,20 @@ namespace IntelliDocs.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginModel model)
         {
-            var authResult = await _authService.LoginAsync(model);
-
-            if (!authResult.IsSuccess)
+            try
             {
-                return Unauthorized(authResult.ErrorMessage);
+                var authResult = await _authService.LoginAsync(model);
+                return Ok(authResult.Data);
             }
-
-            return Ok(authResult.Data);
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+                return StatusCode(500, "An unexpected error occurred.");
+            }
         }
 
         [Authorize(Policy = "AdminOnly")]

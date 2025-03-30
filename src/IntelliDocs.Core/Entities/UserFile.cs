@@ -21,7 +21,12 @@ namespace IntelliDocs.Core.Entities
         public DateTime UploadDate { get; set; }
         public int AuthorId { get; set; }
         [ForeignKey("AuthorId")]
-        public required User Author { get; set; }
+        public User Author { get; set; }
+
+        public int? FolderId { get; set; }
+        [ForeignKey("FolderId")]
+        public Folder? Folder { get; set; }
+
         public List<User> SharedUsers { get; set; } = new();
 
         public bool IsStarred { get; set; }

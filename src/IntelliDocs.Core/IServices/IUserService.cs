@@ -18,6 +18,7 @@ namespace IntelliDocs.Core.Services
         Task<IEnumerable<FileDTO>> GetUserFilesByUserIdAsync(int userId);
         Task<bool> ReactivateUserAsync(int id);
         Task<List<UserStorageDto>> GetUserStorageUsageAsync();
+        Task<IEnumerable<UserFile>> GetSharedFilesAsync(int userId);
 
     }
 }

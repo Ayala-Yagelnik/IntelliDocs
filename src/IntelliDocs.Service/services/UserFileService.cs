@@ -27,19 +27,19 @@ namespace IntelliDocs.Service.Services
         }
 
 
-public async Task<IEnumerable<FileDTO>> GetSharedFilesAsync(int userId)
-{
-    var sharedFiles = await _repository.Users.GetSharedFilesAsync(userId);
-    return sharedFiles.Select(file => new FileDTO
-    {
-        Id = file.Id,
-        FileName = file.FileName,
-        FileKey = file.FileKey,
-        FileSize = file.FileSize,
-        FileType = file.FileType,
-        AuthorId = file.AuthorId,
-    });
-}
+        public async Task<IEnumerable<FileDTO>> GetSharedFilesAsync(int userId)
+        {
+            var sharedFiles = await _repository.Users.GetSharedFilesAsync(userId);
+            return sharedFiles.Select(file => new FileDTO
+            {
+                Id = file.Id,
+                FileName = file.FileName,
+                FileKey = file.FileKey,
+                FileSize = file.FileSize,
+                FileType = file.FileType,
+                AuthorId = file.AuthorId,
+            });
+        }
         public async Task<FileDTO> UploadFileAsync(FileDTO fileDto)
         {
             Console.WriteLine($"FileDTO: {System.Text.Json.JsonSerializer.Serialize(fileDto)}");
