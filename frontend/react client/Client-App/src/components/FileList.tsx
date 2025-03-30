@@ -6,10 +6,10 @@ import {
   CircularProgress,
   Button,
   Modal,
-  IconButton,
   List,
   ListItem,
-
+  Avatar,
+  ToggleButton, ToggleButtonGroup
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreType } from "../models/storeModel";
@@ -20,35 +20,11 @@ import { useNavigate } from "react-router-dom";
 import FileCard from "./FileCard";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import InsertChartIcon from "@mui/icons-material/InsertChart";
-import DescriptionIcon from "@mui/icons-material/Description";
-import FolderIcon from "@mui/icons-material/Folder";
-import AudiotrackIcon from "@mui/icons-material/Audiotrack";
-import MovieIcon from "@mui/icons-material/Movie";
-import CodeIcon from "@mui/icons-material/Code";
 
-const getFileIcon = (type: string) => {
-  switch (type) {
-    case "pdf":
-      return <PictureAsPdfIcon sx={{ color: "#d32f2f" }} />;
-    case "excel":
-      return <InsertChartIcon sx={{ color: "#388e3c" }} />;
-    case "word":
-      return <DescriptionIcon sx={{ color: "#1976d2" }} />;
-    case "folder":
-      return <FolderIcon sx={{ color: "#0288d1" }} />;
-    case "audio":
-      return <AudiotrackIcon sx={{ color: "#8e44ad" }} />;
-    case "video":
-      return <MovieIcon sx={{ color: "#e67e22" }} />;
-    case "code":
-      return <CodeIcon sx={{ color: "#2c3e50" }} />;
-    default:
-      return <InsertDriveFileIcon />;
-  }
-};
+import { formatFileSize, formatDate, stringToColor, getFileIcon } from "../utils/utils";
+const primaryColor = "#10a37f";
+const textColor = "#333";
+const hoverColor = "#0e8c6b";
 
 const FileList: React.FC = () => {
   const user = useSelector((state: StoreType) => state.users.user);
@@ -69,32 +45,92 @@ const FileList: React.FC = () => {
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
-
+  const handleViewChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newView: string | null
+  ) => {
+    if (newView !== null) {
+      setIsGridView(newView === "grid");
+    }
+  };
   return (
     <>
       <Box
         sx={{
-          padding: 2,
-          backgroundColor: "#f1f3f4",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          padding: 3,
+          backgroundColor: "#fff",
+          borderRadius: 2,
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: "bold", color: "#202124" }}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: "bold",
+            color: textColor,
+            marginBottom: 2,
+          }}
+        >
           Your Files
         </Typography>
-        <Box>
-          <IconButton onClick={() => setIsGridView(!isGridView)}>
-            {isGridView ? <ViewListIcon /> : <ViewModuleIcon />}
-          </IconButton>
-          <Button variant="contained" color="primary" onClick={handleOpenModal}>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 3,
+          }}>
+          <ToggleButtonGroup
+            value={isGridView ? "grid" : "list"}
+            exclusive
+            onChange={handleViewChange}
+            sx={{
+              borderRadius: "30px",
+              overflow: "hidden",
+              backgroundColor: "#e0e0e0", 
+              "& .MuiToggleButton-root": {
+                border: "none",
+                padding: "8px 16px",
+                color: textColor, 
+                fontWeight: "500",
+                "&.Mui-selected": {
+                  backgroundColor: primaryColor,
+                  color: "#fff",
+                },
+              },
+            }}
+          >
+            <ToggleButton
+              value="grid"
+            >
+              <ViewModuleIcon />
+            </ToggleButton>
+            <ToggleButton
+              value="list"
+            >
+              <ViewListIcon />
+            </ToggleButton>
+          </ToggleButtonGroup>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: primaryColor, 
+              color: "#fff",
+              textTransform: "none",
+              fontWeight: "500",
+              padding: "8px 16px",
+              borderRadius: "10px",
+              "&:hover": {
+                backgroundColor: hoverColor, 
+              },
+            }}
+            onClick={handleOpenModal}
+          >
             Add File
           </Button>
         </Box>
       </Box>
 
-      {/* Modal for uploading files */}
       <Modal open={isModalOpen} onClose={handleCloseModal}>
         <Box
           sx={{
@@ -103,7 +139,7 @@ const FileList: React.FC = () => {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: 400,
-            bgcolor: "background.paper",
+            bgcolor: "#ffffff",
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
@@ -130,7 +166,7 @@ const FileList: React.FC = () => {
             height: "50vh",
           }}
         >
-          <CircularProgress />
+          <CircularProgress sx={{ color: "#f9fafb" }} />
         </Box>
       )}
 
@@ -141,16 +177,22 @@ const FileList: React.FC = () => {
             justifyContent: "center",
             alignItems: "center",
             height: "50vh",
+            color: "#888",
           }}
         >
-          <Typography variant="h6" sx={{ color: "gray" }}>
+          <Typography variant="h6">
             No files found.
           </Typography>
         </Box>
       )}
 
       {!loading && files.length > 0 && (
-        <Box sx={{ padding: 4, backgroundColor: "#f1f3f4", minHeight: "100vh" }}>
+        <Box
+          sx={{
+            padding: 2,
+            backgroundColor: "#fff",
+            borderRadius: 2,
+          }}>
           {isGridView ? (
             <Grid container spacing={3}>
               {files.map((file) => (
@@ -166,22 +208,16 @@ const FileList: React.FC = () => {
                   display: "grid",
                   gridTemplateColumns: "3fr 1fr 1fr 1fr",
                   alignItems: "center",
-                  padding: "8px 16px",
-                  borderBottom: "1px solid #e0e0e0",
+                  padding: "12px 16px",
+                  borderBottom: "1px solid #e5e7eb",
+                  backgroundColor: "#fff", 
+                  color: textColor, 
                 }}
               >
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-                  שם
-                </Typography>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-                  גודל הקובץ
-                </Typography>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-                  השינוי האחרון
-                </Typography>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-                  בעלים
-                </Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Name</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Size</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Last Update</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Owner</Typography>
               </ListItem>
 
               {files.map((file) => (
@@ -192,20 +228,43 @@ const FileList: React.FC = () => {
                     display: "grid",
                     gridTemplateColumns: "3fr 1fr 1fr 1fr",
                     alignItems: "center",
-                    padding: "8px 16px",
-                    borderBottom: "1px solid #e0e0e0",
+                    padding: "12px 16px",
+                    borderBottom: "1px solid #e5e7eb",
+                    "&:hover": {
+                      backgroundColor: "#f3f4f6",
+                    },
                   }}
                 >
-                  {/* <ListItemIcon>{getFileIcon(file.fileType)}</ListItemIcon> */}
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     {getFileIcon(file.fileType)}
-                    <Typography variant="body2" sx={{ marginLeft: 2 }}>
+                    <Typography variant="body2" sx={{ marginLeft: 2, color: "333" }}>
                       {file.fileName}
                     </Typography>
                   </Box>
-                  <Typography variant="body2">{file.fileSize || "—"}</Typography>
-                  <Typography variant="body2">{file.updatedAt ? file.updatedAt.toLocaleString() : "—"}</Typography>
-                  <Typography variant="body2">{file.userId || "—"}</Typography>
+                  <Typography variant="body2" sx={{ color: "#555" }}>
+                    {file.fileSize ? formatFileSize(file.fileSize) : "—"}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#555" }}>
+                    {file.uploadDate ? formatDate(file.uploadDate) : "—"}
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Avatar
+                      sx={{
+                        bgcolor: file.author?.username
+                          ? stringToColor(file.author.username)
+                          : primaryColor,
+                        marginRight: 1,
+                        width: 28,
+                        height: 28,
+                        fontSize: "0.9rem",
+                      }}
+                    >
+                      {file.author?.username ? file.author.username[0].toUpperCase() : "?"}
+                    </Avatar>
+                    <Typography variant="body2" sx={{ color: "#555" }}>
+                      {file.author?.email || "—"}
+                    </Typography>
+                  </Box>
                 </ListItem>
               ))}
             </List>
