@@ -22,16 +22,25 @@ namespace IntelliDocs.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterModel model)
         {
-            if (model == null)
-                return BadRequest("User data is required.");
-            var authResult = await _authService.RegisterAsync(model);
 
-            if (!authResult.IsSuccess)
+            try
             {
-                return BadRequest(authResult.ErrorMessage);
-            }
+                if (model == null)
+                    return BadRequest("User data is required.");
+                var authResult = await _authService.RegisterAsync(model);
+                if (!authResult.IsSuccess)
+                {
+                    return BadRequest(authResult.ErrorMessage);
+                }
+                Console.WriteLine("User registered successfully.");
+                return Ok(authResult.Data);
 
-            return Ok(authResult.Data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during registration: {ex.Message}");
+                return StatusCode(500, "An error occurred during registration.");
+            }
         }
 
         [HttpPost("login")]
