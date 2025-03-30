@@ -28,15 +28,25 @@ builder.Services.AddDbContext<DataContext>(options =>
     mySqlOptions => mySqlOptions.EnableRetryOnFailure())
            .EnableSensitiveDataLogging()
            .LogTo(Console.WriteLine, LogLevel.Information);
+    //  options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+
 });
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader()
-               .AllowCredentials();
+        policy.WithOrigins(
+             "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:4200",
+            "http://intellidocs-server.onrender.com",
+            "https://intellidocs-server.onrender.com",
+            "http://intellidocs-client-app.onrender.com",
+            "https://intellidocs-client-app.onrender.com"
+         ) 
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials(); 
     });
 });
 
@@ -62,7 +72,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"),
-        ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
+        ValidAudience =Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")))
     };
 });
@@ -119,7 +129,7 @@ builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped<IFileRepository, FileRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IFolderRepository, FolderRepository>();
+builder.Services.AddScoped<IFolderRepository,FolderRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IS3Service, S3Service>();
@@ -129,23 +139,26 @@ builder.Services.AddHttpClient();
 builder.Services.AddAWSService<IAmazonS3>();
 
 
-
+// Add services to the container.
+// builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
 
 
+// Configure the HTTP request pipeline.
+// if (app.Environment.IsDevelopment())
+// {
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "IntelliDocs API V1");
+        c.RoutePrefix = string.Empty;
+    });
+// }
 
-app.UseDeveloperExceptionPage();
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "IntelliDocs API V1");
-    c.RoutePrefix = string.Empty;
-});
 
 
-
-
-app.UseCors();
+app.UseCors("AllowFrontend");
 app.UseRouting();
 
 app.UseHttpsRedirection();
