@@ -20,7 +20,7 @@ namespace IntelliDocs.Data.Repositories
 
         public async Task<IEnumerable<UserFile>> GetFilesByUserIdAsync(int userId)
         {
-            return await _dbSet.Where(file => file.AuthorId == userId).ToListAsync();
+            return await _dbSet.Where(file => file.AuthorId == userId).Include(f=>f.Author).ToListAsync();
         }
 
         public async Task<UserFile> GetFileByFileNameAsync(string fileName)
