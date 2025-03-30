@@ -130,7 +130,7 @@ namespace IntelliDocs.Service.Services
                 Role = role
             };
 
-            if (await _repository.Users.GetUserByEmailAsync(user.Email) != null)
+            if ((await _repository.Users.GetUserByEmailAsync(user.Email) )!= null)
             {
                 return Result<bool>.Failure("Email is already in use");
             }
