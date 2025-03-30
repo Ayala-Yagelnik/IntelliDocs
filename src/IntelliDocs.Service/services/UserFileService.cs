@@ -37,31 +37,66 @@ namespace IntelliDocs.Service.Services
                 FileKey = file.FileKey,
                 FileSize = file.FileSize,
                 FileType = file.FileType,
-                AuthorId = file.AuthorId,
+                UploadDate = file.UploadDate,
+                Author = file.Author != null ? new AuthorDTO
+                {
+                    Username = file.Author.Username,
+                    Email = file.Author.Email
+                } : null
             });
         }
         public async Task<FileDTO> UploadFileAsync(FileDTO fileDto)
         {
-            Console.WriteLine($"FileDTO: {System.Text.Json.JsonSerializer.Serialize(fileDto)}");
-            if (fileDto.AuthorId <= 0)
-                throw new ArgumentException("Invalid AuthorId.");
-
-            var file = _mapper.Map<UserFile>(fileDto);
-            file.UploadDate = DateTime.UtcNow;
-            // Ensure the Author exists in the database
-            var authorExists = await _repository.Users.GetByIdAsync(fileDto.AuthorId);
-            if (authorExists == null)
-                throw new Exception("Author not found.");
-            authorExists.CreatedFiles.Add(file);
-            var savedFile = await _repository.Files.AddAsync(file);
-            await _repository.Users.UpdateAsync(fileDto.AuthorId, authorExists);
-            if (savedFile == null)
+            try
             {
-                throw new Exception("Failed to save file metadata.");
-            }
+                Console.WriteLine($"FileDTO: {System.Text.Json.JsonSerializer.Serialize(fileDto)}");
+                if (fileDto.AuthorId <= 0)
+                    throw new ArgumentException("Invalid AuthorId.");
+                if (string.IsNullOrWhiteSpace(fileDto.FileName))
+                    throw new ArgumentException("FileName cannot be empty.");
+                if (string.IsNullOrWhiteSpace(fileDto.FileKey))
+                    throw new ArgumentException("FileKey cannot be empty.");
+                if (string.IsNullOrWhiteSpace(fileDto.FileType))
+                    throw new ArgumentException("FileType cannot be empty.");
+                if (fileDto.FileSize <= 0)
+                    throw new ArgumentException("FileSize must be greater than 0.");
 
-            await _repository.SaveAsync();
-            return _mapper.Map<FileDTO>(savedFile);
+                var file = _mapper.Map<UserFile>(fileDto);
+                if (fileDto.UploadDate == null)
+                {
+                    fileDto.UploadDate = DateTime.UtcNow;
+                }
+                var authorExists = await _repository.Users.GetByIdAsync(fileDto.AuthorId);
+                if (fileDto.Author == null)
+                {
+                    authorExists = await _repository.Users.GetByIdAsync(fileDto.AuthorId);
+                    if (authorExists == null)
+                        throw new Exception("Author not found.");
+                    fileDto.Author = new AuthorDTO
+                    {
+                        Id = authorExists.Id,
+                        Username = authorExists.Username,
+                        Email = authorExists.Email
+                    };
+                }
+                // Ensure the Author exists in the database
+
+                authorExists.CreatedFiles.Add(file);
+                var savedFile = await _repository.Files.AddAsync(file);
+                await _repository.Users.UpdateAsync(fileDto.AuthorId, authorExists);
+                if (savedFile == null)
+                {
+                    throw new Exception("Failed to save file metadata.");
+                }
+
+                await _repository.SaveAsync();
+                return _mapper.Map<FileDTO>(savedFile);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UploadFileAsync: {ex.Message}");
+                throw;
+            }
         }
 
         //TODO: Implement the method

@@ -72,6 +72,11 @@ namespace IntelliDocs.API.Controllers
             try
             {
                 var sharedFiles = await _userFileService.GetSharedFilesAsync(userId);
+                if (sharedFiles == null || !sharedFiles.Any())
+                {
+                    return NotFound("No shared files found.");
+                }
+
                 return Ok(sharedFiles);
             }
             catch (Exception ex)
@@ -86,8 +91,13 @@ namespace IntelliDocs.API.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromBody] FileDTO fileDto)
         {
+            Console.WriteLine($"Received FileDTO: {System.Text.Json.JsonSerializer.Serialize(fileDto)}");
+
             if (fileDto == null || string.IsNullOrEmpty(fileDto.FileName))
+            {
+                Console.WriteLine("Bad Request: Invalid file data.");
                 return BadRequest("Invalid file data.");
+            }
             try
             {
                 var savedFile = await _userFileService.UploadFileAsync(fileDto);

@@ -12,7 +12,7 @@ namespace IntelliDocs.Core
              .ForMember(dest => dest.Role, opt => opt.Ignore());
             CreateMap<User, AuthorDTO>();
             CreateMap<UserFile, FileDTO>()
-            .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author));
+            .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author)).ReverseMap();
             CreateMap<RoleDTO, Role>().ReverseMap();
         }
     }
