@@ -16,10 +16,6 @@ namespace IntelliDocs.Data.Repositories
         public async Task<User> GetUserByEmailAsync(string email)
         {
             var user = await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
-            if (user == null)
-            {
-                throw new InvalidOperationException("User not found.");
-            }
             return user;
         }
 
