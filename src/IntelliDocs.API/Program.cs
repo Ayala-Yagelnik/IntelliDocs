@@ -42,7 +42,9 @@ builder.Services.AddCors(options =>
             "http://intellidocs-server.onrender.com",
             "https://intellidocs-server.onrender.com",
             "http://intellidocs-client-app.onrender.com",
-            "https://intellidocs-client-app.onrender.com"
+            "https://intellidocs-client-app.onrender.com",
+            "http://intellidocs-manager-app.onrender.com",
+            "https://intellidocs-manager-app.onrender.com"
          ) 
               .AllowAnyMethod()
               .AllowAnyHeader()
