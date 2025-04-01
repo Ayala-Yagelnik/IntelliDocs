@@ -51,16 +51,12 @@ interface FileFolderListProps {
     userId: number;
 }
 
-
-// const MotionBox = motion(Box)
 const MotionPaper = motion(Paper)
 
 
 const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, folders, onFolderClick, userId }) => {
     const [foldersExpanded, setFoldersExpanded] = useState(true)
     const [filesExpanded, setFilesExpanded] = useState(true)
-    // const theme = useTheme()
-    // const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
     return (
         <Box>
