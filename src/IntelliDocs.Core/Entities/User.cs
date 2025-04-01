@@ -25,10 +25,11 @@ namespace IntelliDocs.Core.Entities
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime LastLogin { get; set; } = DateTime.Now;
         public string AccountStatus { get; set; } = "Active";
+        public string GoogleId { get; set; }
         public int RoleId { get; set; }
         [ForeignKey("RoleId")]
         public required Role Role { get; set; }
-        public List<UserFile> CreatedFiles { get; set; } =new();
+        public List<UserFile> CreatedFiles { get; set; } = new();
         public List<UserFile> SharedFiles { get; set; } = new();
 
     }

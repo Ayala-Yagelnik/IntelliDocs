@@ -48,7 +48,7 @@ import { Upload } from "lucide-react";
 // }))
 
 const FileUploader = ({folderId}:{folderId:number|null}) => {
-
+console.log("FileUploader component rendered with folderId:", folderId);
   // const [file, setFile] = useState<File | null>(null);
   // const [isDragging, setIsDragging] = useState(false);
   // const dispatch = useDispatch<AppDispatch>();

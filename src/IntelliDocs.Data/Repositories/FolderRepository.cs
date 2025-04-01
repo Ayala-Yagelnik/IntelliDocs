@@ -21,11 +21,12 @@ namespace IntelliDocs.Data.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Folder> GetByIdAsync(int id)
+        public async Task<Folder?> GetByIdAsync(int id)
         {
             return await _dbSet
                 .Include(f => f.SubFolders)
                 .Include(f => f.Files)
+                .Include(f=>f.Owner)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
 

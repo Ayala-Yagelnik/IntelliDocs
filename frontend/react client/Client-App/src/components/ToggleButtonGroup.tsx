@@ -12,7 +12,7 @@ const ToggleViewSelector: React.FC<ToggleViewSelectorProps> = ({ isGridView, onV
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
-  const handleViewChange = (event: React.MouseEvent<HTMLElement>, newView: string | null) => {
+  const handleViewChange = (_: React.MouseEvent<HTMLElement>, newView: string | null) => {
     onViewChange(newView)
   }
 

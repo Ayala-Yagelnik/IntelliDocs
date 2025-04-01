@@ -89,11 +89,11 @@ namespace IntelliDocs.Service.Services
             var user = await ValidateUser(model.Email, model.Password);
             if (user != null)
             {
-                Console.WriteLine("Updating LastLogin...",user.LastLogin);
+                Console.WriteLine("Updating LastLogin...", user.LastLogin);
                 user.LastLogin = DateTime.UtcNow;
                 await _repository.Users.UpdateAsync(user.Id, user);
                 await _repository.SaveAsync();
-                Console.WriteLine("LastLogin updated successfully.",user.LastLogin);
+                Console.WriteLine("LastLogin updated successfully.", user.LastLogin);
                 // Generate JWT token
                 var token = GenerateJwtToken(user);
                 var userDto = new UserDTO
@@ -130,12 +130,12 @@ namespace IntelliDocs.Service.Services
                 Role = role
             };
 
-            if ((await _repository.Users.GetUserByEmailAsync(user.Email) )!= null)
+            if ((await _repository.Users.GetUserByEmailAsync(user.Email)) != null)
             {
                 return Result<bool>.Failure("Email is already in use");
             }
 
-            var result =await _repository.Users.AddAsync(user);
+            var result = await _repository.Users.AddAsync(user);
             if (result == null)
             {
                 return Result<bool>.Failure("Failed to register user.");
@@ -145,6 +145,22 @@ namespace IntelliDocs.Service.Services
             return Result<bool>.Success(true);
         }
 
-
+        public async Task<User> GetOrCreateUserAsync(string email, string name, string googleId)
+        {
+            var user = await _repository.Users.GetUserByEmailAsync(email);
+            if (user == null)
+            {
+                user = new User
+                {
+                    Email = email,
+                    Username = name,
+                    GoogleId = googleId,
+                    RoleId = 2,
+                    Role = await _repository.Roles.GetByIdAsync(2) 
+                };
+                await _repository.Users.AddAsync(user);
+            }
+            return user;
+        }
     }
 }

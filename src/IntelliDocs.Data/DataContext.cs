@@ -15,9 +15,9 @@ namespace IntelliDocs.Data
       public DbSet<User> Users { get; set; }
       public DbSet<UserFile> Files { get; set; }
       public DbSet<Role> Roles { get; set; }
-        public DbSet<Folder> Folders { get; set; }
+      public DbSet<Folder> Folders { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+      protected override void OnModelCreating(ModelBuilder modelBuilder)
       {
          base.OnModelCreating(modelBuilder);
 
@@ -34,15 +34,15 @@ namespace IntelliDocs.Data
             .HasForeignKey(u => u.RoleId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<User>()
-        .HasMany(u => u.SharedFiles)
-        .WithMany(f => f.SharedUsers)
-        .UsingEntity<Dictionary<string, object>>(
-            "UserFileShare",
-            j => j.HasOne<UserFile>().WithMany().HasForeignKey("FileId"),
-            j => j.HasOne<User>().WithMany().HasForeignKey("UserId"));
+         modelBuilder.Entity<User>()
+         .HasMany(u => u.SharedFiles)
+         .WithMany(f => f.SharedUsers)
+         .UsingEntity<Dictionary<string, object>>(
+             "UserFileShare",
+             j => j.HasOne<UserFile>().WithMany().HasForeignKey("FileId"),
+             j => j.HasOne<User>().WithMany().HasForeignKey("UserId"));
 
-       
+
       }
    }
 }
