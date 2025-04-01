@@ -70,3 +70,45 @@ export const formatFileSize = (sizeInBytes: number): string => {
     }
     return <InsertDriveFileIcon sx={{ color: "#757575" }} />; // Default gray icon for unknown types
   };
+
+  // const getFileIcon = (fileType: string) => {
+  //   if (fileType.startsWith("image/")) return <FileImage size={64} color="#10a37f" />
+  //   if (fileType === "application/pdf") return <FilePdf size={64} color="#e74c3c" />
+  //   if (fileType.startsWith("video/")) return <FileVideo size={64} color="#3498db" />
+  //   if (fileType.startsWith("audio/")) return <FileAudio size={64} color="#9b59b6" />
+  //   if (fileType.includes("spreadsheet") || fileType.includes("excel") || fileType.includes("xlsx"))
+  //     return <FileSpreadsheet size={64} color="#27ae60" />
+  //   if (fileType.includes("zip") || fileType.includes("rar") || fileType.includes("tar") || fileType.includes("gz"))
+  //     return <FileArchive size={64} color="#f39c12" />
+  //   if (
+  //     fileType.includes("html") ||
+  //     fileType.includes("css") ||
+  //     fileType.includes("javascript") ||
+  //     fileType.includes("json")
+  //   )
+  //     return <FileCode size={64} color="#2c3e50" />
+  //   if (fileType.includes("text") || fileType.includes("doc") || fileType.includes("word"))
+  //     return <FileText size={64} color="#3498db" />
+  //   return <File size={64} color="#95a5a6" />
+  // }
+
+  // const getFileIcon = (fileType: string) => {
+  //   if (fileType.startsWith("image/")) return <FileImage size={20} color="#10a37f" />
+  //   if (fileType === "application/pdf") return <FilePdf size={20} color="#e74c3c" />
+  //   if (fileType.startsWith("video/")) return <FileVideo size={20} color="#3498db" />
+  //   if (fileType.startsWith("audio/")) return <FileAudio size={20} color="#9b59b6" />
+  //   if (fileType.includes("spreadsheet") || fileType.includes("excel") || fileType.includes("xlsx"))
+  //     return <FileSpreadsheet size={20} color="#27ae60" />
+  //   if (fileType.includes("zip") || fileType.includes("rar") || fileType.includes("tar") || fileType.includes("gz"))
+  //     return <FileArchive size={20} color="#f39c12" />
+  //   if (
+  //     fileType.includes("html") ||
+  //     fileType.includes("css") ||
+  //     fileType.includes("javascript") ||
+  //     fileType.includes("json")
+  //   )
+  //     return <FileCode size={20} color="#2c3e50" />
+  //   if (fileType.includes("text") || fileType.includes("doc") || fileType.includes("word"))
+  //     return <FileText size={20} color="#3498db" />
+  //   return <File size={20} color="#95a5a6" />
+  // }

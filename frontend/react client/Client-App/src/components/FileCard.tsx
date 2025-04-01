@@ -1,57 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardMedia, Typography, Box, IconButton } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ShareIcon from '@mui/icons-material/Share';
-import StarIcon from '@mui/icons-material/Star';
-import StarBorderIcon from '@mui/icons-material/StarBorder';
-import DownloadIcon from '@mui/icons-material/Download';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteFile, fetchPresignedUrl, starFile } from '../store/fileSlice';
+import { deleteFile, fetchPresignedUrl, starFile } from '../store/StorageSlice';
 import { AppDispatch } from '../store/store';
 import { MyFile } from '../models/myfile';
 import { StoreType } from '../models/storeModel';
 import ShareFile from './ShareFile';
 import { getFileIcon } from '../utils/utils';
-
-// export const downloadFileWithPresignedUrl = async (fileKey: string): Promise<void> => {
-//   try {
-//     // Use getPresignedUrl to fetch the presigned URL for downloading
-//     const presignedUrl = await getPresignedUrl(fileKey, 'download');
-
-//     console.log("Presigned URL received for download:", presignedUrl);
-
-//     await (async () => {
-//       const downloadResponse = await axios.get(presignedUrl, {
-//         responseType: 'blob',
-
-//       });
-
-//       // Create a blob URL and trigger the download
-//       const url = window.URL.createObjectURL(new Blob([downloadResponse.data as BlobPart]));
-//       const link = document.createElement('a');
-//       link.href = url;
-//       link.setAttribute('download', fileKey);
-//       document.body.appendChild(link);
-//       link.click();
-//       link.remove();
-//     });
-//   } catch (error) {
-//     console.error('Error downloading file:', error);
-//     alert('Error downloading file');
-//   }
-// };
-
+import { Card, CardContent, CardMedia, Typography, Box, IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText, Skeleton, } from "@mui/material"
+import { Trash2, Share, Star, Download, MoreVertical } from "lucide-react"
+import { motion } from "framer-motion"
 
 interface FileCardProps {
   file: MyFile;
   userId: number;
 }
 
+const MotionCard = motion(Card)
+
+
 const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
+
   const dispatch = useDispatch<AppDispatch>();
   const presignedUrl = useSelector((state: StoreType) => state.files.presignedUrls?.[file.fileKey] || null);
-  const [open, setOpen] = useState(false);
-
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
+  const loading = useSelector((state: StoreType) => state.files.loading)
   useEffect(() => {
     console.log(presignedUrl);
 
@@ -60,55 +33,74 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
     }
   }, [dispatch, file, file.fileKey, presignedUrl]);
 
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
 
-  // const handleDownload = () => {
-  //   if (presignedUrl) {
-  //     const encodedFileName = encodeURIComponent(file.fileName);
-  //     const link = document.createElement("a");
-  //     link.href = `${presignedUrl}&fileName=${encodedFileName}`;
-  //     link.download = file.fileName;
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     document.body.removeChild(link);
-
-  //     console.info("Your file is being downloaded to your device.");
-  //   } else {
-  //     console.error("No presigned URL available for download.");
-  //   }
-  // };
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
 
   const handleDownload = () => {
     if (presignedUrl) {
       const encodedFileName = encodeURIComponent(file.fileName);
       const link = document.createElement("a");
       link.href = `${presignedUrl}&fileName=${encodedFileName}`;
-  
+
       // תמיד להוריד את הקובץ, גם אם הוא פתוח בדפדפן
       link.setAttribute('download', file.fileName);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-  
+
       console.info("Your file is being downloaded to your device.");
     } else {
       console.error("No presigned URL available for download.");
     }
+    handleMenuClose()
   };
-  
+
+  const handleDelete = () => {
+    console.log(`Deleting ${file.fileName}`)
+    dispatch(deleteFile(file.id))
+    handleMenuClose()
+  }
+
+  const handleShare = () => {
+    setShareModalOpen(true)
+    handleMenuClose()
+  }
+
+  const handleStar = () => {
+    dispatch(starFile({ fileId: file.id, isStarred: file.isStarred }))
+    console.log(`${file.isStarred ? "Unstarring" : "Starring"} ${file.fileName}`)
+    handleMenuClose()
+  }
+
   return (
     <>
-      <Card
+      <MotionCard
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
         sx={{
-          borderRadius: 2,
-          boxShadow: 3,
-          backgroundColor: '#fff',
-          // width: 250,
+          borderRadius: 3,
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+          backgroundColor: "#fff",
           height: "100%",
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}>
-        <CardMedia
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          border: "1px solid #eaeaea",
+          overflow: "hidden",
+          transition: "transform 0.2s, box-shadow 0.2s",
+          "&:hover": {
+            transform: "translateY(-4px)",
+            boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)",
+          },
+        }}
+      >
+        {/* <CardMedia
           component={
             file.fileType.startsWith("image/")
               ? "img"
@@ -132,12 +124,12 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
                 : undefined,
             display: file.fileType.startsWith("image/") || file.fileType === "application/pdf" || file.fileType.startsWith("video/")
               ? "block"
-              : "none", 
+              : "none",
             objectFit: "cover",
             height: 150,
           }}
-        />
-        {!(file.fileType.startsWith("image/") || file.fileType === "application/pdf" || file.fileType.startsWith("video/")) && (
+        /> */}
+        {/* {!(file.fileType.startsWith("image/") || file.fileType === "application/pdf" || file.fileType.startsWith("video/")) && (
           <Box
             sx={{
               display: "flex",
@@ -147,72 +139,182 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
               backgroundColor: "#f5f5f5",
             }}
           >
-            {React.cloneElement(getFileIcon(file.fileType), { fontSize: "large" })}
+            {React.cloneElement(getFileIcon(file.fileType), { sx: { fontSize: "8rem", ...getFileIcon(file.fileType).props.sx } })}
           </Box>
-        )}
-        <CardContent
+        )} */}
 
+        {loading ? (
+          <Skeleton variant="rectangular" height={140} animation="wave" sx={{ borderRadius: "12px 12px 0 0" }} />
+        ) : (
+          <>
+            {file.fileType.startsWith("image/") ? (
+              <CardMedia
+                component="img"
+                height={140}
+                image={presignedUrl || undefined}
+                alt={file.fileName}
+                sx={{
+                  borderRadius: "12px 12px 0 0",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: 140,
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "12px 12px 0 0",
+                }}
+              >
+                {getFileIcon(file.fileType)}
+              </Box>
+            )}
+          </>
+        )}
+
+
+        <CardContent
           sx={{
             flexGrow: 1,
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            p: 2,
           }}
         >
-          <Typography variant="h6" sx={{
-            fontWeight: 'bold',
-            color: '#202124',
-            marginBottom: 1,
-            marginLeft: 2,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            maxWidth: "150px",
-          }}>
-            {file.fileName}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'gray' }}>
-            Size: {(file.fileSize / 1024).toFixed(2)} KB
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'gray' }}>
-            Type: {file.fileType}
-          </Typography>
-          <Box sx={{ marginTop: 2, display: 'flex', justifyContent: 'space-between' }}>
+          {loading ? (
+            <>
+              <Skeleton animation="wave" height={24} width="80%" />
+              <Skeleton animation="wave" height={20} width="40%" />
+              <Skeleton animation="wave" height={20} width="60%" />
+            </>
+          ) : (
+            <>
+              <Box>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 600,
+                    color: "#333",
+                    mb: 0.5,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {file.fileName}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                  Size: {(file.fileSize / 1024).toFixed(2)} KB
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#666", fontSize: "0.75rem" }}>
+                  {file.fileType.split("/")[1]?.toUpperCase() || file.fileType}
+                </Typography>
+              </Box>
+            </>
+          )}
+
+{!loading && (
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2, alignItems: "center" }}>
+            <Box sx={{ display: "flex", gap: 0.5 }}>
+              <Tooltip title="Download">
+                <IconButton
+                  onClick={handleDownload}
+                  size="small"
+                  sx={{
+                    color: "#666",
+                    "&:hover": { color: "#10a37f", backgroundColor: "rgba(16, 163, 127, 0.08)" },
+                  }}
+                >
+                  <Download size={18} />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title={file.isStarred ? "Unstar" : "Star"}>
+                <IconButton
+                  onClick={handleStar}
+                  size="small"
+                  sx={{
+                    color: file.isStarred ? "#f39c12" : "#666",
+                    "&:hover": {
+                      color: file.isStarred ? "#e67e22" : "#f39c12",
+                      backgroundColor: "rgba(243, 156, 18, 0.08)",
+                    },
+                  }}
+                >
+                  <Star size={18} fill={file.isStarred ? "#f39c12" : "none"} />
+                </IconButton>
+              </Tooltip>
+            </Box>
 
             <IconButton
-              onClick={() => dispatch(deleteFile(file.id))}
-              sx={{ color: 'gray', '&:hover': { color: 'red' } }}
+              onClick={handleMenuOpen}
+              size="small"
+              sx={{
+                color: "#666",
+                "&:hover": { color: "#333", backgroundColor: "rgba(0, 0, 0, 0.04)" },
+              }}
             >
-              <DeleteIcon />
+              <MoreVertical size={18} />
             </IconButton>
 
-            <IconButton
-              onClick={() => setOpen(true)
-                // userId !== -1 && dispatch(shareFile({ fileId: file.id, userId }))
-              }
-              sx={{ color: 'gray', '&:hover': { color: 'blue' } }}
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              PaperProps={{
+                elevation: 0,
+                sx: {
+                  overflow: "visible",
+                  filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.08))",
+                  mt: 1.5,
+                  borderRadius: 2,
+                  minWidth: 180,
+                  "& .MuiMenuItem-root": {
+                    px: 2,
+                    py: 1,
+                    borderRadius: 1,
+                    mx: 0.5,
+                    my: 0.25,
+                  },
+                },
+              }}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
             >
-              <ShareIcon />
-            </IconButton>
-
-            <IconButton
-              onClick={() => dispatch(starFile({ fileId: file.id, isStarred: file.isStarred }))}
-              sx={{ color: 'gray', '&:hover': { color: 'gold' } }}
-            >
-              {file.isStarred ? <StarIcon /> : <StarBorderIcon />}
-            </IconButton>
-
-            <IconButton
-              onClick={handleDownload}
-              sx={{ color: 'gray', '&:hover': { color: 'rgb(0 255 3)' } }}
-            >
-              <DownloadIcon />
-            </IconButton>
+              <MenuItem onClick={handleDownload}>
+                <ListItemIcon>
+                  <Download size={18} />
+                </ListItemIcon>
+                <ListItemText>Download</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={handleShare}>
+                <ListItemIcon>
+                  <Share size={18} />
+                </ListItemIcon>
+                <ListItemText>Share</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={handleStar}>
+                <ListItemIcon>
+                  <Star size={18} fill={file.isStarred ? "#f39c12" : "none"} />
+                </ListItemIcon>
+                <ListItemText>{file.isStarred ? "Unstar" : "Star"}</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={handleDelete} sx={{ color: "#e74c3c" }}>
+                <ListItemIcon>
+                  <Trash2 size={18} color="#e74c3c" />
+                </ListItemIcon>
+                <ListItemText>Delete</ListItemText>
+              </MenuItem>
+            </Menu>
           </Box>
-        </CardContent>
-      </Card>
-      <ShareFile file={file} open={open} onClose={() => setOpen(false)} />
+        )}
+      </CardContent>
+      </MotionCard>
+        <ShareFile file={file} open={shareModalOpen} onClose={() => setShareModalOpen(false)} />
     </>
   );
 });

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSharedFiles } from "../store/fileSlice";
+import { fetchSharedFiles } from "../store/StorageSlice";
 import { MyFile } from "../models/myfile";
 import { StoreType } from "../models/storeModel";
 import { AppDispatch } from "../store/store";
@@ -27,7 +27,7 @@ const SharedFilesList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: StoreType) => state.users.user);
   const loading = useSelector((state: StoreType) => state.files.loading);
-  const sharedFiles = useSelector((state: StoreType) => state.files.shareFile);
+  const sharedFiles = useSelector((state: StoreType) => state.files.shareFiles);
   const [isGridView, setIsGridView] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
