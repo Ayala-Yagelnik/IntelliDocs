@@ -204,7 +204,7 @@ const AuthForm = ({ isRegister = false }) => {
                             OR
                         </Typography>
                     </Divider>
-                    {/* <MotionButton
+                    <MotionButton
                         variant="outlined"
                         fullWidth
                         size="large"
@@ -219,7 +219,7 @@ const AuthForm = ({ isRegister = false }) => {
                         }}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                    > */}
+                    >
                         <GoogleLogin
                             locale='en'
                             text="signin_with"
@@ -239,7 +239,7 @@ const AuthForm = ({ isRegister = false }) => {
                             }}
                             useOneTap
                         />
-                    {/* </MotionButton> */}
+                    </MotionButton>
 
                     <Box textAlign="center" mt={4}>
                         <Typography variant="body2" sx={{ color: "#666" }}>

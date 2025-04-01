@@ -9,7 +9,6 @@ import {
 } from "lucide-react"
 import { useDispatch, useSelector } from "react-redux";
 import { StoreType } from "../models/storeModel";
-import FileUploader from "./FileUploader";
 import { createFolder, fetchFolderContents, fetchUserContent } from "../store/StorageSlice";
 import { AppDispatch } from "../store/store";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +17,7 @@ import CustomModal from "./CustomModal";
 import ToggleViewSelector from "./ToggleButtonGroup";
 import FileFolderList from "./FileFolderListProps";
 import { motion } from "framer-motion"
+import FileUploader from "./FileUploader";
 
 const MotionBox = motion(Box)
 
@@ -41,8 +41,7 @@ const FileList: React.FC = () => {
 
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
-
-
+  
   useEffect(() => {
     if (!user?.id) {
       navigate("/");
@@ -54,7 +53,14 @@ const FileList: React.FC = () => {
       }
     }
   }, [dispatch, navigate, user?.id, currentFolderId]);
-
+  
+  const handleRefresh = () => {
+    if (currentFolderId === null) {
+      dispatch(fetchUserContent({ userId: user.id }));
+    } else {
+      dispatch(fetchFolderContents({ folderId: currentFolderId }));
+    }
+  }
 
   const handleFolderClick = (folderId: number, folderName: string) => {
     setFolderHistory((prev) => [...prev, { id: folderId, name: folderName }]);
@@ -118,11 +124,6 @@ const FileList: React.FC = () => {
             ))}
           </Breadcrumbs>
 
-          {/* <Typography variant="h5" sx={{ fontWeight: "bold", color: textColor, marginBottom: 2 }}>
-          Your Files
-        </Typography> */}
-
-
           <Box
             sx={{
               display: "flex",
@@ -139,7 +140,7 @@ const FileList: React.FC = () => {
               <Tooltip title="Refresh">
                 <IconButton
                   size="small"
-                  // onClick={() => setLoading(true)}
+                  onClick={handleRefresh}
                   sx={{
                     color: "#666",
                     "&:hover": { color: "#10a37f", backgroundColor: "rgba(16, 163, 127, 0.08)" },

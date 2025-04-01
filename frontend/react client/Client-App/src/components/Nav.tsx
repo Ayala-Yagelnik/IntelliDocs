@@ -1,25 +1,22 @@
 // import { Tab } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { StoreType } from '../models/storeModel';
 import { logout } from '../store/authSlice';
 import { useState } from "react"
 import {
-    AppBar,
-    Toolbar,
-    Button,
-    Box,
-    useMediaQuery,
-    useTheme,
-    IconButton,
-    Drawer,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemText,
-    Divider,
+  AppBar,
+  Toolbar,
+  Button,
+  Box,
+
+  IconButton,
+
+  Avatar,
+  Menu,
+  MenuItem,
 } from "@mui/material"
-import { Menu, X } from "lucide-react"
+import { User, LogOut } from "lucide-react"
 import Logo from './logo';
 
 // צבעים וקונפיגורציות
@@ -29,120 +26,124 @@ import Logo from './logo';
 
 // ניווט ראשי
 const Nav = () => {
-    const theme = useTheme();
-    const location = useLocation();
-    const pathname = location.pathname;
-    const user = useSelector((state: StoreType) => state.auth.user);
-    const dispatch = useDispatch();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const [drawerOpen, setDrawerOpen] = useState(false)
+  // const theme = useTheme();
+  // const location = useLocation();
+  // const pathname = location.pathname;
+  const user = useSelector((state: StoreType) => state.auth.user) 
+   const dispatch = useDispatch();
+  // const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    handleMenuClose();
+    navigate("/");
+  }
+
+  const handleLogin=()=>{
+    navigate("/login")
+  }
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
 
 
-    const handleLogout = () => {
-        dispatch(logout());
-    }
 
-    const navItems = !user
-        ? [
-            { label: "Sign in", path: "/login" },
-        ]
-        : [
-            { label: "My Files", path: "/files" },
-            { label: "Files Shared With Me", path: "/files-shared" },
-            { label: "Log out", path: "/", onClick: handleLogout },
-        ]
-
-    const toggleDrawer = () => {
-        setDrawerOpen(!drawerOpen)
-    }
-
-    const drawer = (
-        <Box onClick={toggleDrawer} sx={{ width: 250 }} role="presentation">
-            <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}>
-                <IconButton>
-                    <X size={24} />
-                </IconButton>
-            </Box>
-            <Divider />
-            <List>
-                <ListItem disablePadding>
-                    <ListItemButton component={Link} to="/">
-                        <ListItemText primary="Home" />
-                    </ListItemButton>
-                </ListItem>
-                {navItems.map((item) => (
-                    <ListItem key={item.label} disablePadding>
-                        <ListItemButton component={Link} to={item.path} onClick={item.onClick}>
-                            <ListItemText primary={item.label} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
-        </Box>
-    )
-
-    return (
-        <AppBar
-            position="sticky"
-            color="default"
-            elevation={0}
-            sx={{
-                bgcolor: "white",
-                borderBottom: "1px solid #eaeaea",
-            }}
-        >
-            <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, sm: 4 } }}>
-            <Logo variant="full" size="medium" />
-
-{isMobile ? (
-  <>
-    <IconButton color="inherit" aria-label="open drawer" edge="end" onClick={toggleDrawer}>
-      <Menu />
-    </IconButton>
-    <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer}>
-      {drawer}
-    </Drawer>
-  </>
-) : (
-  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-    <Button
-      component={Link}
-      to="/"
-      variant="text"
+  return (
+    <AppBar
+      position="sticky"
+      color="default"
+      elevation={0}
       sx={{
-        color: pathname === "/" ? "#10a37f" : "#666",
-        fontWeight: pathname === "/" ? 600 : 400,
-        mx: 1,
+        bgcolor: "white",
+        borderBottom: "1px solid #eaeaea",
+        zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
-      Home
-    </Button>
+      <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, sm: 4 } }}>
+        <Logo variant="full" size="medium" />
 
-    {navItems.map((item) => (
-      <Button
-        key={item.label}
-        component={Link}
-        to={item.path}
-        onClick={item.onClick}
-        variant={item.label === "Sign in" ? "contained" : "text"}
-        sx={{
-          bgcolor: item.label === "Sign in" ? "#10a37f" : "transparent",
-          color: item.label === "Sign in" ? "white" : "#666",
-          "&:hover": {
-            bgcolor: item.label === "Sign in" ? "#0e8c6b" : "transparent",
-          },
-          fontWeight: pathname === item.path ? 600 : 400,
-          borderRadius: "4px",
-          mx: 0.5,
-        }}
-      >
-        {item.label}
-      </Button>
-    ))}
-  </Box>
-)}
-</Toolbar>
-</AppBar>
-    )
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {!user ? (
+            <Button
+              onClick={handleLogin}
+              variant="contained"
+              sx={{
+                bgcolor: "#10a37f",
+                color: "white",
+                "&:hover": {
+                  bgcolor: "#0e8c6b",
+                },
+                fontWeight: 500,
+                borderRadius: "4px",
+              }}
+            >
+              Login
+            </Button>
+          ) : (
+            <Box>
+              <IconButton
+                onClick={handleMenuOpen}
+                sx={{
+                  ml: 1,
+                }}
+              >
+                <Avatar
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    bgcolor: "#10a37f",
+                    fontSize: "1rem",
+                    fontWeight: 500,
+                  }}
+                >
+                  {user && user.username ? user.username.charAt(0).toUpperCase() : ""}
+                </Avatar>
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: 'visible',
+                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.1))',
+                    mt: 1.5,
+                    borderRadius: 2,
+                    minWidth: 180,
+                    '& .MuiMenuItem-root': {
+                      px: 2,
+                      py: 1,
+                      borderRadius: 1,
+                      mx: 0.5,
+                      my: 0.25,
+                    },
+                  },
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                <MenuItem onClick={handleMenuClose} sx={{ gap: 1.5 }}>
+                  <User size={18} />
+                  Profile
+                </MenuItem>
+                <MenuItem onClick={handleLogout} sx={{ gap: 1.5, color: '#e74c3c' }}>
+                  <LogOut size={18} />
+                  Logout
+                </MenuItem>
+              </Menu>
+            </Box>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
+  )
 }
 export default Nav;

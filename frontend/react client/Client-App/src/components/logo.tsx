@@ -1,7 +1,7 @@
 import type React from "react"
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material"
 import { motion } from "framer-motion"
-import { Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 interface LogoProps {
   variant?: "full" | "icon"
@@ -14,6 +14,16 @@ const Logo: React.FC<LogoProps> = ({ variant = "full", size = "medium", color = 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
+
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick()
+    } else {
+      navigate("/")
+    }
+  }
   // Determine sizes based on the size prop
   const getIconSize = () => {
     switch (size) {
@@ -69,15 +79,14 @@ const Logo: React.FC<LogoProps> = ({ variant = "full", size = "medium", color = 
 
   return (
     <Box
-      component={Link}
-      to="/"
-      onClick={onClick}
+      onClick={handleClick}
       sx={{
         display: "flex",
         alignItems: "center",
         gap: 1,
         textDecoration: "none",
         color: logoColor,
+        cursor: "pointer",
       }}
     >
       <motion.div whileHover="hover" variants={iconVariants}>
