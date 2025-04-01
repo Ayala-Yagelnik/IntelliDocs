@@ -1,45 +1,159 @@
-import { AppBar, Toolbar, Button, Box, Tab, Typography } from '@mui/material';
+// import { Tab } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { StoreType } from '../models/storeModel';
 import { logout } from '../store/authSlice';
-
+import { useState } from "react"
+import {
+    AppBar,
+    Toolbar,
+    Button,
+    Box,
+    Typography,
+    useMediaQuery,
+    useTheme,
+    IconButton,
+    Drawer,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    Divider,
+} from "@mui/material"
+import { Menu, X } from "lucide-react"
 
 // צבעים וקונפיגורציות
-const primaryColor = "#10a37f";
-const textColor = "#333";
+// const primaryColor = "#10a37f";
+// const textColor = "#333";
 
 
 // ניווט ראשי
-const Nav: React.FC = () => {
+const Nav = () => {
+    const theme = useTheme();
+    const location = useLocation();
+    const pathname = location.pathname;
     const user = useSelector((state: StoreType) => state.auth.user);
     const dispatch = useDispatch();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const [drawerOpen, setDrawerOpen] = useState(false)
 
-    const handleLogout=()=>{
+
+    const handleLogout = () => {
         dispatch(logout());
     }
+
+    const navItems = !user
+        ? [
+            { label: "Sign in", path: "/login" },
+        ]
+        : [
+            { label: "My Files", path: "/files" },
+            { label: "Files Shared With Me", path: "/files-shared" },
+            { label: "Log out", path: "/", onClick: handleLogout },
+        ]
+
+    const toggleDrawer = () => {
+        setDrawerOpen(!drawerOpen)
+    }
+
+    const drawer = (
+        <Box onClick={toggleDrawer} sx={{ width: 250 }} role="presentation">
+            <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}>
+                <IconButton>
+                    <X size={24} />
+                </IconButton>
+            </Box>
+            <Divider />
+            <List>
+                <ListItem disablePadding>
+                    <ListItemButton component={Link} to="/">
+                        <ListItemText primary="Home" />
+                    </ListItemButton>
+                </ListItem>
+                {navItems.map((item) => (
+                    <ListItem key={item.label} disablePadding>
+                        <ListItemButton component={Link} to={item.path} onClick={item.onClick}>
+                            <ListItemText primary={item.label} />
+                        </ListItemButton>
+                    </ListItem>
+                ))}
+            </List>
+        </Box>
+    )
+
     return (
-        <AppBar color='inherit' position="sticky" sx={{ boxShadow: 'none', borderBottom: '1px solid #ddd' }}>
-            <Toolbar sx={{ justifyContent: 'space-between' }}>
-                <Box>
-                    <Typography variant="h6" fontWeight={600} color={textColor}>IntelliDocs</Typography>
-                </Box>
-                <Box>
-                    {!user && (
-                        <>
-                            <Button component={Link} to="/register" sx={{ color: primaryColor }}>Sign up</Button>
-                            <Button component={Link} to="/login" sx={{ color: primaryColor }}>Sign in</Button>
-                        </>
-                    )}
-                    {user && (
-                        <>
-                            <Button component={Link} to="/files" sx={{ color: primaryColor }}>My Files</Button> 
-                            <Button component={Link} to="/filesShared" sx={{ color: primaryColor }}>Files Shared With Me</Button> 
-                            <Button component={Link} to="/" onClick={handleLogout} sx={{ color: primaryColor }}>log out</Button>
-                        </>
-                    )}
-                </Box>
-                <Tab component={Link} to="/" label="Home" />
+        <AppBar
+            position="sticky"
+            color="default"
+            elevation={0}
+            sx={{
+                bgcolor: "white",
+                borderBottom: "1px solid #eaeaea",
+            }}
+        >
+            <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, sm: 4 } }}>
+                <Typography
+                    variant="h6"
+                    component={Link}
+                    to="/"
+                    sx={{
+                        fontWeight: 700,
+                        color: "#10a37f",
+                        textDecoration: "none",
+                        display: "flex",
+                        alignItems: "center",
+                    }}
+                >
+                    IntelliDocs
+                </Typography>
+
+                {isMobile ? (
+                    <>
+                        <IconButton color="inherit" aria-label="open drawer" edge="end" onClick={toggleDrawer}>
+                            <Menu />
+                        </IconButton>
+                        <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer}>
+                            {drawer}
+                        </Drawer>
+                    </>
+                ) : (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Button
+                            component={Link}
+                            to="/"
+                            variant="text"
+                            sx={{
+                                color: pathname === "/" ? "#10a37f" : "#666",
+                                fontWeight: pathname === "/" ? 600 : 400,
+                                mx: 1,
+                            }}
+                        >
+                            Home
+                        </Button>
+
+                        {navItems.map((item) => (
+                            <Button
+                                key={item.label}
+                                component={Link}
+                                to={item.path}
+                                onClick={item.onClick}
+                                variant={item.label === "Sign in" ? "contained" : "text"}
+                                sx={{
+                                    bgcolor: item.label === "Sign in" ? "#10a37f" : "transparent",
+                                    color: item.label === "Sign in" ? "white" : "#666",
+                                    "&:hover": {
+                                        bgcolor: item.label === "Sign in" ? "#0e8c6b" : "transparent",
+                                    },
+                                    fontWeight: pathname === item.path ? 600 : 400,
+                                    borderRadius: "4px",
+                                    mx: 0.5,
+                                }}
+                            >
+                                {item.label}
+                            </Button>
+                        ))}
+                    </Box>
+                )}
             </Toolbar>
         </AppBar>
     )

@@ -1,275 +1,244 @@
 import React, { useEffect, useState } from "react";
+import { Box, Typography, CircularProgress, Button, Breadcrumbs, Link as MuiLink, Paper, useMediaQuery, useTheme, IconButton, Tooltip, } from "@mui/material";
 import {
-  Box,
-  Typography,
-  Grid,
-  CircularProgress,
-  Button,
-  Modal,
-  List,
-  ListItem,
-  Avatar,
-  ToggleButton, ToggleButtonGroup
-} from "@mui/material";
+  FolderPlus,
+  Upload,
+  ChevronRight,
+  HomeIcon,
+  RefreshCw,
+} from "lucide-react"
 import { useDispatch, useSelector } from "react-redux";
 import { StoreType } from "../models/storeModel";
 import FileUploader from "./FileUploader";
-import { fetchUserFiles } from "../store/fileSlice";
+import { createFolder, fetchFolderContents, fetchUserContent } from "../store/StorageSlice";
 import { AppDispatch } from "../store/store";
 import { useNavigate } from "react-router-dom";
-import FileCard from "./FileCard";
-import ViewListIcon from "@mui/icons-material/ViewList";
-import ViewModuleIcon from "@mui/icons-material/ViewModule";
+import AddFolder from "./AddFolder";
+import CustomModal from "./CustomModal";
+import ToggleViewSelector from "./ToggleButtonGroup";
+import FileFolderList from "./FileFolderListProps";
+import { motion } from "framer-motion"
 
-import { formatFileSize, formatDate, stringToColor, getFileIcon } from "../utils/utils";
-const primaryColor = "#10a37f";
-const textColor = "#333";
-const hoverColor = "#0e8c6b";
+const MotionBox = motion(Box)
+
+
 
 const FileList: React.FC = () => {
   const user = useSelector((state: StoreType) => state.users.user);
   const loading = useSelector((state: StoreType) => state.files.loading);
   const files = useSelector((state: StoreType) => state.files.files);
+  const folders = useSelector((state: StoreType) => state.files.folders);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGridView, setIsGridView] = useState(false);
+  const [currentFolderId, setCurrentFolderId] = useState<number | null>(null);
+  const [folderHistory, setFolderHistory] = useState<{ id: number | null; name: string }[]>([
+    { id: null, name: "Home" },
+  ]);
+  const [isAddFolderOpen, setIsAddFolderOpen] = useState(false);
+  const theme = useTheme()
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+
+
 
   useEffect(() => {
     if (!user?.id) {
       navigate("/");
     } else {
-      dispatch(fetchUserFiles(user?.id ?? -1));
+      if (currentFolderId === null) {
+        dispatch(fetchUserContent({ userId: user.id }));
+      } else {
+        dispatch(fetchFolderContents({ folderId: currentFolderId }));
+      }
     }
-  }, [dispatch, navigate, user?.id]);
+  }, [dispatch, navigate, user?.id, currentFolderId]);
+
+
+  const handleFolderClick = (folderId: number, folderName: string) => {
+    setFolderHistory((prev) => [...prev, { id: folderId, name: folderName }]);
+    setCurrentFolderId(folderId);
+  };
+
+  const handleBreadcrumbClick = (index: number) => {
+    const newHistory = folderHistory.slice(0, index + 1);
+    setFolderHistory(newHistory);
+    setCurrentFolderId(newHistory[newHistory.length - 1].id);
+  };
+
+  const handleAddFolder = (folderName: string) => {
+    if (!user.id) return;
+    dispatch(createFolder({ name: folderName, parentFolderId: currentFolderId, ownerId: user.id }));
+    setIsAddFolderOpen(false);
+  };
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
-  const handleViewChange = (
-    newView: string | null
-  ) => {
+  const handleViewChange = (newView: string | null) => {
     if (newView !== null) {
       setIsGridView(newView === "grid");
     }
   };
+
   return (
     <>
-      <Box
-        sx={{
-          padding: 3,
-          backgroundColor: "#fff",
-          borderRadius: 2,
-        }}
-      >
-        <Typography
-          variant="h5"
+      <MotionBox initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+        <CustomModal open={isAddFolderOpen} onClose={() => setIsAddFolderOpen(false)}>
+          <AddFolder onAddFolder={handleAddFolder} onCancel={() => setIsAddFolderOpen(false)} />
+        </CustomModal>
+
+        <Paper
+          elevation={0}
           sx={{
-            fontWeight: "bold",
-            color: textColor,
-            marginBottom: 2,
+            p: { xs: 2, sm: 3 },
+            borderRadius: 3,
+            mb: 3,
+            border: "1px solid #eaeaea",
           }}
         >
-          Your Files
-        </Typography>
-
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 3,
-          }}>
-          <ToggleButtonGroup
-            value={isGridView ? "grid" : "list"}
-            exclusive
-            onChange={(_, newView) => handleViewChange(newView)}
-            sx={{
-              borderRadius: "30px",
-              overflow: "hidden",
-              backgroundColor: "#e0e0e0",
-              "& .MuiToggleButton-root": {
-                border: "none",
-                padding: "8px 16px",
-                color: textColor,
-                fontWeight: "500",
-                "&.Mui-selected": {
-                  backgroundColor: primaryColor,
-                  color: "#fff",
-                },
-              },
-            }}
-          >
-            <ToggleButton
-              value="grid"
-            >
-              <ViewModuleIcon />
-            </ToggleButton>
-            <ToggleButton
-              value="list"
-            >
-              <ViewListIcon />
-            </ToggleButton>
-          </ToggleButtonGroup>
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: primaryColor,
-              color: "#fff",
-              textTransform: "none",
-              fontWeight: "500",
-              padding: "8px 16px",
-              borderRadius: "10px",
-              "&:hover": {
-                backgroundColor: hoverColor,
-              },
-            }}
-            onClick={handleOpenModal}
-          >
-            Add File
-          </Button>
-        </Box>
-      </Box>
-
-      <Modal open={isModalOpen} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "#ffffff",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="h6" sx={{ marginBottom: 2 }}>
-            Upload File
-          </Typography>
-          <FileUploader />
-          <Box sx={{ display: "flex", justifyContent: "flex-end", marginTop: 2 }}>
-            <Button variant="outlined" onClick={handleCloseModal}>
-              Close
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
-
-      {loading && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "50vh",
-          }}
-        >
-          <CircularProgress sx={{ color: "#f9fafb" }} />
-        </Box>
-      )}
-
-      {files.length === 0 && !loading && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "50vh",
-            color: "#888",
-          }}
-        >
-          <Typography variant="h6">
-            No files found.
-          </Typography>
-        </Box>
-      )}
-
-      {!loading && files.length > 0 && (
-        <Box
-          sx={{
-            padding: 2,
-            backgroundColor: "#fff",
-            borderRadius: 2,
-          }}>
-          {isGridView ? (
-            <Grid container spacing={3}>
-              {files.map((file) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={file.id}>
-                  <FileCard file={file} userId={user.id} />
-                </Grid>
-              ))}
-            </Grid>
-          ) : (
-            <List>
-              <ListItem
+          <Breadcrumbs separator={<ChevronRight size={16} />} aria-label="breadcrumb" sx={{ mb: 2 }}>
+            {folderHistory.map((folder, index) => (
+              <MuiLink
+                key={folder.id ?? "home"}
+                underline="hover"
+                color={index === folderHistory.length - 1 ? "text.primary" : "inherit"}
+                onClick={() => handleBreadcrumbClick(index)}
                 sx={{
-                  display: "grid",
-                  gridTemplateColumns: "3fr 1fr 1fr 1fr",
+                  cursor: "pointer",
+                  display: "flex",
                   alignItems: "center",
-                  padding: "12px 16px",
-                  borderBottom: "1px solid #e5e7eb",
-                  backgroundColor: "#fff",
-                  color: textColor,
+                  fontWeight: index === folderHistory.length - 1 ? 600 : 400,
+                  color: index === folderHistory.length - 1 ? "#333" : "#666",
                 }}
               >
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Name</Typography>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Size</Typography>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Last Update</Typography>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Owner</Typography>
-              </ListItem>
+                {index === 0 && <HomeIcon size={16} style={{ marginRight: 4 }} />}
+                {folder.name}
+              </MuiLink>
+            ))}
+          </Breadcrumbs>
 
-              {files.map((file) => (
+          {/* <Typography variant="h5" sx={{ fontWeight: "bold", color: textColor, marginBottom: 2 }}>
+          Your Files
+        </Typography> */}
 
-                <ListItem
-                  key={file.id}
+
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: { xs: 2, sm: 0 },
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Typography variant="h5" sx={{ fontWeight: 600, color: "#333" }}>
+                {folderHistory[folderHistory.length - 1].name}
+              </Typography>
+              <Tooltip title="Refresh">
+                <IconButton
+                  size="small"
+                  // onClick={() => setLoading(true)}
                   sx={{
-                    display: "grid",
-                    gridTemplateColumns: "3fr 1fr 1fr 1fr",
-                    alignItems: "center",
-                    padding: "12px 16px",
-                    borderBottom: "1px solid #e5e7eb",
+                    color: "#666",
+                    "&:hover": { color: "#10a37f", backgroundColor: "rgba(16, 163, 127, 0.08)" },
+                  }}
+                >
+                  <RefreshCw size={18} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                gap: 1,
+                width: { xs: "100%", sm: "auto" },
+                justifyContent: { xs: "space-between", sm: "flex-end" },
+              }}
+            >
+              <ToggleViewSelector isGridView={isGridView} onViewChange={handleViewChange} />
+
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<FolderPlus size={18} />}
+                  onClick={() => setIsAddFolderOpen(true)}
+                  sx={{
+                    borderColor: "#10a37f",
+                    color: "#10a37f",
+                    textTransform: "none",
+                    fontWeight: 500,
+                    borderRadius: 2,
                     "&:hover": {
-                      backgroundColor: "#f3f4f6",
+                      borderColor: "#0e8c6b",
+                      backgroundColor: "rgba(16, 163, 127, 0.04)",
                     },
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {getFileIcon(file.fileType)}
-                    <Typography variant="body2" sx={{ marginLeft: 2, color: "333" }}>
-                      {file.fileName}
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" sx={{ color: "#555" }}>
-                    {file.fileSize ? formatFileSize(file.fileSize) : "—"}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "#555" }}>
-                    {file.uploadDate ? formatDate(file.uploadDate) : "—"}
-                  </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Avatar
-                      sx={{
-                        bgcolor: file.author?.username
-                          ? stringToColor(file.author.username)
-                          : primaryColor,
-                        marginRight: 1,
-                        width: 28,
-                        height: 28,
-                        fontSize: "0.9rem",
-                      }}
-                    >
-                      {file.author?.username ? file.author.username[0].toUpperCase() : "?"}
-                    </Avatar>
-                    <Typography variant="body2" sx={{ color: "#555" }}>
-                      {file.author?.email || "—"}
-                    </Typography>
-                  </Box>
-                </ListItem>
-              ))}
-            </List>
-          )}
-        </Box>
-      )}
+                  {!isMobile && "New Folder"}
+                </Button>
+
+                <Button
+                  variant="contained"
+                  startIcon={<Upload size={18} />}
+                  onClick={handleOpenModal}
+                  sx={{
+                    backgroundColor: "#10a37f",
+                    color: "#fff",
+                    textTransform: "none",
+                    fontWeight: 500,
+                    borderRadius: 2,
+                    "&:hover": {
+                      backgroundColor: "#0e8c6b",
+                    },
+                  }}
+                >
+                  {!isMobile && "Upload"}
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+        </Paper>
+
+        <CustomModal open={isModalOpen} onClose={handleCloseModal}>
+          <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
+            Upload File
+          </Typography>
+          <FileUploader folderId={currentFolderId} />
+        </CustomModal>
+
+        {loading && (
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
+            <CircularProgress sx={{ color: "#10a37f" }} />
+          </Box>
+        )}
+
+        {!loading && folders?.length === 0 && files?.length === 0 && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "50vh",
+              color: "#888",
+            }}
+          >
+            <Typography variant="h6">This folder is empty.</Typography>
+          </Box>
+        )}
+
+        {!loading && (files?.length > 0 || folders?.length > 0) && (
+          <FileFolderList
+            isGridView={isGridView}
+            files={files}
+            folders={folders}
+            onFolderClick={(folderId: number, folderName: string) => handleFolderClick(folderId, folderName)}
+            userId={user.id}
+          />
+        )}
+      </MotionBox>
     </>
   );
 };

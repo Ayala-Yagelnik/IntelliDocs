@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { User } from '../models/user';
 
 const API_URL = `${import.meta.env.VITE_BASE_URL}/Auth`;
-console.log("API_URL : ",API_URL);
-console.log("API_URL : ",import.meta.env.VITE_BASE_URL);
+console.log("API_URL : ", API_URL);
+console.log("API_URL : ", import.meta.env.VITE_BASE_URL);
 export const login = createAsyncThunk(
   'auth/login',
   async ({ email, password }: { email: string, password: string }, thunkAPI) => {
@@ -29,10 +30,19 @@ export const register = createAsyncThunk(
         headers: {
           'Content-Type': 'application/json',
         },
-    });
+      });
       return response.data as { token: string; user: User };
-    } catch (error) {
-      return thunkAPI.rejectWithValue((error as Error).message);
+    } catch (error:any) {
+      if (error.response && typeof error.response.data === 'string') {
+        // Handle plain text error response
+        return thunkAPI.rejectWithValue(error.response.data);
+      }
+      if (error.response && error.response.data && error.response.data.message) {
+        // Handle JSON error response
+        return thunkAPI.rejectWithValue(error.response.data.message);
+      }
+      // Handle unknown errors
+      return thunkAPI.rejectWithValue('An unknown error occurred');
     }
   }
 );

@@ -7,6 +7,7 @@ export interface MyFile {
     uploadDate: Date;
     authorId: number;
     fileKey: string;
+    folderId: number|null;
     author: {
         id: number;
         username: string;
