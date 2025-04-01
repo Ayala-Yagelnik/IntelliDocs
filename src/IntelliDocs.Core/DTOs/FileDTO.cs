@@ -12,6 +12,7 @@ namespace IntelliDocs.Core.DTOs
         public string FileType { get; set; } = string.Empty;
         public int AuthorId { get; set; }
         public bool IsStarred { get; set; }
+        public int? FolderId { get; set; }
         public AuthorDTO? Author { get; set; }
 
     }

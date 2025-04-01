@@ -47,7 +47,7 @@ namespace IntelliDocs.Service.Services
 
             await _repository.Users.AddAsync(userEntity);
             await _repository.SaveAsync();
-
+            Console.WriteLine($"User {userEntity.Email} created successfully with ID {userEntity.Id}");
             return _mapper.Map<UserDTO>(userEntity);
         }
 
@@ -84,7 +84,7 @@ namespace IntelliDocs.Service.Services
             var result = await _repository.Users.ReactivateAsync(id);
             if (result)
             {
-                await _repository.SaveAsync(); 
+                await _repository.SaveAsync();
             }
             return result;
         }
@@ -95,7 +95,7 @@ namespace IntelliDocs.Service.Services
             {
                 Username = user.Username,
                 Email = user.Email,
-                StorageUsed = user.CreatedFiles?.Sum(file => file.FileSize) ??0 / (1024.0 * 1024.0)
+                StorageUsed = user.CreatedFiles?.Sum(file => file.FileSize) ?? 0 / (1024.0 * 1024.0)
             }).ToList();
 
             return storageUsage;
@@ -103,12 +103,14 @@ namespace IntelliDocs.Service.Services
 
         public async Task<IEnumerable<UserFile>> GetSharedFilesAsync(int userId)
         {
-            var files=await _repository.Users.GetSharedFilesAsync(userId);
+            var files = await _repository.Users.GetSharedFilesAsync(userId);
             if (files == null)
             {
                 return null;
             }
             return files;
         }
+
+
     }
 }

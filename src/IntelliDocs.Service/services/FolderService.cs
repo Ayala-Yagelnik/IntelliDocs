@@ -30,10 +30,10 @@ namespace IntelliDocs.Service.services
             return await _repository.Folders.GetByIdAsync(id);
         }
 
-        public async Task<IEnumerable<Folder>> GetSubFoldersAsync(int parentId)
+        public async Task<IEnumerable<Folder>> GetSubFoldersAsync(int? parentFolderId, int userId)
         {
             var allFolders = await _repository.Folders.GetAllAsync();
-            return allFolders.Where(f => f.ParentFolderId == parentId).ToList();
+            return allFolders.Where(f => f.ParentFolderId == parentFolderId && f.OwnerId == userId).ToList();
         }
 
         public async Task<bool> DeleteFolderAsync(int id)
@@ -44,6 +44,12 @@ namespace IntelliDocs.Service.services
                 await _repository.SaveAsync();
             }
             return result;
+        }
+
+        public async Task<IEnumerable<UserFile>> GetFilesInFolderAsync(int folderId)
+        {
+            var folder = await _repository.Folders.GetByIdAsync(folderId);
+            return folder?.Files ?? Enumerable.Empty<UserFile>();
         }
     }
 }

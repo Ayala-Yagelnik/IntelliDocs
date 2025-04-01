@@ -3,6 +3,7 @@ using IntelliDocs.Core.DTOs;
 using IntelliDocs.Core.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Google.Apis.Auth;
 
 namespace IntelliDocs.API.Controllers
 {
@@ -42,7 +43,35 @@ namespace IntelliDocs.API.Controllers
                 return StatusCode(500, "An error occurred during registration.");
             }
         }
+        [HttpPost("google")]
+        public async Task<IActionResult> GoogleSignIn([FromBody] GoogleSignInRequest request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.Token))
+                {
+                    return BadRequest(new { message = "Google token is required." });
+                }
+                // אימות הטוקן מול Google
+                var payload = await GoogleJsonWebSignature.ValidateAsync(request.Token, new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID") ?? "YOUR_GOOGLE_CLIENT_ID" } // Client ID שלך
+                });
 
+                // בדוק אם המשתמש כבר קיים במערכת
+                var user = await _authService.GetOrCreateUserAsync(payload.Email, payload.Name, payload.Subject);
+
+                // צור JWT Token עבור המשתמש
+                var jwtToken = _authService.GenerateJwtToken(user);
+
+                return Ok(new { user, token = jwtToken });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Google Sign-In Error: {ex.Message}");
+                return Unauthorized(new { message = "Invalid Google token", error = ex.Message });
+            }
+        }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginModel model)
         {
@@ -76,4 +105,8 @@ namespace IntelliDocs.API.Controllers
             return Ok(user);
         }
     }
+}
+public class GoogleSignInRequest
+{
+    public string Token { get; set; }
 }

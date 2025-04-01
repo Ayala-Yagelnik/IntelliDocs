@@ -1,4 +1,5 @@
-﻿using IntelliDocs.Core.Entities;
+﻿using IntelliDocs.Core.DTOs;
+using IntelliDocs.Core.Entities;
 using IntelliDocs.Core.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +12,7 @@ namespace IntelliDocs.API.Controllers
     public class FoldersController : ControllerBase
     {
         private readonly IFolderService _folderService;
+        private readonly IUserFileService _fileService;
 
         public FoldersController(IFolderService folderService)
         {
@@ -19,8 +21,22 @@ namespace IntelliDocs.API.Controllers
 
         [Authorize(Policy = "UserOrAdmin")]
         [HttpPost]
-        public async Task<IActionResult> CreateFolder([FromBody] Folder folder)
+        public async Task<IActionResult> CreateFolder([FromBody] FolderDTO folderDTO)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var folder = new Folder
+            {
+                Name = folderDTO.Name,
+                ParentFolderId = folderDTO.ParentFolderId,
+                OwnerId = folderDTO.OwnerId,
+                CreatedAt = DateTime.UtcNow.AddHours(3),
+                SubFolders = new List<Folder>(),
+                Files = new List<UserFile>()
+            };
             var createdFolder = await _folderService.CreateFolderAsync(folder);
             return Ok(createdFolder);
         }
@@ -32,14 +48,6 @@ namespace IntelliDocs.API.Controllers
             var folder = await _folderService.GetFolderByIdAsync(id);
             if (folder == null) return NotFound();
             return Ok(folder);
-        }
-
-        [Authorize(Policy = "UserOrAdmin")]
-        [HttpGet("{parentId}/subfolders")]
-        public async Task<IActionResult> GetSubFolders(int parentId)
-        {
-            var subFolders = await _folderService.GetSubFoldersAsync(parentId);
-            return Ok(subFolders);
         }
 
         [Authorize(Policy = "UserOrAdmin")]
@@ -55,6 +63,18 @@ namespace IntelliDocs.API.Controllers
         [HttpGet("{id}/contents")]
         public async Task<IActionResult> GetFolderContents(int id)
         {
+
+            // try
+            // {
+            //     var rootFolders = await _folderService.GetSubFoldersAsync(null, userId);
+            //     var rootFiles = await _fileService.GetFilesInFolderAsync(null,userId);
+            //     return Ok(new{ Folders = rootFolders, Files = rootFiles });
+            // }
+            // catch (Exception ex)
+            // {
+            //     Console.WriteLine($"Error in GetRootContents: {ex.Message}");
+            //     return StatusCode(500, "An error occurred while fetching root contents.");
+            // }
             var folder = await _folderService.GetFolderByIdAsync(id);
             if (folder == null) return NotFound();
 
@@ -65,6 +85,23 @@ namespace IntelliDocs.API.Controllers
             };
 
             return Ok(contents);
+        }
+
+        [HttpGet("contents")]
+        public async Task<IActionResult> GetFolderContents(int userId, int? parentFolderId)
+        {
+            if (parentFolderId == null)
+            {
+                var rootFolders = await _folderService.GetSubFoldersAsync(null, userId);
+                var rootFiles = await _fileService.GetFilesInFolderAsync(null, userId);
+                return Ok(new { Folders = rootFolders, Files = rootFiles });
+            }
+
+            // החזרת תוכן של תיקיה ספציפית
+            var folder = await _folderService.GetFolderByIdAsync(parentFolderId.Value);
+            if (folder == null) return NotFound();
+
+            return Ok(new { Folders = folder.SubFolders, Files = folder.Files });
         }
     }
 }
