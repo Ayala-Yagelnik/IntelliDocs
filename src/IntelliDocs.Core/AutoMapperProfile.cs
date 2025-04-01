@@ -14,6 +14,8 @@ namespace IntelliDocs.Core
             CreateMap<UserFile, FileDTO>()
             .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author)).ReverseMap();
             CreateMap<RoleDTO, Role>().ReverseMap();
+            CreateMap<Folder,FolderDTO>()
+            .ForMember(dest => dest.OwnerId, opt => opt.MapFrom(src => src.Owner.Id)).ReverseMap();
         }
     }
 }

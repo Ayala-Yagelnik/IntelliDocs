@@ -16,5 +16,6 @@ namespace IntelliDocs.Core.IServices
         Task<Result<AuthResult>> LoginAsync(UserLoginModel model);
         Task<Result<bool>> RegisterAsync(UserRegisterModel model);
         Task<Result<bool>> SetAdminAsync(SetAdminModel model);
+        Task<User> GetOrCreateUserAsync(string email, string name, string googleId);
     }
 }

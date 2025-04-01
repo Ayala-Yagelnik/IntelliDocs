@@ -27,6 +27,13 @@ namespace IntelliDocs.Service.Services
         }
 
 
+        public async Task<IEnumerable<FileDTO>> GetFilesInFolderAsync(int? folderId, int userId)
+        {
+            var allFiles = await _repository.Files.GetFilesByUserIdAsync(userId);
+            var filesInFolder = allFiles.Where(f => f.FolderId == folderId).ToList();
+            return _mapper.Map<IEnumerable<FileDTO>>(filesInFolder);
+        }
+
         public async Task<IEnumerable<FileDTO>> GetSharedFilesAsync(int userId)
         {
             var sharedFiles = await _repository.Users.GetSharedFilesAsync(userId);

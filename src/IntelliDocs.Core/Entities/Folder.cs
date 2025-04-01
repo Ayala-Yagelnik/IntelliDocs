@@ -13,7 +13,7 @@ namespace IntelliDocs.Core.Entities
         [Key]
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }= DateTime.UtcNow.AddHours(2);
+        public DateTime CreatedAt { get; set; }= DateTime.UtcNow;
         public int? ParentFolderId { get; set; }
         [ForeignKey("ParentFolderId")]
         public Folder? ParentFolder { get; set; }

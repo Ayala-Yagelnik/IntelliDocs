@@ -4,6 +4,7 @@ using IntelliDocs.Core.Services;
 using IntelliDocs.Core.DTOs;
 using IntelliDocs.API.PostEntity;
 using AutoMapper;
+using IntelliDocs.Core.IServices;
 
 namespace IntelliDocs.API.Controllers
 {
@@ -12,11 +13,15 @@ namespace IntelliDocs.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IUserFileService _fileService;
+        private readonly IFolderService _folderService;
         readonly IMapper _mapper;
 
-        public UsersController(IUserService userService, IMapper mapper)
+        public UsersController(IUserService userService, IUserFileService userFileService, IFolderService folderService, IMapper mapper)
         {
             _userService = userService;
+            _fileService = userFileService;
+            _folderService = folderService;
             _mapper = mapper;
         }
 
@@ -87,6 +92,23 @@ namespace IntelliDocs.API.Controllers
                 // Log the exception for debugging
                 Console.WriteLine($"Error in GetUserStorageUsage: {ex.Message}");
                 return StatusCode(500, "An error occurred while fetching storage usage.");
+            }
+        }
+
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpGet("{userId}/root-contents")]
+        public async Task<IActionResult> GetRootContents(int userId)
+        {
+            try
+            {
+                var rootFolders = await _folderService.GetSubFoldersAsync(null, userId);
+                var rootFiles = await _fileService.GetFilesInFolderAsync(null,userId);
+                return Ok(new{ Folders = rootFolders, Files = rootFiles });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetRootContents: {ex.Message}");
+                return StatusCode(500, "An error occurred while fetching root contents.");
             }
         }
     }
