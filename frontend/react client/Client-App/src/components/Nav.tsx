@@ -9,7 +9,6 @@ import {
     Toolbar,
     Button,
     Box,
-    Typography,
     useMediaQuery,
     useTheme,
     IconButton,
@@ -21,6 +20,7 @@ import {
     Divider,
 } from "@mui/material"
 import { Menu, X } from "lucide-react"
+import Logo from './logo';
 
 // צבעים וקונפיגורציות
 // const primaryColor = "#10a37f";
@@ -92,70 +92,57 @@ const Nav = () => {
             }}
         >
             <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, sm: 4 } }}>
-                <Typography
-                    variant="h6"
-                    component={Link}
-                    to="/"
-                    sx={{
-                        fontWeight: 700,
-                        color: "#10a37f",
-                        textDecoration: "none",
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                >
-                    IntelliDocs
-                </Typography>
+            <Logo variant="full" size="medium" />
 
-                {isMobile ? (
-                    <>
-                        <IconButton color="inherit" aria-label="open drawer" edge="end" onClick={toggleDrawer}>
-                            <Menu />
-                        </IconButton>
-                        <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer}>
-                            {drawer}
-                        </Drawer>
-                    </>
-                ) : (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <Button
-                            component={Link}
-                            to="/"
-                            variant="text"
-                            sx={{
-                                color: pathname === "/" ? "#10a37f" : "#666",
-                                fontWeight: pathname === "/" ? 600 : 400,
-                                mx: 1,
-                            }}
-                        >
-                            Home
-                        </Button>
+{isMobile ? (
+  <>
+    <IconButton color="inherit" aria-label="open drawer" edge="end" onClick={toggleDrawer}>
+      <Menu />
+    </IconButton>
+    <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer}>
+      {drawer}
+    </Drawer>
+  </>
+) : (
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+    <Button
+      component={Link}
+      to="/"
+      variant="text"
+      sx={{
+        color: pathname === "/" ? "#10a37f" : "#666",
+        fontWeight: pathname === "/" ? 600 : 400,
+        mx: 1,
+      }}
+    >
+      Home
+    </Button>
 
-                        {navItems.map((item) => (
-                            <Button
-                                key={item.label}
-                                component={Link}
-                                to={item.path}
-                                onClick={item.onClick}
-                                variant={item.label === "Sign in" ? "contained" : "text"}
-                                sx={{
-                                    bgcolor: item.label === "Sign in" ? "#10a37f" : "transparent",
-                                    color: item.label === "Sign in" ? "white" : "#666",
-                                    "&:hover": {
-                                        bgcolor: item.label === "Sign in" ? "#0e8c6b" : "transparent",
-                                    },
-                                    fontWeight: pathname === item.path ? 600 : 400,
-                                    borderRadius: "4px",
-                                    mx: 0.5,
-                                }}
-                            >
-                                {item.label}
-                            </Button>
-                        ))}
-                    </Box>
-                )}
-            </Toolbar>
-        </AppBar>
+    {navItems.map((item) => (
+      <Button
+        key={item.label}
+        component={Link}
+        to={item.path}
+        onClick={item.onClick}
+        variant={item.label === "Sign in" ? "contained" : "text"}
+        sx={{
+          bgcolor: item.label === "Sign in" ? "#10a37f" : "transparent",
+          color: item.label === "Sign in" ? "white" : "#666",
+          "&:hover": {
+            bgcolor: item.label === "Sign in" ? "#0e8c6b" : "transparent",
+          },
+          fontWeight: pathname === item.path ? 600 : 400,
+          borderRadius: "4px",
+          mx: 0.5,
+        }}
+      >
+        {item.label}
+      </Button>
+    ))}
+  </Box>
+)}
+</Toolbar>
+</AppBar>
     )
 }
 export default Nav;
