@@ -204,21 +204,13 @@ const AuthForm = ({ isRegister = false }) => {
                             OR
                         </Typography>
                     </Divider>
-                    <MotionButton
-                        variant="outlined"
-                        fullWidth
-                        size="large"
+                    <Box
                         sx={{
-                            borderColor: "#e0e0e0",
-                            color: "#333",
-                            borderRadius: 2,
-                            py: 1.5,
-                            fontWeight: 500,
-                            textTransform: "none",
-                            fontSize: "1rem",
+                            width: "100%", // תופס את כל הרוחב
+                            display: "flex",
+                            justifyContent: "center",
+                            mt: 2, // מרווח עליון
                         }}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
                     >
                         <GoogleLogin
                             locale='en'
@@ -238,8 +230,10 @@ const AuthForm = ({ isRegister = false }) => {
                                 setErrorMessage('Google Sign-In failed. Please try again.');
                             }}
                             useOneTap
+                            theme="outline" // עיצוב כפתור
+                            size="large"
                         />
-                    </MotionButton>
+                    </Box>
 
                     <Box textAlign="center" mt={4}>
                         <Typography variant="body2" sx={{ color: "#666" }}>
