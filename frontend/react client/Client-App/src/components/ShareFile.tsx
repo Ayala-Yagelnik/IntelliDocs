@@ -7,10 +7,10 @@ import {
   Divider,
   Chip,
   Avatar,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
+  // List,
+  // ListItem,
+  // ListItemAvatar,
+  // ListItemText,
   InputAdornment,
   CircularProgress,
 } from "@mui/material"
@@ -18,7 +18,7 @@ import { shareFile } from "../store/StorageSlice";
 import { AppDispatch } from "../store/store";
 import { useDispatch } from "react-redux";
 import { MyFile } from "../models/myfile";
-import { Search, X, Copy, Check, Mail, LinkIcon } from "lucide-react"
+import {  X, Copy, Check, Mail, LinkIcon } from "lucide-react"
 import { motion } from "framer-motion"
 import { User } from "../models/user";
 import CustomModal from "./CustomModal";
@@ -33,38 +33,40 @@ const MotionBox = motion(Box)
 
 
 const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
-
-  const [email, 
-    // setEmail
-  ] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([])
-  const [linkCopied, setLinkCopied] = useState(false)
-  const [isSharing, setIsSharing] = useState(false)
+  const [email, setEmail] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleSelectUser = (user:  User[][0]) => {
-    setSelectedUsers([...selectedUsers, user])
-    setSearchTerm("")
-  }
+  // const handleSelectUser = (user: User) => {
+  //   setSelectedUsers([...selectedUsers, user]);
+  //   setSearchTerm("");
+  // };
 
   const handleRemoveUser = (userId: number) => {
-    setSelectedUsers(selectedUsers.filter((user: { id: number; }) => user.id !== userId))
-  }
+    setSelectedUsers(selectedUsers.filter((user) => user.id !== userId));
+  };
 
-  const handaleShare = () => {
+  const handleShare = async () => {
     setIsSharing(true);
-    dispatch(shareFile({ fileId: file.id, email }))
-    setIsSharing(false);
-    onClose();
-  }
+    try {
+      await dispatch(shareFile({ fileId: file.id, email })).unwrap();
+      console.log("File shared successfully with:", email);
+    } catch (error) {
+      console.error("Error sharing file:", error);
+    } finally {
+      setIsSharing(false);
+      onClose();
+    }
+  };
 
   const handleCopyLink = () => {
-    // Mock copy link functionality
-    navigator.clipboard.writeText(`https://example.com/shared/${file.id}`)
-    setLinkCopied(true)
-    setTimeout(() => setLinkCopied(false), 2000)
-  }
+    navigator.clipboard.writeText(`https://example.com/shared/${file.id}`);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
 
   return (
     <CustomModal open={open} onClose={onClose} maxWidth={500}>
@@ -77,7 +79,7 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
           <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
             People
           </Typography>
-          <TextField
+          {/* <TextField
             fullWidth
             placeholder="Search by name or email"
             value={searchTerm}
@@ -91,9 +93,23 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
               ),
               sx: { borderRadius: 2 },
             }}
+          /> */}
+          <TextField
+            fullWidth
+            placeholder="Enter email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Mail size={18} color="#666" />
+                </InputAdornment>
+              ),
+              sx: { borderRadius: 2 },
+            }}
           />
-
-          {searchTerm &&  (
+          {/* {searchTerm && (
             <Box sx={{ mt: 1, maxHeight: 200, overflow: "auto", borderRadius: 2, border: "1px solid #eaeaea" }}>
               <List disablePadding>
                 {selectedUsers.map((user) => (
@@ -108,7 +124,7 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
                     }}
                   >
                     <ListItemAvatar>
-                      <Avatar  alt={user.username} />
+                      <Avatar alt={user.username} />
                     </ListItemAvatar>
                     <ListItemText
                       primary={user.username}
@@ -126,7 +142,26 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
               {selectedUsers.map((user) => (
                 <Chip
                   key={user.id}
-                  avatar={<Avatar  alt={user.username} />}
+                  avatar={<Avatar alt={user.username} />}
+                  label={user.username}
+                  onDelete={() => handleRemoveUser(user.id)}
+                  deleteIcon={<X size={16} />}
+                  sx={{
+                    borderRadius: 2,
+                    backgroundColor: "rgba(16, 163, 127, 0.1)",
+                    "& .MuiChip-label": { fontWeight: 500 },
+                  }}
+                />
+              ))}
+            </Box>
+          )}
+        </Box> */}
+          {selectedUsers.length > 0 && (
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
+              {selectedUsers.map((user) => (
+                <Chip
+                  key={user.id}
+                  avatar={<Avatar alt={user.username} />}
                   label={user.username}
                   onDelete={() => handleRemoveUser(user.id)}
                   deleteIcon={<X size={16} />}
@@ -200,8 +235,8 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
           </Button>
           <Button
             variant="contained"
-            onClick={handaleShare}
-            disabled={selectedUsers.length === 0 && !linkCopied}
+            onClick={handleShare}
+            disabled={!email}
             startIcon={isSharing ? <CircularProgress size={16} color="inherit" /> : <Mail size={18} />}
             sx={{
               backgroundColor: "#10a37f",

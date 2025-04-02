@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { register, login } from '../store/authSlice';
+import { register, login, connectWithGoogle } from '../store/authSlice';
 import { StoreType } from '../models/storeModel';
 import { useTransition } from 'react';
 import { AppDispatch } from '../store/store';
@@ -56,10 +56,11 @@ const AuthForm = ({ isRegister = false }) => {
 
     const handleGoogleSignIn = async (token: string) => {
         try {
-            const response = await axios.post<{ user: User; token: string }>(`${import.meta.env.VITE_BASE_URL}/auth/google`, { token });
-            const { user, token: jwtToken } = response.data;
+            
+            const { user, token: jwtToken } = await dispatch(connectWithGoogle({ token })).unwrap() as { user: User; token: string };
 
             localStorage.setItem('token', jwtToken);
+            console.log("Google Sign-In Success:", user);
             dispatch(setCurrentUser(user));
             navigate('/');
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
