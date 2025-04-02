@@ -4,8 +4,6 @@ import axios from 'axios';
 import { User } from '../models/user';
 
 const API_URL = `${import.meta.env.VITE_BASE_URL}/Auth`;
-console.log("API_URL : ", API_URL);
-console.log("API_URL : ", import.meta.env.VITE_BASE_URL);
 export const login = createAsyncThunk(
   'auth/login',
   async ({ email, password }: { email: string, password: string }, thunkAPI) => {
@@ -14,6 +12,26 @@ export const login = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue((error as Error).message);
+    }
+  }
+);
+export const connectWithGoogle = createAsyncThunk(
+  'auth/connectWithGoogle',
+  async ({token}: { token: string;  }, thunkAPI) => {
+    try {
+      const response = await axios.post<{ user: User; token: string }>(
+        `${import.meta.env.VITE_BASE_URL}/auth/google`,
+        { token });
+        
+      return response.data as { token: string; user: User };
+    } catch (error:any) {
+      if (error.response && typeof error.response.data === 'string') {
+        return thunkAPI.rejectWithValue(error.response.data);
+      }
+      if (error.response && error.response.data && error.response.data.message) {
+        return thunkAPI.rejectWithValue(error.response.data.message);
+      }
+      return thunkAPI.rejectWithValue('An unknown error occurred');
     }
   }
 );
@@ -108,6 +126,17 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(setAdmin.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(connectWithGoogle.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.loading = false;
+      })
+      .addCase(connectWithGoogle.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(connectWithGoogle.pending, (state) => {
         state.loading = true;
       });
   },
