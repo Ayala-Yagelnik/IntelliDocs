@@ -1,5 +1,5 @@
 import { combineSlices, configureStore } from "@reduxjs/toolkit";
-import fileSlice from "./fileSlice";
+import fileSlice from "./StorageSlice";
 import userSlice from "./userSlice";
 import authSlice from "./authSlice";
 
