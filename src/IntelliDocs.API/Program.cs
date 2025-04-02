@@ -26,7 +26,7 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseMySql(Environment.GetEnvironmentVariable("CONNECTION_STRING"),
     ServerVersion.Parse("8.0.33-mysql"),
     mySqlOptions => mySqlOptions.EnableRetryOnFailure())
-           .EnableSensitiveDataLogging()
+           .EnableSensitiveDataLogging()//this is for debugging purposes only, remove in production
            .LogTo(Console.WriteLine, LogLevel.Information);
     //  options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
 
@@ -158,7 +158,11 @@ var app = builder.Build();
     });
 // }
 
-
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Content-Security-Policy"] = "script-src 'self' https://accounts.google.com";
+    await next();
+});
 
 app.UseCors("AllowFrontend");
 app.UseRouting();

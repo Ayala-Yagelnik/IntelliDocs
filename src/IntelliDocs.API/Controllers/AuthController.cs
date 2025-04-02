@@ -43,6 +43,7 @@ namespace IntelliDocs.API.Controllers
                 return StatusCode(500, "An error occurred during registration.");
             }
         }
+        
         [HttpPost("google")]
         public async Task<IActionResult> GoogleSignIn([FromBody] GoogleSignInRequest request)
         {
