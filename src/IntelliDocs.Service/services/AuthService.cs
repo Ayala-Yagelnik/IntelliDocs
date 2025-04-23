@@ -39,7 +39,6 @@ namespace IntelliDocs.Service.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-
             claims.Add(new Claim(ClaimTypes.Role, user.Role?.NameRole?? "User"));
 
             var token = new JwtSecurityToken(
