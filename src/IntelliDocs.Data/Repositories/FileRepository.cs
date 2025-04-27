@@ -19,9 +19,14 @@ namespace IntelliDocs.Data.Repositories
             return await _dbSet.FirstOrDefaultAsync(f => f.FileKey == key);
         }
 
-        public async Task<IEnumerable<UserFile>> GetFilesByUserIdAsync(int userId)
+        public async Task<IEnumerable<UserFile>> GetFilesByUserIdAsync(int userId, bool includeDeleted = false)
         {
-            return await _dbSet.Where(file => file.AuthorId == userId).Include(f => f.Author).ToListAsync();
+            var query = _dbSet.Where(file => file.AuthorId == userId);
+            if (!includeDeleted)
+            {
+                query = query.Where(file => !file.IsDeletted);
+            }
+            return await query.Include(f => f.Author).ToListAsync();
         }
 
         public async Task<UserFile> GetFileByFileNameAsync(string fileName)

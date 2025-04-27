@@ -80,7 +80,7 @@ namespace IntelliDocs.API.Controllers
 
             var contents = new
             {
-                SubFolders = folder.SubFolders,
+                SubFolders = folder.SubFolders.Where(f => f.IsDeletted==false).ToList(),
                 Files = folder.Files
             };
 
@@ -93,7 +93,7 @@ namespace IntelliDocs.API.Controllers
             if (parentFolderId == null)
             {
                 var rootFolders = await _folderService.GetSubFoldersAsync(null, userId);
-                var rootFiles = await _fileService.GetFilesInFolderAsync(null, userId);
+                var rootFiles = await _fileService.GetFilesInFolderAsync(null, userId,false);
                 return Ok(new { Folders = rootFolders, Files = rootFiles });
             }
 
@@ -102,6 +102,30 @@ namespace IntelliDocs.API.Controllers
             if (folder == null) return NotFound();
 
             return Ok(new { Folders = folder.SubFolders, Files = folder.Files });
+        }
+
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpGet("trash/{userId}")]
+        public async Task<IActionResult> GetTrashFolders(int userId)
+        {
+            var trashedFolders = await _folderService.GetTrashFoldersAsync(userId);
+            return Ok(trashedFolders);
+        }
+
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpDelete("{id}/trash")]
+        public async Task<IActionResult> MoveFolderToTrash(int id)
+        {
+            await _folderService.MoveFolderToTrashAsync(id);
+            return NoContent();
+        }
+
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpDelete("{id}/permanent")]
+        public async Task<IActionResult> PermanentlyDeleteFolder(int id)
+        {
+            var success = await _folderService.PermanentlyDeleteFolderAsync(id);
+            return success ? NoContent() : NotFound();
         }
     }
 }

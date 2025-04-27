@@ -71,7 +71,7 @@ namespace IntelliDocs.Service.Services
 
         public async Task<IEnumerable<FileDTO>> GetUserFilesByUserIdAsync(int userId)
         {
-            var files = await _repository.Files.GetFilesByUserIdAsync(userId);
+            var files = await _repository.Files.GetFilesByUserIdAsync(userId,false);
             if (files == null)
             {
                 return null;
