@@ -6,12 +6,13 @@ import { motion } from "framer-motion"
 interface AddFolderProps {
   onAddFolder: (folderName: string) => void;
   onCancel: () => void;
+  existingFolders: string[]; 
 }
 
 const MotionBox = motion(Box)
 
 
-const AddFolder: React.FC<AddFolderProps> = ({ onAddFolder, onCancel }) => {
+const AddFolder: React.FC<AddFolderProps> = ({ onAddFolder, onCancel,existingFolders }) => {
   const [folderName, setFolderName] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
@@ -21,6 +22,11 @@ const AddFolder: React.FC<AddFolderProps> = ({ onAddFolder, onCancel }) => {
 
     if (!folderName.trim()) {
       setError("Folder name cannot be empty")
+      return
+    }
+
+    if (existingFolders.includes(folderName.trim())) {
+      setError("Folder name already exists")
       return
     }
 

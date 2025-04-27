@@ -1,50 +1,11 @@
 import { Box, Button, Typography, CircularProgress, Paper, alpha } from "@mui/material"
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "../store/store";
-import { StoreType } from "../models/storeModel";
-import { uploadFile } from "../store/StorageSlice";
+import { AppDispatch } from "../../store/store";
+import { StoreType } from "../../models/storeModel";
+import { uploadFile } from "../../store/StorageSlice";
 import { Upload, File, X } from "lucide-react"
 import { motion } from "framer-motion"
-
-// // Define theme colors
-// const primaryColor = "#10a37f" 
-// const hoverColor = "#0e8e6d"
-// // const textColor = "#343541"
-// // const lightGrayColor = "#f7f7f8"
-// const borderColor = "#e5e5e6"
-
-
-// // Styled components
-// const VisuallyHiddenInput = styled("input")({
-//   // clip: "rect(0 0 0 0)",
-//   // clipPath: "inset(50%)",
-//   // height: 1,
-//   // overflow: "hidden",
-//   // position: "absolute",
-//   // bottom: 0,
-//   // left: 0,
-//   // whiteSpace: "nowrap",
-//   // width: 1,
-//   opacity: 0,
-//   position: "absolute",
-//   width: "100%",
-//   height: "100%",
-//   cursor: "pointer",
-// })
-
-// const UploadBox = styled(Paper)(({ theme }) => ({
-//   border: `1px dashed ${borderColor}`,
-//   borderRadius: theme.shape.borderRadius,
-//   padding: theme.spacing(3),
-//   textAlign: "center",
-//   cursor: "pointer",
-//   backgroundColor: "transparent",
-//   transition: "background-color 0.2s",
-//   "&:hover": {
-//     backgroundColor: lightGrayColor,
-//   },
-// }))
 
 const FileUploader = ({ folderId }: { folderId: number | null }) => {
   console.log("FileUploader component rendered with folderId:", folderId);

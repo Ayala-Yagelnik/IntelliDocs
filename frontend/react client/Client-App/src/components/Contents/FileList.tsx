@@ -8,12 +8,12 @@ import {
   RefreshCw,
 } from "lucide-react"
 import { useDispatch, useSelector } from "react-redux";
-import { StoreType } from "../models/storeModel";
-import { createFolder, fetchFolderContents, fetchUserContent } from "../store/StorageSlice";
-import { AppDispatch } from "../store/store";
+import { StoreType } from "../../models/storeModel";
+import { createFolder, fetchFolderContents, fetchUserContent } from "../../store/StorageSlice";
+import { AppDispatch } from "../../store/store";
 import { useNavigate } from "react-router-dom";
-import AddFolder from "./AddFolder";
-import CustomModal from "./CustomModal";
+import AddFolder from "../Contents/AddFolder";
+import CustomModal from "../CustomModal";
 import ToggleViewSelector from "./ToggleButtonGroup";
 import FileFolderList from "./FileFolderListProps";
 import { motion } from "framer-motion"
@@ -41,19 +41,16 @@ const FileList: React.FC = () => {
 
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
-  
+
   useEffect(() => {
     if (!user?.id) {
       navigate("/");
     } else {
-      if (currentFolderId === null) {
-        dispatch(fetchUserContent({ userId: user.id }));
-      } else {
-        dispatch(fetchFolderContents({ folderId: currentFolderId }));
-      }
+      handleRefresh();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, navigate, user?.id, currentFolderId]);
-  
+
   const handleRefresh = () => {
     if (currentFolderId === null) {
       dispatch(fetchUserContent({ userId: user.id }));
@@ -91,7 +88,7 @@ const FileList: React.FC = () => {
     <>
       <MotionBox initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
         <CustomModal open={isAddFolderOpen} onClose={() => setIsAddFolderOpen(false)}>
-          <AddFolder onAddFolder={handleAddFolder} onCancel={() => setIsAddFolderOpen(false)} />
+          <AddFolder onAddFolder={handleAddFolder} onCancel={() => setIsAddFolderOpen(false)} existingFolders={folders.map(f => f.name)} />
         </CustomModal>
 
         <Paper

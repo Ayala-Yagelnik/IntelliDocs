@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteFile, fetchPresignedUrl, starFile } from '../store/StorageSlice';
-import { AppDispatch } from '../store/store';
-import { MyFile } from '../models/myfile';
-import { StoreType } from '../models/storeModel';
-import ShareFile from './ShareFile';
-import { getFileIcon } from '../utils/utils';
+import { deleteFile, fetchPresignedUrl, starFile } from '../../store/StorageSlice';
+import { AppDispatch } from '../../store/store';
+import { MyFile } from '../../models/myfile';
+import { StoreType } from '../../models/storeModel';
+import { getFileIcon } from '../../utils/utils';
 import { Card, CardContent, CardMedia, Typography, Box, IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText, Skeleton, } from "@mui/material"
 import { Trash2, Share, Star, Download, MoreVertical } from "lucide-react"
 import { motion } from "framer-motion"
+import ShareFile from './ShareFile';
 
 interface FileCardProps {
   file: MyFile;
