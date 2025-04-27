@@ -30,10 +30,10 @@ namespace IntelliDocs.Service.services
             return await _repository.Folders.GetByIdAsync(id);
         }
 
-        public async Task<IEnumerable<Folder>> GetSubFoldersAsync(int? parentFolderId, int userId)
+        public async Task<IEnumerable<Folder>> GetSubFoldersAsync(int? parentFolderId, int userId, bool IsDeletted = false)
         {
             var allFolders = await _repository.Folders.GetAllAsync();
-            return allFolders.Where(f => f.ParentFolderId == parentFolderId && f.OwnerId == userId).ToList();
+            return allFolders.Where(f => f.ParentFolderId == parentFolderId && f.OwnerId == userId && f.IsDeletted == IsDeletted).ToList();
         }
 
         public async Task<bool> DeleteFolderAsync(int id)
@@ -50,6 +50,52 @@ namespace IntelliDocs.Service.services
         {
             var folder = await _repository.Folders.GetByIdAsync(folderId);
             return folder?.Files ?? Enumerable.Empty<UserFile>();
+        }
+
+        public async Task<IEnumerable<Folder>> GetTrashFoldersAsync(int userId)
+        {
+            var allFolders = await _repository.Folders.GetAllAsync();
+            return allFolders.Where(f => f.OwnerId == userId && f.IsDeletted).ToList();
+        }
+
+        public async Task<bool> MoveFolderToTrashAsync(int folderId)
+        {
+            var folder = await _repository.Folders.GetByIdAsync(folderId);
+            if (folder == null)
+            {
+                throw new Exception("Folder not found.");
+            }
+            folder.IsDeletted = true;
+
+            MarkFolderAndContentsAsDeleted(folder);
+
+            await _repository.Folders.UpdateAsync(folderId, folder);
+            await _repository.SaveAsync();
+            return true;
+        }
+
+        private void MarkFolderAndContentsAsDeleted(Folder folder)
+        {
+            foreach (var file in folder.Files)
+            {
+                file.IsDeletted = true;
+            }
+
+            foreach (var subFolder in folder.SubFolders)
+            {
+                subFolder.IsDeletted = true;
+                MarkFolderAndContentsAsDeleted(subFolder);
+            }
+        }
+
+        public async Task<bool> PermanentlyDeleteFolderAsync(int folderId)
+        {
+            var result = await _repository.Folders.DeleteAsync(folderId);
+            if (result)
+            {
+                await _repository.SaveAsync();
+            }
+            return result;
         }
     }
 }

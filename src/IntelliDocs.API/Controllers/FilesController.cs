@@ -21,6 +21,7 @@ namespace IntelliDocs.API.Controllers
     {
         private readonly IUserService _usersService;
         private readonly IUserFileService _userFileService;
+        private readonly IEmbeddingService _embeddingService;
         private readonly IS3Service _s3Service;
         private readonly IAmazonS3 _s3Client;
 
@@ -38,7 +39,7 @@ namespace IntelliDocs.API.Controllers
         {
             try
             {
-                var files = await _userFileService.GetFilesByUserIdAsync(userId);
+                var files = await _userFileService.GetFilesByUserIdAsync(userId,false);
                 var filesWithAuthors = files.Select(file => new
                 {
                     file.Id,
@@ -158,11 +159,29 @@ namespace IntelliDocs.API.Controllers
         }
 
         [Authorize(Policy = "UserOrAdmin")]
-        [HttpGet("search")]
+        [HttpPost("search")]
         public async Task<IActionResult> SearchFiles(string query, int userId)
         {
-            var files = await _userFileService.SearchFilesAsync(query, userId);
-            return Ok(files);
+            try
+            {
+                // קבלת הווקטור לשאילתה
+                var embedding = await _embeddingService.GetEmbeddingAsync(query);
+
+                // חיפוש קבצים מבוסס embedding
+                var files = await _userFileService.SearchFilesByEmbeddingAsync(embedding, userId);
+
+                if (!files.Any())
+                {
+                    return NotFound("No files match the query.");
+                }
+
+                return Ok(files);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error searching files for user {userId}: {ex.Message}");
+                return StatusCode(500, "An error occurred while searching files.");
+            }
         }
 
         [Authorize(Policy = "UserOrAdmin")]
@@ -195,6 +214,30 @@ namespace IntelliDocs.API.Controllers
                 Console.WriteLine($"Error starring file: {ex.Message}");
                 return StatusCode(500, "An error occurred while starring the file.");
             }
+        }
+
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpGet("trash/{userId}")]
+        public async Task<IActionResult> GetTrashFiles(int userId)
+        {
+            var trashedFiles = await _userFileService.GetTrashFilesAsync(userId);
+            return Ok(trashedFiles);
+        }
+
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpDelete("{id}/trash")]
+        public async Task<IActionResult> MoveFileToTrash(int id)
+        {
+            await _userFileService.MoveFileToTrashAsync(id);
+            return NoContent();
+        }
+
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpDelete("{id}/permanent")]
+        public async Task<IActionResult> PermanentlyDeleteFile(int id)
+        {
+            var success = await _userFileService.PermanentlyDeleteFileAsync(id);
+            return success ? NoContent() : NotFound();
         }
     }
 }
