@@ -12,21 +12,10 @@ import {
     AccordionDetails,
     IconButton,
     Tooltip,
-    // useMediaQuery,
-    // useTheme,
 } from "@mui/material"
 import {
     ChevronDown,
     Folder,
-    // FileText,
-    // FileImage,
-    // FileVideo,/
-    // FileIcon as FilePdf,
-    // File,
-    // FileSpreadsheet,
-    // FileCode,
-    // FileArchive,
-    // FileAudio,
     Trash2,
     Share2,
     Star,
@@ -34,13 +23,15 @@ import {
 } from "lucide-react"
 import { motion } from "framer-motion"
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MotionListItem = motion(ListItem);
 // import FolderIcon from "@mui/icons-material/Folder";
-import { MyFile } from "../models/myfile";
+import { MyFile } from "../../models/myfile";
 import FileCard from "./FileCard";
-import { formatFileSize, formatDate, stringToColor, getFileIcon } from "../utils/utils";
-import { Folder as FolderModel } from "../models/folder";
+import { formatFileSize, formatDate, stringToColor, getFileIcon } from "../../utils/utils";
+import { Folder as FolderModel } from "../../models/folder";
+import { deleteFolder } from "../../store/StorageSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store/store";
 // import { Delete, Download, Share, Star, StarBorder, ExpandMore } from "@mui/icons-material";
 
 interface FileFolderListProps {
@@ -57,6 +48,13 @@ const MotionPaper = motion(Paper)
 const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, folders, onFolderClick, userId }) => {
     const [foldersExpanded, setFoldersExpanded] = useState(true)
     const [filesExpanded, setFilesExpanded] = useState(true)
+    const dispatch = useDispatch<AppDispatch>();
+
+    const handleDelete = (folder: FolderModel) => {
+        console.log(`Deleting ${folder.name}`)
+        dispatch(deleteFolder(folder.id))
+    }
+
 
     return (
         <Box>
@@ -160,6 +158,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                                     size="small"
                                                                     onClick={(e) => {
                                                                         e.stopPropagation()
+                                                                        handleDelete(folder)
                                                                         console.log(`Delete folder ${folder.id}`)
                                                                     }}
                                                                     sx={{
@@ -270,7 +269,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                     <AccordionDetails sx={{ p: 3 }}>
                                         <Grid container spacing={3}>
                                             {files.map((file,
-                                            //  index
+                                                //  index
                                             ) => (
                                                 <Grid item xs={12} sm={6} md={4} lg={3} key={file.id}>
                                                     <FileCard file={file} userId={userId} />
@@ -680,3 +679,5 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
 };
 
 export default FileFolderList;
+
+

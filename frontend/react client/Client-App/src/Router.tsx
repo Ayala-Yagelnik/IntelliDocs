@@ -1,16 +1,12 @@
 import { createBrowserRouter } from "react-router";
 import Home from "./components/Home";
 import AppLayout from "./components/AppLayout";
-import AuthForm from "./components/AuthForm";
 import UpdateUserForm from "./components/UpdateUserForm";
-import FileList from "./components/FileList";
-import SharedFilesList from "./components/SharedFilesList";
-import PrivacyPolicy from "./components/PrivacyPolicy";
-import TermsOfService from "./components/TermsOfService";
-
-
-
-
+import SharedFilesList from "./components/Contents/SharedFilesList";
+import PrivacyPolicy from "./components/Authentication/PrivacyPolicy";
+import TermsOfService from "./components/Authentication/TermsOfService";
+import AuthForm from "./components/Authentication/AuthForm";
+import FileList from "./components/Contents/FileList";
 
 export const router = createBrowserRouter([
     {
@@ -27,5 +23,3 @@ export const router = createBrowserRouter([
         ]
     }
 ])
-
-

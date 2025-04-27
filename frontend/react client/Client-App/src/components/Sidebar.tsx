@@ -44,6 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
       text: "Shared with Me",
       icon: <Share2 size={20} />,
       path: "/files-shared",
+      //TODO:...
       badge: 4, // Example badge count
     },
     {

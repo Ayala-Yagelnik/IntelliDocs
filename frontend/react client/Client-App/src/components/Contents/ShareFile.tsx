@@ -14,14 +14,14 @@ import {
   InputAdornment,
   CircularProgress,
 } from "@mui/material"
-import { shareFile } from "../store/StorageSlice";
-import { AppDispatch } from "../store/store";
+import { shareFile } from "../../store/StorageSlice";
+import { AppDispatch } from "../../store/store";
 import { useDispatch } from "react-redux";
-import { MyFile } from "../models/myfile";
+import { MyFile } from "../../models/myfile";
 import {  X, Copy, Check, Mail, LinkIcon } from "lucide-react"
 import { motion } from "framer-motion"
-import { User } from "../models/user";
-import CustomModal from "./CustomModal";
+import { User } from "../../models/user";
+import CustomModal from "../CustomModal";
 
 interface ShareDialogProps {
   file: MyFile

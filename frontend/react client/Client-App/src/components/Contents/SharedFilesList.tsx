@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSharedFiles } from "../store/StorageSlice";
-import { MyFile } from "../models/myfile";
-import { StoreType } from "../models/storeModel";
-import { AppDispatch } from "../store/store";
+import { fetchSharedFiles } from "../../store/StorageSlice";
+import { MyFile } from "../../models/myfile";
+import { StoreType } from "../../models/storeModel";
+import { AppDispatch } from "../../store/store";
 import { Box, Typography, Grid, CircularProgress, List, ListItem, Avatar, Paper, Tooltip, IconButton, } from "@mui/material"
 import { FolderOpen, RefreshCw, } from "lucide-react"
-import { formatFileSize, formatDate, stringToColor, getFileIcon } from "../utils/utils";
+import { formatFileSize, formatDate, stringToColor, getFileIcon } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 import FileCard from "./FileCard";
 import { motion } from "framer-motion"
