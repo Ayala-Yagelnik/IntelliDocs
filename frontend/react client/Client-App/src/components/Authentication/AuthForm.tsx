@@ -3,14 +3,14 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { register, login } from '../store/authSlice';
-import { StoreType } from '../models/storeModel';
 import { useTransition } from 'react';
-import { AppDispatch } from '../store/store';
-import { setCurrentUser } from '../store/userSlice';
-import { User } from '../models/user';
 import { GoogleLogin } from '@react-oauth/google';
 import { Eye, EyeOff, Mail, Lock, User as LucideUser, AlertCircle } from "lucide-react"
+import { AppDispatch } from '../../store/store';
+import { StoreType } from '../../models/storeModel';
+import { User } from '../../models/user';
+import { connectWithGoogle, login, register } from '../../store/authSlice';
+import { setCurrentUser } from '../../store/userSlice';
 
 const MotionButton = motion(Button);
 
@@ -56,10 +56,11 @@ const AuthForm = ({ isRegister = false }) => {
 
     const handleGoogleSignIn = async (token: string) => {
         try {
-            const response = await axios.post<{ user: User; token: string }>(`${import.meta.env.VITE_BASE_URL}/auth/google`, { token });
-            const { user, token: jwtToken } = response.data;
+            
+            const { user, token: jwtToken } = await dispatch(connectWithGoogle({ token })).unwrap() as { user: User; token: string };
 
             localStorage.setItem('token', jwtToken);
+            console.log("Google Sign-In Success:", user);
             dispatch(setCurrentUser(user));
             navigate('/');
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

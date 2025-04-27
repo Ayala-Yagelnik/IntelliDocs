@@ -81,6 +81,7 @@ const userSlice = createSlice({
   reducers: {
     setCurrentUser(state, action: PayloadAction<User>) {
       state.user = action.payload;
+      console.log('setCurrentUser', state.user);
     },
     clearCurrentUser(state) {
       state.user = { id: 0, username: '', email: '', password: '',  createdAt: new Date(),updatedAt:new Date() };

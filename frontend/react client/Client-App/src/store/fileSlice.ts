@@ -15,7 +15,6 @@ export const fetchUserFiles = createAsyncThunk(
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
-      console.log("response: ", response);
       return response.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
@@ -126,6 +125,23 @@ export const searchFiles = createAsyncThunk(
 );
 
 export const deleteFile = createAsyncThunk(
+  'files/trash',
+  async (fileId: number, thunkAPI) => {
+    try {
+      console.log("move to trash file");
+      await axios.delete(`${API_URL}/${fileId}/trash`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      return fileId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
+    }
+  }
+);
+
+export const deleteFilePermanently = createAsyncThunk(
   'files/delete',
   async (fileId: number, thunkAPI) => {
     try {

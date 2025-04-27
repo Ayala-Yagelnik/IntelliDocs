@@ -18,6 +18,7 @@ import {
 } from "@mui/material"
 import { User, LogOut } from "lucide-react"
 import Logo from './logo';
+import { AppDispatch } from '../store/store';
 
 // צבעים וקונפיגורציות
 // const primaryColor = "#10a37f";
@@ -26,12 +27,8 @@ import Logo from './logo';
 
 // ניווט ראשי
 const Nav = () => {
-  // const theme = useTheme();
-  // const location = useLocation();
-  // const pathname = location.pathname;
+   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: StoreType) => state.auth.user) 
-   const dispatch = useDispatch();
-  // const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const navigate = useNavigate();
 

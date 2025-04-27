@@ -163,6 +163,40 @@ export const searchFiles = createAsyncThunk(
 );
 
 export const deleteFile = createAsyncThunk(
+  'files/trash',
+  async (fileId: number, thunkAPI) => {
+    try {
+      console.log("move to trash file");
+      await axios.delete(`${API_URL}/${fileId}/trash`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      return fileId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
+    }
+  }
+);
+
+export const deleteFolder = createAsyncThunk(
+  'folder/trash',
+  async (folderId: number, thunkAPI) => {
+    try {
+      console.log("move to trash folder");
+      await axios.delete(`${BASE_URL}/folders/${folderId}/trash`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      return folderId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
+    }
+  }
+);
+
+export const deleteFilePermanently = createAsyncThunk(
   'files/delete',
   async (fileId: number, thunkAPI) => {
     try {
@@ -297,6 +331,14 @@ const fileSlice = createSlice({
         state.loading = false;
       })
       .addCase(deleteFile.rejected, (state, action) => {
+        state.loading = false;
+        console.error('failed', action.payload);
+      })
+      .addCase(deleteFolder.fulfilled, (state, action) => {
+        state.folders = state.folders.filter(folder => folder.id !== action.payload);
+        state.loading = false;
+      })
+      .addCase(deleteFolder.rejected, (state, action) => {
         state.loading = false;
         console.error('failed', action.payload);
       })
