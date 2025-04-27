@@ -1,0 +1,8 @@
+{
+  "root": "dist",
+  "routes": {
+    "/api/*": "/api/",
+    "/static/*": "/static/", 
+    "/*": "/index.html"
+  }
+}

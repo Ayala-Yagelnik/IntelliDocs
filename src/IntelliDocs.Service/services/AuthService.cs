@@ -39,10 +39,8 @@ namespace IntelliDocs.Service.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            if (user.Role != null)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, user.Role.NameRole));
-            }
+            claims.Add(new Claim(ClaimTypes.Role, user.Role?.NameRole?? "User"));
+
             var token = new JwtSecurityToken(
                 Environment.GetEnvironmentVariable("JWT_ISSUER"),
                 Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
@@ -119,6 +117,16 @@ namespace IntelliDocs.Service.Services
         {
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
             var role = await _repository.Roles.GetByIdAsync(model.Role);
+            if (role == null)
+            {
+                return Result<bool>.Failure("Invalid role.");
+            }
+
+            var existingUser = await _repository.Users.GetUserByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                return Result<bool>.Failure("Email is already in use.");
+            }
 
             var user = new User
             {
@@ -130,10 +138,6 @@ namespace IntelliDocs.Service.Services
                 Role = role
             };
 
-            if ((await _repository.Users.GetUserByEmailAsync(user.Email)) != null)
-            {
-                return Result<bool>.Failure("Email is already in use");
-            }
 
             var result = await _repository.Users.AddAsync(user);
             if (result == null)
@@ -156,9 +160,10 @@ namespace IntelliDocs.Service.Services
                     Username = name,
                     GoogleId = googleId,
                     RoleId = 2,
-                    Role = await _repository.Roles.GetByIdAsync(2) 
+                    Role = await _repository.Roles.GetByIdAsync(2)
                 };
                 await _repository.Users.AddAsync(user);
+                await _repository.SaveAsync();
             }
             return user;
         }
