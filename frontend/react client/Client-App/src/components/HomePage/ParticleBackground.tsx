@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useRef, useState } from "react"
 import { useTheme } from "@mui/material/styles"
 
@@ -25,8 +23,8 @@ export function ParticleBackground() {
     const handleResize = () => {
       if (canvasRef.current) {
         const canvas = canvasRef.current
-        const width = window.innerWidth
-        const height = window.innerHeight
+        const width = window.innerWidth- 20
+        const height = window.innerHeight-80
 
         // Set display size (css pixels)
         canvas.style.width = width + "px"
