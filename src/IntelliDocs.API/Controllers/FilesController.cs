@@ -25,12 +25,13 @@ namespace IntelliDocs.API.Controllers
         private readonly IS3Service _s3Service;
         private readonly IAmazonS3 _s3Client;
 
-        public FilesController(IUserService userService, IUserFileService fileService, IS3Service s3Server, IAmazonS3 s3Client)
+        public FilesController(IUserService userService, IUserFileService fileService, IS3Service s3Server, IAmazonS3 s3Client,IEmbeddingService embeddingService)
         {
             _usersService = userService;
             _userFileService = fileService;
             _s3Service = s3Server;
             _s3Client = s3Client;
+            _embeddingService = embeddingService;
         }
 
         [Authorize(Policy = "UserOrAdmin")]
@@ -239,5 +240,14 @@ namespace IntelliDocs.API.Controllers
             var success = await _userFileService.PermanentlyDeleteFileAsync(id);
             return success ? NoContent() : NotFound();
         }
+
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpPatch("{id}/restore")]
+        public async Task<IActionResult> RestoreFile(int id)
+        {
+            var success = await _userFileService.RestoreFileAsync(id);
+            return success ? NoContent() : NotFound();
+        }
+
     }
 }

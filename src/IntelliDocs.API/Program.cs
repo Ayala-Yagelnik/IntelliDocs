@@ -135,6 +135,7 @@ builder.Services.AddScoped<IFolderRepository,FolderRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IS3Service, S3Service>();
+builder.Services.AddScoped<IEmbeddingService, EmbeddingService>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddAutoMapper(typeof(MappingPostEntity));
 builder.Services.AddHttpClient();

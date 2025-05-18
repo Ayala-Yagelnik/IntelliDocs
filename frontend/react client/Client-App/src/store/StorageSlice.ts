@@ -267,6 +267,38 @@ export const fetchSharedFiles = createAsyncThunk(
   }
 );
 
+export const fetchDeletedFiles = createAsyncThunk(
+  "files/fetchDeleted",
+  async (userId: number, thunkAPI) => {
+    try {
+      const response = await axios.get<MyFile[]>(`${API_URL}/trash/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      console.log("fetchDeletedFiles: ", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching deleted files:", (error as Error).message);
+      return thunkAPI.rejectWithValue((error as Error).message);
+    }
+  }
+);
+export const restoreFile = createAsyncThunk(
+  'files/restore',
+  async (fileId: number, thunkAPI) => {
+    try {
+      await axios.patch(`${API_URL}/${fileId}/restore`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      return fileId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
+    }
+  }
+);
 
 const fileSlice = createSlice({
   name: 'files',
@@ -274,6 +306,7 @@ const fileSlice = createSlice({
     files: [] as MyFile[],
     shareFiles: [] as MyFile[],
     folders: [] as Folder[],
+    trashFiles: [] as MyFile[],
     loading: false,
     presignedUrls: null as Record<string, string> | null
   },
@@ -328,6 +361,10 @@ const fileSlice = createSlice({
       })
       .addCase(deleteFile.fulfilled, (state, action) => {
         state.files = state.files.filter(file => file.id !== action.payload);
+        const trashedFile = state.files.find(file => file.id === action.payload);
+        if (trashedFile) {
+          state.trashFiles.push(trashedFile);
+        }
         state.loading = false;
       })
       .addCase(deleteFile.rejected, (state, action) => {
@@ -336,6 +373,12 @@ const fileSlice = createSlice({
       })
       .addCase(deleteFolder.fulfilled, (state, action) => {
         state.folders = state.folders.filter(folder => folder.id !== action.payload);
+        const deletedFolder = state.folders.find(folder => folder.id === action.payload);
+        if (deletedFolder) {
+          const filesInDeletedFolder = state.files.filter(file => file.folderId === deletedFolder.id);
+          state.trashFiles.push(...filesInDeletedFolder);
+          state.files = state.files.filter(file => file.folderId !== deletedFolder.id);
+        }
         state.loading = false;
       })
       .addCase(deleteFolder.rejected, (state, action) => {
@@ -346,10 +389,8 @@ const fileSlice = createSlice({
         state.files = state.files.map(file =>
           file.id === action.payload ? { ...file, isStarred: !file.isStarred } : file
         );
-        state.loading = false;
       })
-      .addCase(starFile.rejected, (state, action) => {
-        state.loading = false;
+      .addCase(starFile.rejected, (_, action) => {
         console.error('failed', action.payload);
       })
       .addCase(fetchPresignedUrl.fulfilled, (state, action) => {
@@ -393,6 +434,34 @@ const fileSlice = createSlice({
       })
       .addCase(fetchFolderContents.pending, (state) => {
         state.loading = true;
+      })
+      .addCase(fetchDeletedFiles.fulfilled, (state, action) => {
+        state.trashFiles = action.payload;
+        console.log(state.trashFiles);
+        state.loading = false;
+      })
+      .addCase(fetchDeletedFiles.rejected, (state, action) => {
+        state.loading = false;
+        console.error('failed', action.payload);
+      })
+      .addCase(fetchDeletedFiles.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteFilePermanently.fulfilled, (state, action) => {
+        state.trashFiles.filter(file => file.id !== action.payload);
+      })
+      .addCase(deleteFilePermanently.rejected, (_, action) => {
+        console.error('failed', action.payload);
+      })
+      .addCase(restoreFile.fulfilled, (state, action) => {
+        state.trashFiles = state.trashFiles.filter(file => file.id !== action.payload);
+        const restoredFile = state.trashFiles.find(file => file.id === action.payload);
+        if (restoredFile) {
+          state.files.push(restoredFile);
+        }
+      })
+      .addCase(restoreFile.rejected, (_, action) => {
+        console.error('failed', action.payload);
       });
 
   },

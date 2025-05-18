@@ -27,5 +27,7 @@ namespace IntelliDocs.Core.IServices
         public Task<IEnumerable<FileDTO>> GetTrashFilesAsync(int userId);
         public  Task<bool> MoveFileToTrashAsync(int fileId);
         public Task<bool> PermanentlyDeleteFileAsync(int fileId);
+        public  Task<bool> RestoreFileAsync(int fileId);
+
     }
 }

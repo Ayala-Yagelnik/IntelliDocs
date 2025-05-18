@@ -224,5 +224,18 @@ namespace IntelliDocs.Service.Services
             return success;
         }
 
+        public async Task<bool> RestoreFileAsync(int fileId)
+        {
+            var file = await _repository.Files.GetByIdAsync(fileId);
+            if (file == null)
+            {
+                throw new Exception("File not found.");
+            }
+            file.IsDeletted = false;
+            await _repository.Files.UpdateAsync(fileId, file);
+            await _repository.SaveAsync();
+            return true;
+        }
+
     }
 }

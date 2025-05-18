@@ -66,7 +66,7 @@ namespace IntelliDocs.Service.services
                 throw new Exception("Folder not found.");
             }
             folder.IsDeletted = true;
-
+            folder.ParentFolderId = null;
             MarkFolderAndContentsAsDeleted(folder);
 
             await _repository.Folders.UpdateAsync(folderId, folder);
@@ -90,12 +90,33 @@ namespace IntelliDocs.Service.services
 
         public async Task<bool> PermanentlyDeleteFolderAsync(int folderId)
         {
+            var folder = await _repository.Folders.GetByIdAsync(folderId);
+            if (folder == null)
+            {
+                throw new Exception("Folder not found.");
+            }
+            await DeleteFolderContentsAsync(folder);
             var result = await _repository.Folders.DeleteAsync(folderId);
             if (result)
             {
                 await _repository.SaveAsync();
             }
             return result;
+        }
+        private async Task DeleteFolderContentsAsync(Folder folder)
+        {
+            // מחיקת כל הקבצים שבתוך התיקיה
+            foreach (var file in folder.Files.ToList())
+            {
+                await _repository.Files.DeleteAsync(file.Id);
+            }
+
+            // מחיקת כל תתי-התקיות
+            foreach (var subFolder in folder.SubFolders.ToList())
+            {
+                await DeleteFolderContentsAsync(subFolder); // קריאה רקורסיבית
+                await _repository.Folders.DeleteAsync(subFolder.Id);
+            }
         }
     }
 }
