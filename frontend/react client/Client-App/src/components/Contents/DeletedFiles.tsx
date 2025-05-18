@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { StoreType } from '../../models/storeModel';
 import { AppDispatch } from '../../store/store';
 import { useNavigate } from 'react-router-dom';
-import { deleteFilePermanently, fetchDeletedFiles, restoreFile } from '../../store/StorageSlice';
+import { deleteFilePermanently, fetchDeletedFiles, 
+  // restoreFile 
+} from '../../store/StorageSlice';
 import {
     Box,
     Typography,
