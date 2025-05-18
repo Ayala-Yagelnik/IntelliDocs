@@ -24,7 +24,7 @@ export function ParticleBackground() {
       if (canvasRef.current) {
         const canvas = canvasRef.current
         const width = window.innerWidth- 20
-        const height = window.innerHeight-80
+        const height = window.innerHeight-140
 
         // Set display size (css pixels)
         canvas.style.width = width + "px"

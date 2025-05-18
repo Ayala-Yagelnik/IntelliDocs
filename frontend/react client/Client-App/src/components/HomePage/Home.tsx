@@ -192,7 +192,7 @@ export const Home = () => {
                     </Box>
                 </MotionBox>
 
-                <Box id="learn-more" sx={{backgroundColor:"rgb(240, 253, 250)", width: "100%", mt: 12, mb: 6 }}>
+                <Box id="learn-more" sx={{backgroundColor:"rgb(240, 253, 250)", width: "100%",px:8, my: 6, pt: 6 }}>
                     <ParticleBackground />
 
                     <MotionTypography
@@ -305,7 +305,7 @@ export const Home = () => {
                     </motion.div>
                 </MotionBox>
                 {/* Testimonials Section */}
-                <Box id="testimonials" sx={{ mb: 12, scrollMarginTop: 80 }}>
+                <Box id="testimonials" sx={{ my: 8, scrollMarginTop: 80 }}>
                     <MotionTypography
                         variant="h3"
                         align="center"
@@ -342,6 +342,7 @@ export const Home = () => {
                         color: "white",
                         position: "relative",
                         overflow: "hidden",
+                        mt: 8,
                     }}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
