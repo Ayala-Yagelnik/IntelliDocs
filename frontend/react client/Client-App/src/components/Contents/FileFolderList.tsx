@@ -24,7 +24,6 @@ import {
 import { motion } from "framer-motion"
 
 const MotionListItem = motion(ListItem);
-// import FolderIcon from "@mui/icons-material/Folder";
 import { MyFile } from "../../models/myfile";
 import FileCard from "./FileCard";
 import { formatFileSize, formatDate, stringToColor, getFileIcon } from "../../utils/utils";
@@ -32,7 +31,6 @@ import { Folder as FolderModel } from "../../models/folder";
 import { deleteFolder } from "../../store/StorageSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store/store";
-// import { Delete, Download, Share, Star, StarBorder, ExpandMore } from "@mui/icons-material";
 
 interface FileFolderListProps {
     isGridView: boolean;

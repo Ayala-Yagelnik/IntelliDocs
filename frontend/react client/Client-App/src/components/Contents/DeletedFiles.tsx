@@ -3,130 +3,128 @@ import { useDispatch, useSelector } from 'react-redux';
 import { StoreType } from '../../models/storeModel';
 import { AppDispatch } from '../../store/store';
 import { useNavigate } from 'react-router-dom';
-import { deleteFilePermanently, fetchDeletedFiles, 
+import {
+  deleteAllFilesPermanently, deleteFilePermanently, fetchDeletedFiles, restoreFile,
   // restoreFile 
 } from '../../store/StorageSlice';
 import {
-    Box,
-    Typography,
-    Container,
-    Paper,
-    Button,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    Alert,
-    Snackbar,
+  Box,
+  Typography,
+  Container,
+  Paper,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Alert,
+  Snackbar,
 } from "@mui/material"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trash2, RefreshCw, AlertTriangle, 
-    // RotateCcw,
-     Trash, Info } from "lucide-react"
-import FileFolderList from './FileFolderListProps';
+import { Trash2, RefreshCw, AlertTriangle, RotateCcw, Trash, Info } from "lucide-react"
+import FileFolderList from './FileFolderList';
 
 
 const DeletedFiles: React.FC = () => {
-    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-    const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false)
-    const [selectedFileId, setSelectedFileId] = useState<number | null>(null)
-    const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
-        open: false,
-        message: "",
-        severity: "success",
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false)
+  const [selectedFileId, setSelectedFileId] = useState<number | null>(null)
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
+    open: false,
+    message: "",
+    severity: "success",
+  })
+
+  const loading = useSelector((state: StoreType) => state.files.loading);
+  const user = useSelector((state: StoreType) => state.users.user);
+  const dispatch = useDispatch<AppDispatch>();
+  const deletedFiles = useSelector((state: StoreType) => state.files.trashFiles);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.id) {
+      dispatch(fetchDeletedFiles(user.id)).then((response) => {
+        console.log("Trash Files Response:", response.payload);
+      });
+    }
+    else {
+      navigate("/");
+    }
+  }, [dispatch, navigate, user.id]);
+
+  // const handleViewChange = (newView: string | null) => {
+  //     if (newView !== null) {
+  //         setIsGridView(newView === "grid")
+  //     }
+  // }
+
+  const handleRestoreFile = (id: number) => {
+    dispatch(restoreFile(id)).then((response: { meta: { requestStatus: string; }; }) => {
+      if (response.meta.requestStatus === "fulfilled") {
+        setSnackbar({
+          open: true,
+          message: "File restored successfully",
+          severity: "success",
+        })
+      }
     })
+  }
 
-    // const theme = useTheme()
-    // const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
-    const loading = useSelector((state: StoreType) => state.files.loading);
-    const user = useSelector((state: StoreType) => state.users.user);
-    const dispatch = useDispatch<AppDispatch>();
-    const deletedFiles = useSelector((state: StoreType) => state.files.trashFiles);
-    const navigate = useNavigate();
 
-    useEffect(() => {
-        if (user?.id) {
-            dispatch(fetchDeletedFiles(user.id)).then((response) => {
-                console.log("Trash Files Response:", response.payload);
-            });
+  // const deletePermanently = (id: number) => {
+  //     dispatch(deleteFilePermanently(id));
+  // };
+  const handleDeletePermanently = (id: number) => {
+    setSelectedFileId(id)
+    setDeleteDialogOpen(true)
+  }
+  const confirmDeletePermanently = async () => {
+    if (selectedFileId !== null) {
+      dispatch(deleteFilePermanently(selectedFileId)).then((result) => {
+        setDeleteDialogOpen(false)
+        setSelectedFileId(null)
+        if (result.meta.requestStatus === "fulfilled") {
+
+          setSnackbar({
+            open: true,
+            message: "File deleted permanently",
+            severity: "success",
+          })
         }
-        else {
-            navigate("/");
-        }
-    }, [dispatch, navigate, user.id]);
-
-    // const handleViewChange = (newView: string | null) => {
-    //     if (newView !== null) {
-    //         setIsGridView(newView === "grid")
-    //     }
-    // }
-    // const handleRestoreFile = (id: number) => {
-    //     dispatch(restoreFile(id)).then((response) => {
-    //         if (response.meta.requestStatus === "fulfilled") {
-    //             setSnackbar({
-    //                 open: true,
-    //                 message: "File restored successfully",
-    //                 severity: "success",
-    //             })
-    //         }
-    //     })
-    // }
-
-
-
-    // const deletePermanently = (id: number) => {
-    //     dispatch(deleteFilePermanently(id));
-    // };
-    // const handleDeletePermanently = (id: number) => {
-    //     setSelectedFileId(id)
-    //     setDeleteDialogOpen(true)
-    const confirmDeletePermanently = async () => {
-        if (selectedFileId !== null) {
-            dispatch(deleteFilePermanently(selectedFileId)).then((result) => {
-                setDeleteDialogOpen(false)
-                setSelectedFileId(null)
-                if (result.meta.requestStatus === "fulfilled") {
-
-                    setSnackbar({
-                        open: true,
-                        message: "File deleted permanently",
-                        severity: "success",
-                    })
-                }
-            })
-        }
+      })
     }
+  }
 
-    const handleDeleteAllFiles = () => {
-        setDeleteAllDialogOpen(true)
+  const handleDeleteAllFiles = () => {
+    setDeleteAllDialogOpen(true)
+  }
+
+  const confirmDeleteAllFiles = async () => {
+    const result = await dispatch(deleteAllFilesPermanently(deletedFiles.map((file) => file.id)));
+    setDeleteAllDialogOpen(false)
+    if (result.meta && result.meta.requestStatus === "fulfilled") {
+      setSnackbar({
+        open: true,
+        message: "All files deleted permanently",
+        severity: "success",
+      })
     }
+  }
 
-    const confirmDeleteAllFiles = async () => {
-        // const result = await deleteAllFilesPermanently()
-        setDeleteAllDialogOpen(false)
-        // if (result.success) {
-        //     setSnackbar({
-        //         open: true,
-        //         message: "All files deleted permanently",
-        //         severity: "success",
-        //     })
-        // }
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false })
+  }
+
+  const handleRefresh = () => {
+    if (user?.id) {
+      dispatch(fetchDeletedFiles(user.id))
     }
+  }
 
-    const handleCloseSnackbar = () => {
-        setSnackbar({ ...snackbar, open: false })
-    }
-
-    const handleRefresh = () => {
-        if (user?.id) {
-            fetchDeletedFiles(user.id)
-        }
-    }
-
-    return (
+  return (
     <>
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -213,7 +211,7 @@ const DeletedFiles: React.FC = () => {
             </Box>
           </Paper>
 
-           {/* {error && (
+          {/* {error && (
             <Alert
               severity="error"
               sx={{ mb: 3, borderRadius: 2 }}
@@ -299,48 +297,48 @@ const DeletedFiles: React.FC = () => {
                   </Box>
 
                   <FileFolderList
-                    isGridView={true}
+                    isGridView={false}
                     files={deletedFiles}
                     folders={[]}
-                    onFolderClick={() => {}}
+                    onFolderClick={() => { }}
                     userId={user?.id || 0}
-                    // customActions={(file) => (
-                    //   <Box sx={{ display: "flex", gap: 1 }}>
-                    //     <Button
-                    //       size="small"
-                    //       variant="outlined"
-                    //       startIcon={<RotateCcw size={16} />}
-                    //       onClick={() => handleRestoreFile(file.id)}
-                    //       sx={{
-                    //         borderColor: "#10a37f",
-                    //         color: "#10a37f",
-                    //         "&:hover": {
-                    //           borderColor: "#0e8c6b",
-                    //           backgroundColor: "rgba(16, 163, 127, 0.04)",
-                    //         },
-                    //       }}
-                    //     >
-                    //       Restore
-                    //     </Button>
-                    //     <Button
-                    //       size="small"
-                    //       variant="outlined"
-                    //       color="error"
-                    //       startIcon={<Trash2 size={16} />}
-                    //       onClick={() => handleDeletePermanently(file.id)}
-                    //       sx={{
-                    //         borderColor: "#e74c3c",
-                    //         color: "#e74c3c",
-                    //         "&:hover": {
-                    //           borderColor: "#c0392b",
-                    //           backgroundColor: "rgba(231, 76, 60, 0.04)",
-                    //         },
-                    //       }}
-                    //     >
-                    //       Delete
-                    //     </Button>
-                    //   </Box>
-                    // )}
+                    customActions={(file) => (
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<RotateCcw size={16} />}
+                          onClick={() => handleRestoreFile(file.id)}
+                          sx={{
+                            borderColor: "#10a37f",
+                            color: "#10a37f",
+                            "&:hover": {
+                              borderColor: "#0e8c6b",
+                              backgroundColor: "rgba(16, 163, 127, 0.04)",
+                            },
+                          }}
+                        >
+                          Restore
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="error"
+                          startIcon={<Trash2 size={16} />}
+                          onClick={() => handleDeletePermanently(file.id)}
+                          sx={{
+                            borderColor: "#e74c3c",
+                            color: "#e74c3c",
+                            "&:hover": {
+                              borderColor: "#c0392b",
+                              backgroundColor: "rgba(231, 76, 60, 0.04)",
+                            },
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      </Box>
+                    )}
                   />
                 </Paper>
               </motion.div>
@@ -370,20 +368,20 @@ const DeletedFiles: React.FC = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setDeleteDialogOpen(false)} sx={{ color: "#666" }}>
-            <Button
-              onClick={confirmDeletePermanently}
-              color="error"
-              variant="contained"
-              sx={{
-                bgcolor: "#e74c3c",
-                "&:hover": {
-                  bgcolor: "#c0392b",
-                },
-              }}
-              disabled={selectedFileId === null}
-            >
-              Delete Permanently
-            </Button>
+              <Button
+                onClick={confirmDeletePermanently}
+                color="error"
+                variant="contained"
+                sx={{
+                  bgcolor: "#e74c3c",
+                  "&:hover": {
+                    bgcolor: "#c0392b",
+                  },
+                }}
+                disabled={selectedFileId === null}
+              >
+                Delete Permanently
+              </Button>
               Delete Permanently
             </Button>
           </DialogActions>

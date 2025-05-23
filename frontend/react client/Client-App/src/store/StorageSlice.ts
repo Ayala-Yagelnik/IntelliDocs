@@ -213,6 +213,28 @@ export const deleteFilePermanently = createAsyncThunk(
   }
 );
 
+export const deleteAllFilesPermanently = createAsyncThunk(
+  'files/deleteAll',
+  async (fileIds: number[], thunkAPI) => {
+    try {
+      console.log("deleting all files");
+      await Promise.all(
+        fileIds.map(fileId =>
+          axios.delete(`${API_URL}/${fileId}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            },
+          })
+        )
+      );
+      return fileIds;
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as Error).message);
+    }
+  }
+);
+
+
 export const starFile = createAsyncThunk(
   'files/star',
   async ({ fileId, isStarred }: { fileId: number, isStarred: boolean }, thunkAPI) => {
@@ -461,6 +483,12 @@ const fileSlice = createSlice({
         }
       })
       .addCase(restoreFile.rejected, (_, action) => {
+        console.error('failed', action.payload);
+      })
+      .addCase(deleteAllFilesPermanently.fulfilled, (state) => {
+        state.trashFiles = [];
+      })
+      .addCase(deleteAllFilesPermanently.rejected, (_, action) => {
         console.error('failed', action.payload);
       });
 
