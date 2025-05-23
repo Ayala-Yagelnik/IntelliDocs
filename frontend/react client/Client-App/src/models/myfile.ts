@@ -8,9 +8,10 @@ export interface MyFile {
     authorId: number;
     fileKey: string;
     folderId: number|null;
-    author: {
+    author?: {
         id: number;
         username: string;
         email: string;
     };
+    deletedAt?: string ;
 }

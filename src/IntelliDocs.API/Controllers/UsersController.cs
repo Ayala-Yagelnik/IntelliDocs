@@ -102,7 +102,7 @@ namespace IntelliDocs.API.Controllers
             try
             {
                 var rootFolders = await _folderService.GetSubFoldersAsync(null, userId);
-                var rootFiles = await _fileService.GetFilesInFolderAsync(null,userId);
+                var rootFiles = await _fileService.GetFilesInFolderAsync(null,userId,false);
                 return Ok(new{ Folders = rootFolders, Files = rootFiles });
             }
             catch (Exception ex)

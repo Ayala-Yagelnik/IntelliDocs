@@ -9,16 +9,18 @@ using System.Threading.Tasks;
 
 namespace IntelliDocs.Data.Repositories
 {
-   public class FolderRepository:Repository<Folder>,IFolderRepository
+    public class FolderRepository : Repository<Folder>, IFolderRepository
     {
-        public FolderRepository(DataContext context) : base(context){}
+        public FolderRepository(DataContext context) : base(context) { }
 
-        public async Task<List<Folder>> GetAllAsync()
+        public async Task<List<Folder>> GetAllAsync(bool includeDeleted = false)
         {
-            return await _dbSet
-                .Include(f => f.SubFolders)
-                .Include(f => f.Files)
-                .ToListAsync();
+            IQueryable<Folder> query = _dbSet.Include(f => f.SubFolders).Include(f => f.Files);
+            if (!includeDeleted)
+            {
+                query = query.Where(f => !f.IsDeletted);
+            }
+            return await query.ToListAsync();
         }
 
         public async Task<Folder?> GetByIdAsync(int id)
@@ -26,7 +28,7 @@ namespace IntelliDocs.Data.Repositories
             return await _dbSet
                 .Include(f => f.SubFolders)
                 .Include(f => f.Files)
-                .Include(f=>f.Owner)
+                .Include(f => f.Owner)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
 

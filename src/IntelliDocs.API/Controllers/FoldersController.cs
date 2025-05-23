@@ -14,9 +14,10 @@ namespace IntelliDocs.API.Controllers
         private readonly IFolderService _folderService;
         private readonly IUserFileService _fileService;
 
-        public FoldersController(IFolderService folderService)
+        public FoldersController(IFolderService folderService,IUserFileService fileService)
         {
             _folderService = folderService;
+            _fileService = fileService;
         }
 
         [Authorize(Policy = "UserOrAdmin")]
@@ -58,7 +59,7 @@ namespace IntelliDocs.API.Controllers
             if (!result) return NotFound();
             return NoContent();
         }
-
+        //TODO: ??? למה יש 2 מתודות עם אותו שם?? לבדוק אם זה לא טעות
         [Authorize(Policy = "UserOrAdmin")]
         [HttpGet("{id}/contents")]
         public async Task<IActionResult> GetFolderContents(int id)
@@ -80,7 +81,7 @@ namespace IntelliDocs.API.Controllers
 
             var contents = new
             {
-                SubFolders = folder.SubFolders,
+                SubFolders = folder.SubFolders.Where(f => f.IsDeletted == false).ToList(),
                 Files = folder.Files
             };
 
@@ -93,7 +94,7 @@ namespace IntelliDocs.API.Controllers
             if (parentFolderId == null)
             {
                 var rootFolders = await _folderService.GetSubFoldersAsync(null, userId);
-                var rootFiles = await _fileService.GetFilesInFolderAsync(null, userId);
+                var rootFiles = await _fileService.GetFilesInFolderAsync(null, userId, false);
                 return Ok(new { Folders = rootFolders, Files = rootFiles });
             }
 
@@ -103,5 +104,16 @@ namespace IntelliDocs.API.Controllers
 
             return Ok(new { Folders = folder.SubFolders, Files = folder.Files });
         }
+
+  
+        [Authorize(Policy = "UserOrAdmin")]
+        [HttpDelete("{id}/trash")]
+        public async Task<IActionResult> MoveFolderToTrash(int id)
+        {
+            await _folderService.MoveFolderToTrashAsync(id);
+            return NoContent();
+        }
+
+     
     }
 }

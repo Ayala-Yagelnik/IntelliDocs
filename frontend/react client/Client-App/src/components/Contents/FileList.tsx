@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import AddFolder from "../Contents/AddFolder";
 import CustomModal from "../CustomModal";
 import ToggleViewSelector from "./ToggleButtonGroup";
-import FileFolderList from "./FileFolderListProps";
+import FileFolderList from "./FileFolderList";
 import { motion } from "framer-motion"
 import FileUploader from "./FileUploader";
 

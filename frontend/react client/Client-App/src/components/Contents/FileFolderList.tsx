@@ -24,7 +24,6 @@ import {
 import { motion } from "framer-motion"
 
 const MotionListItem = motion(ListItem);
-// import FolderIcon from "@mui/icons-material/Folder";
 import { MyFile } from "../../models/myfile";
 import FileCard from "./FileCard";
 import { formatFileSize, formatDate, stringToColor, getFileIcon } from "../../utils/utils";
@@ -32,7 +31,6 @@ import { Folder as FolderModel } from "../../models/folder";
 import { deleteFolder } from "../../store/StorageSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store/store";
-// import { Delete, Download, Share, Star, StarBorder, ExpandMore } from "@mui/icons-material";
 
 interface FileFolderListProps {
     isGridView: boolean;
@@ -40,12 +38,13 @@ interface FileFolderListProps {
     folders: FolderModel[];
     onFolderClick: (folderId: number, folderName: string) => void;
     userId: number;
+    customActions?: (file: MyFile) => React.ReactNode
 }
 
 const MotionPaper = motion(Paper)
 
 
-const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, folders, onFolderClick, userId }) => {
+const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, folders, onFolderClick, userId ,customActions}) => {
     const [foldersExpanded, setFoldersExpanded] = useState(true)
     const [filesExpanded, setFilesExpanded] = useState(true)
     const dispatch = useDispatch<AppDispatch>();
@@ -355,14 +354,14 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                     display: { xs: "none", md: "block" },
                                                 }}
                                             >
-                                                Last Update
-                                            </Typography>
+                                                {files[0]?.deletedAt ? "Deleted Date" : "Last Update"}                                            </Typography>
                                             <Typography
                                                 variant="subtitle2"
                                                 sx={{
                                                     fontWeight: 600,
                                                     color: "#666",
                                                     display: { xs: "none", sm: "block" },
+                                                    textAlign: "right",
                                                 }}
                                             >
                                                 Actions
@@ -637,32 +636,46 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                         display: { xs: "none", md: "block" },
                                                     }}
                                                 >
-                                                    {file.uploadDate ? formatDate(file.uploadDate) : "—"}
-                                                </Typography>
+                                                    {file.deletedAt
+                                                        ? formatDate(file.deletedAt)
+                                                        : file.uploadDate
+                                                            ? formatDate(file.uploadDate)
+                                                            : "—"}                                                </Typography>
 
-                                                <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}>
-                                                    <Avatar
-                                                        sx={{
-                                                            bgcolor: file.author?.username ? stringToColor(file.author.username) : "#10a37f",
-                                                            width: 28,
-                                                            height: 28,
-                                                            fontSize: "0.9rem",
-                                                            mr: 1,
-                                                        }}
-                                                    >
-                                                        {file.author?.username ? file.author.username[0].toUpperCase() : "?"}
-                                                    </Avatar>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            color: "#666",
-                                                            whiteSpace: "nowrap",
-                                                            overflow: "hidden",
-                                                            textOverflow: "ellipsis",
-                                                        }}
-                                                    >
-                                                        {file.author?.email || "—"}
-                                                    </Typography>
+                                                <Box
+                                                    sx={{
+                                                        display: { xs: "none", sm: "flex" },
+                                                        alignItems: "center",
+                                                        justifyContent: "flex-end",
+                                                    }}
+                                                >
+                                                    {customActions ? (
+                                                        customActions(file)
+                                                    ) : (
+                                                        <Box sx={{ display: "flex", alignItems: "center" }}>                                                    <Avatar
+                                                            sx={{
+                                                                bgcolor: file.author?.username ? stringToColor(file.author.username) : "#10a37f",
+                                                                width: 28,
+                                                                height: 28,
+                                                                fontSize: "0.9rem",
+                                                                mr: 1,
+                                                            }}
+                                                        >
+                                                            {file.author?.username ? file.author.username[0].toUpperCase() : "?"}
+                                                        </Avatar>
+                                                            <Typography
+                                                                variant="body2"
+                                                                sx={{
+                                                                    color: "#666",
+                                                                    whiteSpace: "nowrap",
+                                                                    overflow: "hidden",
+                                                                    textOverflow: "ellipsis",
+                                                                }}
+                                                            >
+                                                                {file.author?.email || "—"}
+                                                            </Typography>
+                                                        </Box>
+                                                    )}
                                                 </Box>
                                             </MotionListItem>
                                         ))}

@@ -14,7 +14,9 @@ namespace IntelliDocs.Core.IServices
         // Task<IEnumerable<Folder>> GetSubFoldersAsync(int parentId);
         Task<bool> DeleteFolderAsync(int id);
         Task<IEnumerable<UserFile>> GetFilesInFolderAsync(int folderId);
-         Task<IEnumerable<Folder>> GetSubFoldersAsync(int? parentFolderId, int userId);
-
+        Task<IEnumerable<Folder>> GetSubFoldersAsync(int? parentFolderId, int userId,bool IsDeletted=false);
+        public Task<IEnumerable<Folder>> GetTrashFoldersAsync(int userId);
+        public Task<bool> MoveFolderToTrashAsync(int folderId);
+        public Task<bool> PermanentlyDeleteFolderAsync(int folderId);
     }
 }

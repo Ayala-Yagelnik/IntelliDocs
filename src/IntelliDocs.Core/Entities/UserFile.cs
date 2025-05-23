@@ -30,5 +30,6 @@ namespace IntelliDocs.Core.Entities
         public List<User> SharedUsers { get; set; } = new();
 
         public bool IsStarred { get; set; }
+        public bool IsDeletted { get; set; }
     }
 }

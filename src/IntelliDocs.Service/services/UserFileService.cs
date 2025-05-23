@@ -20,18 +20,25 @@ namespace IntelliDocs.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<FileDTO>> GetFilesByUserIdAsync(int userId)
+        public async Task<IEnumerable<FileDTO>> GetFilesByUserIdAsync(int userId,bool includeDeleted=false)
         {
-            var userFiles = await _repository.Files.GetFilesByUserIdAsync(userId);
+            var userFiles = await _repository.Files.GetFilesByUserIdAsync(userId,includeDeleted);
             return _mapper.Map<IEnumerable<FileDTO>>(userFiles);
         }
 
 
-        public async Task<IEnumerable<FileDTO>> GetFilesInFolderAsync(int? folderId, int userId)
+        public async Task<IEnumerable<FileDTO>> GetFilesInFolderAsync(int? folderId, int userId,bool includeDeleted=false)
         {
-            var allFiles = await _repository.Files.GetFilesByUserIdAsync(userId);
+            var allFiles = await _repository.Files.GetFilesByUserIdAsync(userId,includeDeleted);
             var filesInFolder = allFiles.Where(f => f.FolderId == folderId).ToList();
             return _mapper.Map<IEnumerable<FileDTO>>(filesInFolder);
+        }
+
+        public async Task<IEnumerable<FileDTO>> SearchFilesByEmbeddingAsync(float[] embedding, int userId)
+        {
+            // Implement the logic to search files based on embedding and userId
+            // This is a placeholder implementation
+            return await Task.FromResult(new List<FileDTO>());
         }
 
         public async Task<IEnumerable<FileDTO>> GetSharedFilesAsync(int userId)
@@ -106,7 +113,6 @@ namespace IntelliDocs.Service.Services
             }
         }
 
-        //TODO: Implement the method
         public async Task<FileDTO> ShareFileAsync(int fileId, string email)
         {
             Console.WriteLine($"Attempting to share file with ID: {fileId} for user ID: {email}");
@@ -128,16 +134,13 @@ namespace IntelliDocs.Service.Services
                 Console.WriteLine($"User with ID {email} not found.");
                 throw new Exception("User not found");
             }
-            // הוסף את המשתמש לרשימת המשתמשים ששיתפו את הקובץ
             file.SharedUsers.Add(user);
             user.SharedFiles.Add(file);
 
-            // שמור את השינויים במסד הנתונים
             await _repository.SaveAsync();
 
             Console.WriteLine($"File with ID {fileId} successfully shared with user ID {email}.");
 
-            // החזר את הקובץ כ-FileDTO
             return _mapper.Map<FileDTO>(file);
         }
 
@@ -190,5 +193,49 @@ namespace IntelliDocs.Service.Services
 
             return true;
         }
+
+        public async Task<IEnumerable<FileDTO>> GetTrashFilesAsync(int userId)
+        {
+            var trashedFiles = await _repository.Files.GetFilesByUserIdAsync(userId, true);
+            trashedFiles = trashedFiles.Where(f => f.IsDeletted).ToList();
+            return _mapper.Map<IEnumerable<FileDTO>>(trashedFiles);
+        }
+
+        public async Task<bool> MoveFileToTrashAsync(int fileId)
+        {
+            var file = await _repository.Files.GetByIdAsync(fileId);
+            if (file == null)
+            {
+                throw new Exception("File not found.");
+            }
+            file.IsDeletted = true;
+            await _repository.Files.UpdateAsync(fileId, file);
+            await _repository.SaveAsync();
+            return true;
+        }
+
+        public async Task<bool> PermanentlyDeleteFileAsync(int fileId)
+        {
+            var success = await _repository.Files.DeleteAsync(fileId);
+            if (success)
+            {
+                await _repository.SaveAsync();
+            }
+            return success;
+        }
+
+        public async Task<bool> RestoreFileAsync(int fileId)
+        {
+            var file = await _repository.Files.GetByIdAsync(fileId);
+            if (file == null)
+            {
+                throw new Exception("File not found.");
+            }
+            file.IsDeletted = false;
+            await _repository.Files.UpdateAsync(fileId, file);
+            await _repository.SaveAsync();
+            return true;
+        }
+
     }
 }
