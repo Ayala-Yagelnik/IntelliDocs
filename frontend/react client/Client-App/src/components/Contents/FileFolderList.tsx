@@ -267,11 +267,9 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                     </AccordionSummary>
                                     <AccordionDetails sx={{ p: 3 }}>
                                         <Grid container spacing={3}>
-                                            {files.map((file,
-                                                //  index
-                                            ) => (
+                                            {files.map((file) => (
                                                 <Grid item xs={12} sm={6} md={4} lg={3} key={file.id}>
-                                                    <FileCard file={file} userId={userId} />
+                                                    <FileCard file={file} userId={userId} customActions={customActions ? customActions(file) : undefined} hideStar={!!customActions} />
                                                 </Grid>
                                             ))}
                                         </Grid>

@@ -13,12 +13,14 @@ import ShareFile from './ShareFile';
 interface FileCardProps {
   file: MyFile;
   userId: number;
+  customActions?: React.ReactNode;
+  hideStar?: boolean;
 }
 
 const MotionCard = motion(Card)
 
 
-const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
+const FileCard: React.FC<FileCardProps> = React.memo(({ file, customActions, hideStar }) => {
 
   const dispatch = useDispatch<AppDispatch>();
   const presignedUrl = useSelector((state: StoreType) => state.files.presignedUrls?.[file.fileKey] || null);
@@ -73,7 +75,6 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
 
   const handleStar = () => {
     dispatch(starFile({ fileId: file.id, isStarred: file.isStarred }))
-    console.log(`${file.isStarred ? "Unstarring" : "Starring"} ${file.fileName}`)
     handleMenuClose()
   }
 
@@ -217,104 +218,114 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, }) => {
             </>
           )}
 
-{!loading && (
-          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2, alignItems: "center" }}>
-            <Box sx={{ display: "flex", gap: 0.5 }}>
-              <Tooltip title="Download">
-                <IconButton
-                  onClick={handleDownload}
-                  size="small"
-                  sx={{
-                    color: "#666",
-                    "&:hover": { color: "#10a37f", backgroundColor: "rgba(16, 163, 127, 0.08)" },
-                  }}
-                >
-                  <Download size={18} />
-                </IconButton>
-              </Tooltip>
+          {!loading && (
+            <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2, alignItems: "center" }}>
+              {customActions ? (
+                <Box sx={{ width: "100%" }}>
+                  {customActions}
+                </Box>
+              ) : (
+                <>
+                  <Box sx={{ display: "flex", gap: 0.5 }}>
+                    <Tooltip title="Download">
+                      <IconButton
+                        onClick={handleDownload}
+                        size="small"
+                        sx={{
+                          color: "#666",
+                          "&:hover": { color: "#10a37f", backgroundColor: "rgba(16, 163, 127, 0.08)" },
+                        }}
+                      >
+                        <Download size={18} />
+                      </IconButton>
+                    </Tooltip>
 
-              <Tooltip title={file.isStarred ? "Unstar" : "Star"}>
-                <IconButton
-                  onClick={handleStar}
-                  size="small"
-                  sx={{
-                    color: file.isStarred ? "#f39c12" : "#666",
-                    "&:hover": {
-                      color: file.isStarred ? "#e67e22" : "#f39c12",
-                      backgroundColor: "rgba(243, 156, 18, 0.08)",
-                    },
-                  }}
-                >
-                  <Star size={18} fill={file.isStarred ? "#f39c12" : "none"} />
-                </IconButton>
-              </Tooltip>
+                    <Tooltip title={file.isStarred ? "Unstar" : "Star"}>
+                      <IconButton
+                        onClick={handleStar}
+                        size="small"
+                        sx={{
+                          color: file.isStarred ? "#f39c12" : "#666",
+                          "&:hover": {
+                            color: file.isStarred ? "#e67e22" : "#f39c12",
+                            backgroundColor: "rgba(243, 156, 18, 0.08)",
+                          },
+                        }}
+                      >
+                        <Star size={18} fill={file.isStarred ? "#f39c12" : "none"} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+
+                  <IconButton
+                    onClick={handleMenuOpen}
+                    size="small"
+                    sx={{
+                      color: "#666",
+                      "&:hover": { color: "#333", backgroundColor: "rgba(0, 0, 0, 0.04)" },
+                    }}
+                  >
+                    <MoreVertical size={18} />
+                  </IconButton>
+
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleMenuClose}
+                    PaperProps={{
+                      elevation: 0,
+                      sx: {
+                        overflow: "visible",
+                        filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.08))",
+                        mt: 1.5,
+                        borderRadius: 2,
+                        minWidth: 180,
+                        "& .MuiMenuItem-root": {
+                          px: 2,
+                          py: 1,
+                          borderRadius: 1,
+                          mx: 0.5,
+                          my: 0.25,
+                        },
+                      },
+                    }}
+                    transformOrigin={{ horizontal: "right", vertical: "top" }}
+                    anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                  >
+                    <MenuItem onClick={handleDownload}>
+                      <ListItemIcon>
+                        <Download size={18} />
+                      </ListItemIcon>
+                      <ListItemText>Download</ListItemText>
+                    </MenuItem>
+                    <MenuItem onClick={handleShare}>
+                      <ListItemIcon>
+                        <Share size={18} />
+                      </ListItemIcon>
+                      <ListItemText>Share</ListItemText>
+                    </MenuItem>
+                    {!hideStar && (
+                      <MenuItem onClick={handleStar}>
+                        <ListItemIcon>
+                          <Star size={18} fill={file.isStarred ? "#f39c12" : "none"} />
+                        </ListItemIcon>
+                        <ListItemText>{file.isStarred ? "Unstar" : "Star"}</ListItemText>
+                      </MenuItem>
+                    )}
+                    <MenuItem onClick={handleDelete} sx={{ color: "#e74c3c" }}>
+                      <ListItemIcon>
+                        <Trash2 size={18} color="#e74c3c" />
+                      </ListItemIcon>
+                      <ListItemText>Delete</ListItemText>
+                    </MenuItem>
+                  </Menu>
+                </>
+              )}
             </Box>
-
-            <IconButton
-              onClick={handleMenuOpen}
-              size="small"
-              sx={{
-                color: "#666",
-                "&:hover": { color: "#333", backgroundColor: "rgba(0, 0, 0, 0.04)" },
-              }}
-            >
-              <MoreVertical size={18} />
-            </IconButton>
-
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              PaperProps={{
-                elevation: 0,
-                sx: {
-                  overflow: "visible",
-                  filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.08))",
-                  mt: 1.5,
-                  borderRadius: 2,
-                  minWidth: 180,
-                  "& .MuiMenuItem-root": {
-                    px: 2,
-                    py: 1,
-                    borderRadius: 1,
-                    mx: 0.5,
-                    my: 0.25,
-                  },
-                },
-              }}
-              transformOrigin={{ horizontal: "right", vertical: "top" }}
-              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-            >
-              <MenuItem onClick={handleDownload}>
-                <ListItemIcon>
-                  <Download size={18} />
-                </ListItemIcon>
-                <ListItemText>Download</ListItemText>
-              </MenuItem>
-              <MenuItem onClick={handleShare}>
-                <ListItemIcon>
-                  <Share size={18} />
-                </ListItemIcon>
-                <ListItemText>Share</ListItemText>
-              </MenuItem>
-              <MenuItem onClick={handleStar}>
-                <ListItemIcon>
-                  <Star size={18} fill={file.isStarred ? "#f39c12" : "none"} />
-                </ListItemIcon>
-                <ListItemText>{file.isStarred ? "Unstar" : "Star"}</ListItemText>
-              </MenuItem>
-              <MenuItem onClick={handleDelete} sx={{ color: "#e74c3c" }}>
-                <ListItemIcon>
-                  <Trash2 size={18} color="#e74c3c" />
-                </ListItemIcon>
-                <ListItemText>Delete</ListItemText>
-              </MenuItem>
-            </Menu>
-          </Box>
-        )}
-      </CardContent>
+          )}
+        </CardContent>
       </MotionCard>
-        <ShareFile file={file} open={shareModalOpen} onClose={() => setShareModalOpen(false)} />
+      <ShareFile file={file} open={shareModalOpen} onClose={() => setShareModalOpen(false)} />
     </>
   );
 });

@@ -332,7 +332,15 @@ const fileSlice = createSlice({
     loading: false,
     presignedUrls: null as Record<string, string> | null
   },
-  reducers: {},
+  reducers: {
+    logout: (state) => {
+      state.files = [];
+      state.folders = [];
+      state.shareFiles = [];
+      state.trashFiles = [];
+      state.presignedUrls = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUserContent.fulfilled, (state, action) => {

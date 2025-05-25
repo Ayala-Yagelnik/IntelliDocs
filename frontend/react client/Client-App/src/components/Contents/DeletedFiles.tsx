@@ -297,7 +297,7 @@ const DeletedFiles: React.FC = () => {
                   </Box>
 
                   <FileFolderList
-                    isGridView={false}
+                    isGridView={true}
                     files={deletedFiles}
                     folders={[]}
                     onFolderClick={() => { }}

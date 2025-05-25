@@ -9,7 +9,7 @@ const store = configureStore({
     reducer: combineSlices(
         fileSlice,
         userSlice,
-        authSlice
+        authSlice,
     ),
 });
 export type RootState = ReturnType<typeof store.getState>;

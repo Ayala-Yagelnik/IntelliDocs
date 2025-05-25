@@ -16,6 +16,8 @@ import {
 } from "@mui/material";
 import { FolderOpen, Share2, Trash2, Star, Settings, ChevronLeft, ChevronRight, MenuIcon } from 'lucide-react';
 import { Link, useLocation } from "react-router-dom"
+import { useSelector } from "react-redux";
+import { StoreType } from "../models/storeModel";
 
 interface SidebarProps {
   open?: boolean
@@ -28,6 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("md"))
   const [mobileOpen, setMobileOpen] = useState(false)
+   const sharedFiles = useSelector((state: StoreType) => state.files.shareFiles);
 
 
   const handleMobileToggle = () => {
@@ -44,8 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
       text: "Shared with Me",
       icon: <Share2 size={20} />,
       path: "/files-shared",
-      //TODO:...
-      badge: 4, // Example badge count
+      badge: sharedFiles.length, 
     },
     {
       text: "Starred",
