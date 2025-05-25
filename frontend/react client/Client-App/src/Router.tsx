@@ -5,7 +5,7 @@ import SharedFilesList from "./components/Contents/SharedFilesList";
 import PrivacyPolicy from "./components/Authentication/PrivacyPolicy";
 import TermsOfService from "./components/Authentication/TermsOfService";
 import AuthForm from "./components/Authentication/AuthForm";
-import FileList from "./components/Contents/FileList";
+// import FileList from "./components/Contents/FileList";
 import DeletedFiles from "./components/Contents/DeletedFiles";
 import { Home } from "./components/HomePage/Home";
 import NewFileList from "./components/Contents/newFileList";
