@@ -14,7 +14,7 @@ import {
   Tooltip,
   Badge,
 } from "@mui/material";
-import { FolderOpen, Share2, Trash2, Star, Settings, ChevronLeft, ChevronRight, MenuIcon } from 'lucide-react';
+import { FolderOpen, Share2, Trash2, Star, Settings, ChevronLeft, ChevronRight, MenuIcon, Search } from 'lucide-react';
 import { Link, useLocation } from "react-router-dom"
 import { useSelector } from "react-redux";
 import { StoreType } from "../models/storeModel";
@@ -30,7 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("md"))
   const [mobileOpen, setMobileOpen] = useState(false)
-   const sharedFiles = useSelector((state: StoreType) => state.files.shareFiles);
+  const sharedFiles = useSelector((state: StoreType) => state.files.shareFiles);
 
 
   const handleMobileToggle = () => {
@@ -47,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
       text: "Shared with Me",
       icon: <Share2 size={20} />,
       path: "/files-shared",
-      badge: sharedFiles.length, 
+      badge: sharedFiles.length,
     },
     {
       text: "Starred",
@@ -58,6 +58,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
       text: "Trash",
       icon: <Trash2 size={20} />,
       path: "/trash",
+    },
+    {
+      text: "Search",
+      icon: <Search size={20} />,
+      path: "/search",
     },
   ]
 
@@ -78,6 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
         width: open ? 240 : 72,
         transition: "width 0.2s ease",
         overflow: "hidden",
+        bgcolor: theme.palette.background.default,
       }}
     >
       <Box
@@ -92,8 +98,8 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
           <IconButton
             onClick={onToggle}
             sx={{
-              color: "#666",
-              "&:hover": { color: "#10a37f", backgroundColor: "rgba(16, 163, 127, 0.08)" },
+              color: theme.palette.primary.main,
+              "&:hover": { color: theme.palette.primary.main, backgroundColor: theme.palette.primary.light },
             }}
           >
             {open ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
@@ -114,7 +120,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
                 borderRadius: 2,
                 py: 1,
                 minHeight: 44,
-                color: pathname === item.path ? "#10a37f" : "#666",
+                color: pathname === item.path ? theme.palette.primary.main : theme.palette.text.secondary,
                 "&.Mui-selected": {
                   backgroundColor: "rgba(16, 163, 127, 0.08)",
                   "&:hover": {
@@ -122,7 +128,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
                   },
                 },
                 "&:hover": {
-                  backgroundColor: "rgba(0, 0, 0, 0.04)",
+                  backgroundColor: theme.palette.action.hover,
                 },
               }}
             >
@@ -130,7 +136,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
                 <ListItemIcon
                   sx={{
                     minWidth: 36,
-                    color: pathname === item.path ? "#10a37f" : "#666",
+                    color: pathname === item.path ? theme.palette.primary.main : theme.palette.text.secondary,
                   }}
                 >
                   {item.badge ? (
@@ -139,8 +145,8 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
                       color="primary"
                       sx={{
                         "& .MuiBadge-badge": {
-                          backgroundColor: "#10a37f",
-                          color: "white",
+                          backgroundColor: theme.palette.primary.main,
+                          color: theme.palette.primary.contrastText,
                         },
                       }}
                     >
@@ -166,8 +172,8 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
                     minWidth: 20,
                     height: 20,
                     borderRadius: 10,
-                    backgroundColor: "#10a37f",
-                    color: "white",
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -196,7 +202,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
                 borderRadius: 2,
                 py: 1,
                 minHeight: 44,
-                color: pathname === item.path ? "#10a37f" : "#666",
+                color: pathname === item.path ? theme.palette.primary.main : theme.palette.text.secondary,
                 "&.Mui-selected": {
                   backgroundColor: "rgba(16, 163, 127, 0.08)",
                   "&:hover": {
@@ -204,7 +210,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
                   },
                 },
                 "&:hover": {
-                  backgroundColor: "rgba(0, 0, 0, 0.04)",
+                  backgroundColor: theme.palette.action.hover,
                 },
               }}
             >
@@ -212,7 +218,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
                 <ListItemIcon
                   sx={{
                     minWidth: 36,
-                    color: pathname === item.path ? "#10a37f" : "#666",
+                    color: pathname === item.path ? theme.palette.primary.main : theme.palette.text.secondary,
                   }}
                 >
                   {item.icon}
@@ -250,12 +256,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
               left: 16,
               top: 74, // Positioned below the app bar
               zIndex: 1100,
-              color: "#666",
-              backgroundColor: "white",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              color: theme.palette.text.secondary,
+              backgroundColor: theme.palette.background.paper,
+              boxShadow: theme.shadows[1],
               "&:hover": {
-                backgroundColor: "white",
-                color: "#10a37f",
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.primary.main,
               },
               display: mobileOpen ? "none" : "flex", // Hide when drawer is open
             }}
@@ -291,12 +297,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open = true, onToggle }) => {
             width: open ? 240 : 72,
             flexShrink: 0,
             transition: "width 0.2s ease",
-            borderRight: "1px solid #eaeaea",
+            borderRight: `1px solid ${theme.palette.divider}`,
             height: "calc(100vh - 64px)", // Subtract app bar height
             position: "sticky",
             top: 64, // Position below app bar
-            backgroundColor: "white",
-            zIndex: 1000,
+            backgroundColor: "thema.pallete.main",
+            zIndex: 1009,
           }}
         >
           {sidebarContent}

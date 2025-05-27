@@ -30,7 +30,7 @@ const Logo: React.FC<LogoProps> = ({ variant = "full", size = "medium", color = 
       case "small":
         return { width: 24, height: 24 }
       case "large":
-        return { width: 48, height: 48 }
+        return { width: 80, height: 80 }
       case "medium":
       default:
         return { width: 32, height: 32 }
@@ -42,7 +42,7 @@ const Logo: React.FC<LogoProps> = ({ variant = "full", size = "medium", color = 
       case "small":
         return { fontSize: "1.25rem", letterSpacing: "-0.02em" }
       case "large":
-        return { fontSize: "2rem", letterSpacing: "-0.02em" }
+        return { fontSize: "4rem", letterSpacing: "-0.02em" }
       case "medium":
       default:
         return { fontSize: "1.5rem", letterSpacing: "-0.02em" }

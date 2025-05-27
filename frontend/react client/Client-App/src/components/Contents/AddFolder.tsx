@@ -1,21 +1,22 @@
 import React, { useState } from "react";
-import { Box, Typography, TextField, Button, InputAdornment, CircularProgress } from "@mui/material"
+import { Box, Typography, TextField, Button, InputAdornment, CircularProgress, useTheme } from "@mui/material"
 import { Folder, X } from "lucide-react"
 import { motion } from "framer-motion"
 
 interface AddFolderProps {
   onAddFolder: (folderName: string) => void;
   onCancel: () => void;
-  existingFolders: string[]; 
+  existingFolders: string[];
 }
 
 const MotionBox = motion(Box)
 
 
-const AddFolder: React.FC<AddFolderProps> = ({ onAddFolder, onCancel,existingFolders }) => {
+const AddFolder: React.FC<AddFolderProps> = ({ onAddFolder, onCancel, existingFolders }) => {
   const [folderName, setFolderName] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const theme = useTheme();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,7 +61,7 @@ const AddFolder: React.FC<AddFolderProps> = ({ onAddFolder, onCancel,existingFol
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Folder size={18} color="#666" />
+                <Folder size={18} color={theme.palette.text.secondary} />
               </InputAdornment>
             ),
             sx: { borderRadius: 2 },
@@ -75,12 +76,12 @@ const AddFolder: React.FC<AddFolderProps> = ({ onAddFolder, onCancel,existingFol
             onClick={onCancel}
             startIcon={<X size={18} />}
             sx={{
-              borderColor: "#ddd",
-              color: "#666",
+              borderColor: theme.palette.divider,
+              color: theme.palette.text.secondary,
               borderRadius: 2,
               "&:hover": {
-                borderColor: "#ccc",
-                backgroundColor: "#f9f9f9",
+                borderColor: theme.palette.text.primary,
+                backgroundColor: theme.palette.action.hover,
               },
             }}
           >
@@ -92,14 +93,15 @@ const AddFolder: React.FC<AddFolderProps> = ({ onAddFolder, onCancel,existingFol
             disabled={!folderName.trim() || isSubmitting}
             startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : <Folder size={18} />}
             sx={{
-              backgroundColor: "#10a37f",
-              color: "#fff",
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
               borderRadius: 2,
               "&:hover": {
-                backgroundColor: "#0e8c6b",
+                backgroundColor: theme.palette.primary.dark,
               },
               "&.Mui-disabled": {
-                backgroundColor: "#e0e0e0",
+                backgroundColor: theme.palette.action.disabledBackground,
+                color: theme.palette.action.disabled,
               },
             }}
           >

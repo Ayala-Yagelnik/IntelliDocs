@@ -65,8 +65,8 @@ const StarredFilesList: React.FC = () => {
             actions={
               <ActionButtons
                 onAddFolder={() => {}}
-                onRefresh={() => dispatch(fetchUserContent({ userId: user.id }))}
                 onUpload={() => {}}
+                onRefresh={() => dispatch(fetchUserContent({ userId: user.id }))}
                 viewSelector={
                   <ToggleViewSelector isGridView={isGridView} onViewChange={view =>
                     setIsGridView(view === "grid")

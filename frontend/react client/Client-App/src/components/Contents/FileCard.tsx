@@ -5,7 +5,7 @@ import { AppDispatch } from '../../store/store';
 import { MyFile } from '../../models/myfile';
 import { StoreType } from '../../models/storeModel';
 import { getFileIcon } from '../../utils/utils';
-import { Card, CardContent, CardMedia, Typography, Box, IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText, Skeleton, } from "@mui/material"
+import { Card, CardContent, CardMedia, Typography, Box, IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText, Skeleton, useTheme, } from "@mui/material"
 import { Trash2, Share, Star, Download, MoreVertical } from "lucide-react"
 import { motion } from "framer-motion"
 import ShareFile from './ShareFile';
@@ -27,9 +27,9 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, customActions, hid
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [shareModalOpen, setShareModalOpen] = useState(false)
   const loading = useSelector((state: StoreType) => state.files.loading)
-  useEffect(() => {
-    console.log(presignedUrl);
+  const theme = useTheme();
 
+  useEffect(() => {
     if (!presignedUrl) {
       dispatch(fetchPresignedUrl(file));
     }
@@ -87,17 +87,17 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, customActions, hid
         sx={{
           borderRadius: 3,
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-          backgroundColor: "#fff",
+          backgroundColor: theme.palette.background.paper,
           height: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          border: "1px solid #eaeaea",
+          border: `1px solid ${theme.palette.divider}`,
           overflow: "hidden",
           transition: "transform 0.2s, box-shadow 0.2s",
           "&:hover": {
             transform: "translateY(-4px)",
-            boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)",
+            boxShadow: theme.shadows[4],
           },
         }}
       >
@@ -166,7 +166,7 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, customActions, hid
                   justifyContent: "center",
                   alignItems: "center",
                   height: 140,
-                  backgroundColor: "#f9f9f9",
+                  backgroundColor: theme.palette.background.default,
                   borderRadius: "12px 12px 0 0",
                 }}
               >
@@ -175,7 +175,6 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, customActions, hid
             )}
           </>
         )}
-
 
         <CardContent
           sx={{
@@ -199,7 +198,7 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, customActions, hid
                   variant="subtitle1"
                   sx={{
                     fontWeight: 600,
-                    color: "#333",
+                    color: theme.palette.text.primary,
                     mb: 0.5,
                     whiteSpace: "nowrap",
                     overflow: "hidden",
@@ -208,10 +207,10 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, customActions, hid
                 >
                   {file.fileName}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mb: 0.5 }}>
                   Size: {(file.fileSize / 1024).toFixed(2)} KB
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#666", fontSize: "0.75rem" }}>
+                <Typography variant="body2" sx={{ color: theme.palette.text.secondary, fontSize: "0.75rem" }}>
                   {file.fileType.split("/")[1]?.toUpperCase() || file.fileType}
                 </Typography>
               </Box>
@@ -232,8 +231,11 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, customActions, hid
                         onClick={handleDownload}
                         size="small"
                         sx={{
-                          color: "#666",
-                          "&:hover": { color: "#10a37f", backgroundColor: "rgba(16, 163, 127, 0.08)" },
+                          color: theme.palette.text.secondary,
+                          "&:hover": {
+                            color: theme.palette.primary.main,
+                            backgroundColor: theme.palette.primary.light,
+                          },
                         }}
                       >
                         <Download size={18} />
@@ -245,7 +247,7 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, customActions, hid
                         onClick={handleStar}
                         size="small"
                         sx={{
-                          color: file.isStarred ? "#f39c12" : "#666",
+                          color: file.isStarred ? "#f39c12" : theme.palette.text.secondary,
                           "&:hover": {
                             color: file.isStarred ? "#e67e22" : "#f39c12",
                             backgroundColor: "rgba(243, 156, 18, 0.08)",
@@ -261,8 +263,11 @@ const FileCard: React.FC<FileCardProps> = React.memo(({ file, customActions, hid
                     onClick={handleMenuOpen}
                     size="small"
                     sx={{
-                      color: "#666",
-                      "&:hover": { color: "#333", backgroundColor: "rgba(0, 0, 0, 0.04)" },
+                       color: theme.palette.text.secondary,
+                      "&:hover": {
+                        color: theme.palette.text.primary,
+                        backgroundColor: theme.palette.action.hover,
+                      },
                     }}
                   >
                     <MoreVertical size={18} />

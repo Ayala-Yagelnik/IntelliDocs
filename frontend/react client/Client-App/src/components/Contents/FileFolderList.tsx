@@ -1,29 +1,7 @@
 import React, { useState } from "react";
-import {
-    Box,
-    Typography,
-    Grid,
-    List,
-    ListItem,
-    Avatar,
-    Paper,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
-    IconButton,
-    Tooltip,
-} from "@mui/material"
-import {
-    ChevronDown,
-    Folder,
-    Trash2,
-    Share2,
-    Star,
-    MoreHorizontal,
-} from "lucide-react"
+import { Box, Typography, Grid, List, ListItem, Avatar, Paper, Accordion, AccordionSummary, AccordionDetails, IconButton, Tooltip, useTheme, } from "@mui/material"
+import { ChevronDown, Folder, Trash2, Share2, Star, MoreHorizontal, } from "lucide-react"
 import { motion } from "framer-motion"
-
-const MotionListItem = motion(ListItem);
 import { MyFile } from "../../models/myfile";
 import FileCard from "./FileCard";
 import { formatFileSize, formatDate, stringToColor, getFileIcon } from "../../utils/utils";
@@ -31,6 +9,8 @@ import { Folder as FolderModel } from "../../models/folder";
 import { deleteFolder } from "../../store/StorageSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store/store";
+
+const MotionListItem = motion(ListItem);
 
 interface FileFolderListProps {
     isGridView: boolean;
@@ -44,10 +24,11 @@ interface FileFolderListProps {
 const MotionPaper = motion(Paper)
 
 
-const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, folders, onFolderClick, userId ,customActions}) => {
+const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, folders, onFolderClick, userId, customActions }) => {
     const [foldersExpanded, setFoldersExpanded] = useState(true)
     const [filesExpanded, setFilesExpanded] = useState(true)
     const dispatch = useDispatch<AppDispatch>();
+    const theme = useTheme();
 
     const handleDelete = (folder: FolderModel) => {
         console.log(`Deleting ${folder.name}`)
@@ -65,7 +46,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                 elevation={0}
                                 sx={{
                                     borderRadius: 3,
-                                    border: "1px solid #eaeaea",
+                                    border: `1px solid ${theme.palette.divider}`,
                                     overflow: "hidden",
                                     mb: 3,
                                 }}
@@ -84,13 +65,13 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                     <AccordionSummary
                                         expandIcon={<ChevronDown size={20} />}
                                         sx={{
-                                            backgroundColor: "#f9f9f9",
-                                            borderBottom: foldersExpanded ? "1px solid #eaeaea" : "none",
+                                            backgroundColor: theme.palette.background.default,
+                                            borderBottom: foldersExpanded ? `1px solid ${theme.palette.divider}` : "none",
                                             px: 3,
                                             py: 1.5,
                                         }}
                                     >
-                                        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#333" }}>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
                                             Folders
                                         </Typography>
                                     </AccordionSummary>
@@ -107,15 +88,15 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                         sx={{
                                                             p: 2,
                                                             borderRadius: 3,
-                                                            border: "1px solid #eaeaea",
+                                                            border: `1px solid ${theme.palette.divider}`,
                                                             cursor: "pointer",
                                                             display: "flex",
                                                             flexDirection: "column",
                                                             transition: "all 0.2s ease",
                                                             "&:hover": {
                                                                 transform: "translateY(-4px)",
-                                                                boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)",
-                                                                borderColor: "#10a37f",
+                                                                boxShadow: theme.shadows[4],
+                                                                borderColor: theme.palette.primary.main,
                                                             },
                                                         }}
                                                     >
@@ -128,18 +109,18 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                                     width: 40,
                                                                     height: 40,
                                                                     borderRadius: "12px",
-                                                                    backgroundColor: "rgba(16, 163, 127, 0.1)",
+                                                                    backgroundColor: theme.palette.primary.light,
                                                                     mr: 2,
                                                                 }}
                                                             >
-                                                                <Folder size={24} color="#10a37f" />
+                                                                <Folder size={24} color={theme.palette.primary.main} />
                                                             </Box>
                                                             <Box sx={{ flexGrow: 1 }}>
                                                                 <Typography
                                                                     variant="body1"
                                                                     sx={{
                                                                         fontWeight: 500,
-                                                                        color: "#333",
+                                                                        color: theme.palette.text.primary,
                                                                         whiteSpace: "nowrap",
                                                                         overflow: "hidden",
                                                                         textOverflow: "ellipsis",
@@ -161,7 +142,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                                         console.log(`Delete folder ${folder.id}`)
                                                                     }}
                                                                     sx={{
-                                                                        color: "#666",
+                                                                        color: theme.palette.text.secondary,
                                                                         "&:hover": { color: "#e74c3c", backgroundColor: "rgba(231, 76, 60, 0.08)" },
                                                                     }}
                                                                 >
@@ -177,7 +158,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                                         console.log(`Share folder ${folder.id}`)
                                                                     }}
                                                                     sx={{
-                                                                        color: "#666",
+                                                                        color: theme.palette.text.secondary,
                                                                         "&:hover": { color: "#3498db", backgroundColor: "rgba(52, 152, 219, 0.08)" },
                                                                     }}
                                                                 >
@@ -193,7 +174,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                                         console.log(`${folder.isStarred ? "Unstar" : "Star"} folder ${folder.id}`)
                                                                     }}
                                                                     sx={{
-                                                                        color: folder.isStarred ? "#f39c12" : "#666",
+                                                                        color: folder.isStarred ? "#f39c12" : theme.palette.text.secondary,
                                                                         "&:hover": {
                                                                             color: folder.isStarred ? "#e67e22" : "#f39c12",
                                                                             backgroundColor: "rgba(243, 156, 18, 0.08)",
@@ -212,8 +193,8 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                                         console.log(`More options for folder ${folder.id}`)
                                                                     }}
                                                                     sx={{
-                                                                        color: "#666",
-                                                                        "&:hover": { color: "#333", backgroundColor: "rgba(0, 0, 0, 0.04)" },
+                                                                        color: theme.palette.text.secondary,
+                                                                        "&:hover": { color: theme.palette.text.primary, backgroundColor: theme.palette.action.hover },
                                                                     }}
                                                                 >
                                                                     <MoreHorizontal size={16} />
@@ -236,7 +217,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                 elevation={0}
                                 sx={{
                                     borderRadius: 3,
-                                    border: "1px solid #eaeaea",
+                                    border: `1px solid ${theme.palette.divider}`,
                                     overflow: "hidden",
                                     mb: 3,
                                 }}
@@ -255,13 +236,13 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                     <AccordionSummary
                                         expandIcon={<ChevronDown size={20} />}
                                         sx={{
-                                            backgroundColor: "#f9f9f9",
-                                            borderBottom: filesExpanded ? "1px solid #eaeaea" : "none",
+                                            backgroundColor: theme.palette.background.default,
+                                            borderBottom: filesExpanded ? `1px solid ${theme.palette.divider}` : "none",
                                             px: 3,
                                             py: 1.5,
                                         }}
                                     >
-                                        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#333" }}>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
                                             Files
                                         </Typography>
                                     </AccordionSummary>
@@ -286,7 +267,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                             elevation={0}
                             sx={{
                                 borderRadius: 3,
-                                border: "1px solid #eaeaea",
+                                border: `1px solid ${theme.palette.divider}`,
                                 overflow: "hidden",
                                 mb: 3,
                             }}
@@ -305,13 +286,13 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                 <AccordionSummary
                                     expandIcon={<ChevronDown size={20} />}
                                     sx={{
-                                        backgroundColor: "#f9f9f9",
-                                        borderBottom: foldersExpanded ? "1px solid #eaeaea" : "none",
+                                        backgroundColor: theme.palette.background.default,
+                                        borderBottom: foldersExpanded ? `1px solid ${theme.palette.divider}` : "none",
                                         px: 3,
                                         py: 1.5,
                                     }}
                                 >
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#333" }}>
+                                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
                                         Folders
                                     </Typography>
                                 </AccordionSummary>
@@ -319,8 +300,8 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                     <List disablePadding>
                                         <MotionListItem
                                             sx={{
-                                                backgroundColor: "#f9f9f9",
-                                                borderBottom: "1px solid #eaeaea",
+                                                backgroundColor: theme.palette.background.default,
+                                                borderBottom: `1px solid ${theme.palette.divider}`,
                                                 py: 1.5,
                                                 px: 3,
                                                 display: "grid",
@@ -331,14 +312,14 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 },
                                             }}
                                         >
-                                            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "#666" }}>
+                                            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: theme.palette.text.secondary }}>
                                                 Name
                                             </Typography>
                                             <Typography
                                                 variant="subtitle2"
                                                 sx={{
                                                     fontWeight: 600,
-                                                    color: "#666",
+                                                    color: theme.palette.text.secondary,
                                                     display: { xs: "none", md: "block" },
                                                 }}
                                             >
@@ -348,7 +329,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 variant="subtitle2"
                                                 sx={{
                                                     fontWeight: 600,
-                                                    color: "#666",
+                                                    color: theme.palette.text.secondary,
                                                     display: { xs: "none", md: "block" },
                                                 }}
                                             >
@@ -357,7 +338,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 variant="subtitle2"
                                                 sx={{
                                                     fontWeight: 600,
-                                                    color: "#666",
+                                                    color: theme.palette.text.secondary,
                                                     display: { xs: "none", sm: "block" },
                                                     textAlign: "right",
                                                 }}
@@ -374,7 +355,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 transition={{ duration: 0.3, delay: index * 0.05 }}
                                                 onClick={() => onFolderClick(folder.id, folder.name)}
                                                 sx={{
-                                                    borderBottom: "1px solid #eaeaea",
+                                                    borderBottom: `1px solid ${theme.palette.divider}`,
                                                     py: 1.5,
                                                     px: 3,
                                                     display: "grid",
@@ -385,7 +366,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                     },
                                                     cursor: "pointer",
                                                     "&:hover": {
-                                                        backgroundColor: "#f9f9f9",
+                                                        backgroundColor: theme.palette.action.hover,
                                                     },
                                                 }}
                                             >
@@ -398,16 +379,16 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                             width: 32,
                                                             height: 32,
                                                             borderRadius: "8px",
-                                                            backgroundColor: "rgba(16, 163, 127, 0.1)",
+                                                            backgroundColor: theme.palette.primary.light,
                                                             mr: 2,
                                                         }}
                                                     >
-                                                        <Folder size={18} color="#10a37f" />
+                                                        <Folder size={18} color={theme.palette.primary.main} />
                                                     </Box>
                                                     <Typography
                                                         variant="body2"
                                                         sx={{
-                                                            color: "#333",
+                                                            color: theme.palette.text.primary,
                                                             fontWeight: 500,
                                                             display: "flex",
                                                             alignItems: "center",
@@ -422,7 +403,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 <Typography
                                                     variant="body2"
                                                     sx={{
-                                                        color: "#666",
+                                                        color: theme.palette.text.secondary,
                                                         display: { xs: "none", md: "block" },
                                                     }}
                                                 >
@@ -432,7 +413,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 <Typography
                                                     variant="body2"
                                                     sx={{
-                                                        color: "#666",
+                                                        color: theme.palette.text.secondary,
                                                         display: { xs: "none", md: "block" },
                                                     }}
                                                 >
@@ -451,7 +432,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                         <IconButton
                                                             size="small"
                                                             sx={{
-                                                                color: "#666",
+                                                                color: theme.palette.text.secondary,
                                                                 "&:hover": { color: "#3498db", backgroundColor: "rgba(52, 152, 219, 0.08)" },
                                                             }}
                                                         >
@@ -463,7 +444,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                         <IconButton
                                                             size="small"
                                                             sx={{
-                                                                color: folder.isStarred ? "#f39c12" : "#666",
+                                                                color: folder.isStarred ? "#f39c12" : theme.palette.text.secondary,
                                                                 "&:hover": {
                                                                     color: folder.isStarred ? "#e67e22" : "#f39c12",
                                                                     backgroundColor: "rgba(243, 156, 18, 0.08)",
@@ -478,7 +459,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                         <IconButton
                                                             size="small"
                                                             sx={{
-                                                                color: "#666",
+                                                                color: theme.palette.text.secondary,
                                                                 "&:hover": { color: "#e74c3c", backgroundColor: "rgba(231, 76, 60, 0.08)" },
                                                             }}
                                                         >
@@ -499,7 +480,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                             elevation={0}
                             sx={{
                                 borderRadius: 3,
-                                border: "1px solid #eaeaea",
+            border: `1px solid ${theme.palette.divider}`,
                                 overflow: "hidden",
                             }}
                         >
@@ -517,13 +498,13 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                 <AccordionSummary
                                     expandIcon={<ChevronDown size={20} />}
                                     sx={{
-                                        backgroundColor: "#f9f9f9",
-                                        borderBottom: filesExpanded ? "1px solid #eaeaea" : "none",
+                                         backgroundColor: theme.palette.background.default,
+                    borderBottom: filesExpanded ? `1px solid ${theme.palette.divider}` : "none",
                                         px: 3,
                                         py: 1.5,
                                     }}
                                 >
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#333" }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
                                         Files
                                     </Typography>
                                 </AccordionSummary>
@@ -531,8 +512,8 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                     <List disablePadding>
                                         <MotionListItem
                                             sx={{
-                                                backgroundColor: "#f9f9f9",
-                                                borderBottom: "1px solid #eaeaea",
+                                                backgroundColor: theme.palette.background.default,
+                                                borderBottom: `1px solid ${theme.palette.divider}`,
                                                 py: 1.5,
                                                 px: 3,
                                                 display: "grid",
@@ -543,14 +524,14 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 },
                                             }}
                                         >
-                                            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "#666" }}>
+                                            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: theme.palette.text.secondary }}>
                                                 Name
                                             </Typography>
                                             <Typography
                                                 variant="subtitle2"
                                                 sx={{
                                                     fontWeight: 600,
-                                                    color: "#666",
+                                                    color: theme.palette.text.secondary,
                                                     display: { xs: "none", md: "block" },
                                                 }}
                                             >
@@ -560,7 +541,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 variant="subtitle2"
                                                 sx={{
                                                     fontWeight: 600,
-                                                    color: "#666",
+                                                    color: theme.palette.text.secondary,
                                                     display: { xs: "none", md: "block" },
                                                 }}
                                             >
@@ -570,7 +551,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 variant="subtitle2"
                                                 sx={{
                                                     fontWeight: 600,
-                                                    color: "#666",
+                                                    color: theme.palette.text.secondary,
                                                     display: { xs: "none", sm: "block" },
                                                 }}
                                             >
@@ -585,7 +566,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ duration: 0.3, delay: index * 0.05 }}
                                                 sx={{
-                                                    borderBottom: "1px solid #eaeaea",
+                                                    borderBottom: `1px solid ${theme.palette.divider}`,
                                                     py: 1.5,
                                                     px: 3,
                                                     display: "grid",
@@ -595,7 +576,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                         md: "3fr 1fr 1fr 1fr",
                                                     },
                                                     "&:hover": {
-                                                        backgroundColor: "#f9f9f9",
+                                                        backgroundColor: theme.palette.background.default,
                                                     },
                                                 }}
                                             >
@@ -604,7 +585,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                     <Typography
                                                         variant="body2"
                                                         sx={{
-                                                            color: "#333",
+                                                            color: theme.palette.text.primary,
                                                             fontWeight: 500,
                                                             ml: 2,
                                                             display: "flex",
@@ -620,7 +601,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 <Typography
                                                     variant="body2"
                                                     sx={{
-                                                        color: "#666",
+                                                        color: theme.palette.text.secondary,
                                                         display: { xs: "none", md: "block" },
                                                     }}
                                                 >
@@ -630,7 +611,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                 <Typography
                                                     variant="body2"
                                                     sx={{
-                                                        color: "#666",
+                                                        color: theme.palette.text.secondary,
                                                         display: { xs: "none", md: "block" },
                                                     }}
                                                 >
@@ -652,7 +633,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                     ) : (
                                                         <Box sx={{ display: "flex", alignItems: "center" }}>                                                    <Avatar
                                                             sx={{
-                                                                bgcolor: file.author?.username ? stringToColor(file.author.username) : "#10a37f",
+                                                                bgcolor: file.author?.username ? stringToColor(file.author.username) : theme.palette.primary.main,
                                                                 width: 28,
                                                                 height: 28,
                                                                 fontSize: "0.9rem",
@@ -664,7 +645,7 @@ const FileFolderList: React.FC<FileFolderListProps> = ({ isGridView, files, fold
                                                             <Typography
                                                                 variant="body2"
                                                                 sx={{
-                                                                    color: "#666",
+                                                                    color: theme.palette.text.secondary,
                                                                     whiteSpace: "nowrap",
                                                                     overflow: "hidden",
                                                                     textOverflow: "ellipsis",

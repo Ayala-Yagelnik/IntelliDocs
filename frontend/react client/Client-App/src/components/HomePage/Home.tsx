@@ -91,19 +91,19 @@ export const Home = () => {
                     <MotionTypography
                         variant={isMobile ? "h4" : "h2"}
                         fontWeight={700}
-                        color="#333"
+                        color={theme.palette.text.primary} 
                         gutterBottom
                         sx={{ lineHeight: 1.2 }}
                     >
-                        Manage Your Documents, 
+                        Manage Your Documents,
                         <MotionTypography
                             variant={isMobile ? "h3" : "h2"}
                             align="center"
                             sx={{
                                 fontWeight: 700,
-                             
+
                                 fontSize: "3rem",
-                                background: "linear-gradient(90deg,rgb(16, 185, 131) 20%, rgb(20, 184 ,166) 80%)",
+                                background: `linear-gradient(90deg, ${theme.palette.primary.main} 20%, ${theme.palette.primary.light} 80%)`,
                                 backgroundClip: "text",
                                 textFillColor: "transparent",
                                 WebkitBackgroundClip: "text",
@@ -117,7 +117,7 @@ export const Home = () => {
 
                     <MotionTypography
                         variant="body1"
-                        color="text.secondary"
+                        color={theme.palette.text.secondary}
                         gutterBottom
                         sx={{
                             fontSize: { xs: "1rem", md: "1.125rem" },
@@ -148,14 +148,14 @@ export const Home = () => {
                                 variant="contained"
                                 size="large"
                                 sx={{
-                                    bgcolor: "#10a37f",
-                                    color: "white",
+                                    bgcolor: theme.palette.primary.main,
+                                    color: theme.palette.primary.contrastText,
                                     borderRadius: "8px",
                                     px: 4,
                                     py: 1.5,
                                     fontWeight: 500,
                                     "&:hover": {
-                                        bgcolor: "#0e8c6b",
+                                       bgcolor: theme.palette.primary.dark,
                                     },
                                 }}
                             >
@@ -172,16 +172,16 @@ export const Home = () => {
                                 variant="outlined"
                                 size="large"
                                 sx={{
-                                    borderColor: "#10a37f",
-                                    color: "#10a37f",
+                                    borderColor: theme.palette.primary.main,
+                                    color: theme.palette.primary.main,
                                     borderRadius: "8px",
                                     px: 4,
                                     py: 1.5,
                                     fontWeight: 500,
                                     "&:hover": {
-                                        borderColor: "#0e8c6b",
-                                        color: "#0e8c6b",
-                                        bgcolor: "rgba(16, 163, 127, 0.04)",
+                                        borderColor: theme.palette.primary.dark,
+                                        color: theme.palette.primary.dark,
+                                        bgcolor: theme.palette.action.hover,
                                     },
                                 }}
 
@@ -192,13 +192,12 @@ export const Home = () => {
                     </Box>
                 </MotionBox>
 
-                <Box id="learn-more" sx={{backgroundColor:"rgb(240, 253, 250)", width: "100%",px:8, my: 6, pt: 6 }}>
-                    <ParticleBackground />
+                <Box id="learn-more" sx={{ backgroundColor: theme.palette.background.default, width: "100%", px: 8, my: 6, pt: 6 }}>
 
                     <MotionTypography
                         variant="h4"
                         fontWeight={700}
-                        color="#333"
+                         color={theme.palette.text.primary}
                         gutterBottom
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -220,12 +219,12 @@ export const Home = () => {
                                         alignItems: "center",
                                         textAlign: "center",
                                         borderRadius: 3,
-                                        border: "1px solid #eaeaea",
+                                        border: `1px solid ${theme.palette.divider}`,
                                         transition: "transform 0.2s, box-shadow 0.2s",
                                         "&:hover": {
                                             transform: "translateY(-5px)",
-                                            boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-                                            borderColor: "#10a37f",
+                                            boxShadow: theme.shadows[4],
+                                            borderColor: theme.palette.primary.main,
                                         },
                                     }}
                                     initial={{ opacity: 0, y: 20 }}
@@ -237,12 +236,12 @@ export const Home = () => {
                                             width: 60,
                                             height: 60,
                                             borderRadius: "50%",
-                                            backgroundColor: "rgba(16, 163, 127, 0.1)",
+                                            backgroundColor: theme.palette.primary.light,
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
                                             mb: 2,
-                                            color: "#10a37f",
+                                            color: theme.palette.primary.main,
                                         }}
                                     >
                                         {feature.icon}
@@ -250,7 +249,7 @@ export const Home = () => {
                                     <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
                                         {feature.title}
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography variant="body2" color={theme.palette.text.secondary}>
                                         {feature.description}
                                     </Typography>
                                 </MotionPaper>
@@ -267,7 +266,7 @@ export const Home = () => {
                         mt: 8,
                         p: 4,
                         borderRadius: 4,
-                        backgroundColor: "rgba(16, 163, 127, 0.05)",
+                        backgroundColor: "rgba(16, 163, 127, 0.5)",
                         maxWidth: 800,
                         width: "100%",
                     }}
@@ -309,6 +308,7 @@ export const Home = () => {
                     <MotionTypography
                         variant="h3"
                         align="center"
+                        color="theme.palette.primary.contrast"
                         sx={{ fontWeight: 700, mb: 6 }}
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}

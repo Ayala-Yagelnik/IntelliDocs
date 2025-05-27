@@ -48,7 +48,7 @@ const FileList: React.FC = () => {
     } else {
       handleRefresh();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, navigate, user?.id, currentFolderId]);
 
   const handleRefresh = () => {
@@ -138,9 +138,13 @@ const FileList: React.FC = () => {
                 <IconButton
                   size="small"
                   onClick={handleRefresh}
+                  // sx={{
+                  //   color: "#666",
+                  //   "&:hover": { color: "#10a37f", backgroundColor: "rgba(16, 163, 127, 0.08)" },
+                  // }}
                   sx={{
-                    color: "#666",
-                    "&:hover": { color: "#10a37f", backgroundColor: "rgba(16, 163, 127, 0.08)" },
+                    color: theme.palette.text.secondary,
+                    "&:hover": { color: theme.palette.primary.main, backgroundColor: theme.palette.primary.light },
                   }}
                 >
                   <RefreshCw size={18} />

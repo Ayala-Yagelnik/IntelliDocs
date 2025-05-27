@@ -13,12 +13,13 @@ import {
   // ListItemText,
   InputAdornment,
   CircularProgress,
+  useTheme,
 } from "@mui/material"
 import { shareFile } from "../../store/StorageSlice";
 import { AppDispatch } from "../../store/store";
 import { useDispatch } from "react-redux";
 import { MyFile } from "../../models/myfile";
-import {  X, Copy, Check, Mail, LinkIcon } from "lucide-react"
+import { X, Copy, Check, Mail, LinkIcon } from "lucide-react"
 import { motion } from "framer-motion"
 import { User } from "../../models/user";
 import CustomModal from "../CustomModal";
@@ -39,6 +40,7 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
   const [linkCopied, setLinkCopied] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
+  const theme = useTheme();
 
   // const handleSelectUser = (user: User) => {
   //   setSelectedUsers([...selectedUsers, user]);
@@ -103,7 +105,7 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Mail size={18} color="#666" />
+                  <Mail size={18} color={theme.palette.text.secondary} />
                 </InputAdornment>
               ),
               sx: { borderRadius: 2 },
@@ -191,7 +193,7 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
                 readOnly: true,
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LinkIcon size={18} color="#666" />
+                    <LinkIcon size={18} color={theme.palette.text.secondary} />
                   </InputAdornment>
                 ),
                 sx: { borderRadius: 2 },
@@ -203,12 +205,12 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
               startIcon={linkCopied ? <Check size={18} /> : <Copy size={18} />}
               sx={{
                 minWidth: 100,
-                borderColor: linkCopied ? "#10a37f" : "#ddd",
-                color: linkCopied ? "#10a37f" : "#666",
+                borderColor: linkCopied ? theme.palette.primary.main : theme.palette.divider,
+                color: linkCopied ? theme.palette.primary.main : theme.palette.text.secondary,
                 borderRadius: 2,
                 "&:hover": {
-                  borderColor: "#10a37f",
-                  backgroundColor: "rgba(16, 163, 127, 0.04)",
+                  borderColor: theme.palette.primary.main,
+                  backgroundColor: theme.palette.primary.light,
                 },
               }}
             >
@@ -222,12 +224,12 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
             variant="outlined"
             onClick={onClose}
             sx={{
-              borderColor: "#ddd",
-              color: "#666",
+              borderColor: theme.palette.divider,
+              color: theme.palette.text.secondary,
               borderRadius: 2,
               "&:hover": {
-                borderColor: "#ccc",
-                backgroundColor: "#f9f9f9",
+                borderColor: theme.palette.text.primary,
+                backgroundColor: theme.palette.action.hover,
               },
             }}
           >
@@ -237,17 +239,19 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
             variant="contained"
             onClick={handleShare}
             disabled={!email}
-            startIcon={isSharing ? <CircularProgress size={16} color="inherit" /> : <Mail size={18} />}
+            startIcon={isSharing ?
+              <CircularProgress size={16} color="inherit" />
+              : <Mail size={18} />}
             sx={{
-              backgroundColor: "#10a37f",
-              color: "#fff",
+               backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
               borderRadius: 2,
               "&:hover": {
-                backgroundColor: "#0e8c6b",
+                backgroundColor: theme.palette.primary.dark,
               },
               "&.Mui-disabled": {
-                backgroundColor: "#e0e0e0",
-              },
+backgroundColor: theme.palette.action.disabledBackground,
+                color: theme.palette.action.disabled,              },
             }}
           >
             {isSharing ? "Sharing..." : "Share"}

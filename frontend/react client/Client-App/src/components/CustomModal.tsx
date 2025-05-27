@@ -1,5 +1,5 @@
 import type React from "react"
-import { Modal, IconButton, Paper } from "@mui/material"
+import { Modal, IconButton, Paper, useTheme } from "@mui/material"
 import { X } from "lucide-react"
 
 interface CustomModalProps {
@@ -10,6 +10,8 @@ interface CustomModalProps {
 }
 
 const CustomModal: React.FC<CustomModalProps> = ({ open, onClose, children, maxWidth = 500 }) => {
+    const theme = useTheme();
+  
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="modal-title" aria-describedby="modal-description">
       <Paper
@@ -21,7 +23,7 @@ const CustomModal: React.FC<CustomModalProps> = ({ open, onClose, children, maxW
           transform: "translate(-50%, -50%)",
           width: "90%",
           maxWidth: maxWidth,
-          bgcolor: "#ffffff",
+          bgcolor: theme.palette.background.default,
           borderRadius: 3,
           boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
           p: { xs: 3, sm: 4 },

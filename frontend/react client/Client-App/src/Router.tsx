@@ -10,6 +10,8 @@ import DeletedFiles from "./components/Contents/DeletedFiles";
 import { Home } from "./components/HomePage/Home";
 import NewFileList from "./components/Contents/newFileList";
 import StarredFilesList from "./components/Contents/StarredFilesList";
+import SearchFilesList from "./components/Contents/SearchFilesList";
+import UserSettings from "./components/UserSettings";
 
 export const router = createBrowserRouter([
     {
@@ -23,6 +25,8 @@ export const router = createBrowserRouter([
             { path: 'files-shared', element: <SharedFilesList /> },
             { path: 'trash', element: <DeletedFiles /> },
             { path: 'starred', element: <StarredFilesList /> },
+            { path: 'search', element: <SearchFilesList /> },
+            { path: 'settings', element: <UserSettings /> },
             { path: 'update-user/:id', element: <UpdateUserForm /> },
             { path: 'privacy-policy', element: <PrivacyPolicy /> },
             { path: 'terms-of-service', element: <TermsOfService /> },

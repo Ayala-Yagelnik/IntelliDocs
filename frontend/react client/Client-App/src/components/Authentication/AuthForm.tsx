@@ -1,6 +1,6 @@
 import { Button, Box, Container, Typography, TextField, Alert, CircularProgress, Paper, IconButton, InputAdornment, Divider, useMediaQuery, useTheme, } from '@mui/material';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTransition } from 'react';
@@ -27,6 +27,7 @@ const AuthForm = ({ isRegister = false }) => {
     const loading = useSelector((state: StoreType) => state.auth.loading);
     const [isPending, startTransition] = useTransition();
     const user = useSelector((state: StoreType) => state.users.user)
+    const googleLoginRef = useRef<HTMLDivElement>(null);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -56,7 +57,7 @@ const AuthForm = ({ isRegister = false }) => {
 
     const handleGoogleSignIn = async (token: string) => {
         try {
-            
+
             const { user, token: jwtToken } = await dispatch(connectWithGoogle({ token })).unwrap() as { user: User; token: string };
 
             localStorage.setItem('token', jwtToken);
@@ -70,7 +71,6 @@ const AuthForm = ({ isRegister = false }) => {
         }
     };
 
-
     return (
         <Container maxWidth="sm" sx={{ py: { xs: 4, md: 8 } }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -79,9 +79,9 @@ const AuthForm = ({ isRegister = false }) => {
                     sx={{
                         padding: { xs: 3, md: 5 },
                         borderRadius: 3,
-                        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
-                        backgroundColor: "#fff",
-                        border: "1px solid #eaeaea",
+                        boxShadow: theme.shadows[3],
+                        backgroundColor: theme.palette.background.paper,
+                        border: `1px solid ${theme.palette.divider}`,
                     }}
                 >
                     <Box textAlign="center" mb={4}>
@@ -89,11 +89,11 @@ const AuthForm = ({ isRegister = false }) => {
                             variant={isMobile ? "h5" : "h4"}
                             component="h1"
                             gutterBottom
-                            sx={{ fontWeight: 700, color: "#333" }}
+                            sx={{ fontWeight: 700, color: theme.palette.text.primary }}
                         >
                             {isRegister ? "Create Account" : "Welcome Back"}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: "#666" }}>
+                        <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
                             {isRegister
                                 ? "Sign up to start managing your documents intelligently"
                                 : "Sign in to your IntelliDocs account"}
@@ -113,7 +113,7 @@ const AuthForm = ({ isRegister = false }) => {
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
-                                                <LucideUser size={20} color="#666" />
+                                                <LucideUser size={20} color={theme.palette.text.secondary} />
                                             </InputAdornment>
                                         ),
                                         sx: { borderRadius: 2 },
@@ -134,7 +134,7 @@ const AuthForm = ({ isRegister = false }) => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <Mail size={20} color="#666" />
+                                            <Mail size={20} color={theme.palette.text.secondary} />
                                         </InputAdornment>
                                     ),
                                     sx: { borderRadius: 2 },
@@ -154,7 +154,7 @@ const AuthForm = ({ isRegister = false }) => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <Lock size={20} color="#666" />
+                                            <Lock size={20} color={theme.palette.text.secondary} />
                                         </InputAdornment>
                                     ),
                                     endAdornment: (
@@ -184,8 +184,8 @@ const AuthForm = ({ isRegister = false }) => {
                                 fullWidth
                                 size="large"
                                 sx={{
-                                    backgroundColor: "#10a37f",
-                                    "&:hover": { backgroundColor: "#0e8c6b" },
+                                    backgroundColor: theme.palette.primary.main,
+                                    "&:hover": { backgroundColor: theme.palette.primary.dark },
                                     borderRadius: 2,
                                     py: 1.5,
                                     fontWeight: 500,
@@ -207,48 +207,85 @@ const AuthForm = ({ isRegister = false }) => {
                     </Divider>
                     <Box
                         sx={{
-                            width: "100%", // תופס את כל הרוחב
+                            width: "100%",
                             display: "flex",
                             justifyContent: "center",
-                            mt: 2, // מרווח עליון
+                            mt: 2,
                         }}
                     >
-                        <GoogleLogin
-                            locale='en'
-                            text="signin_with"
-                            onSuccess={(credentialResponse) => {
-                                console.log('Google Sign-In Success:', credentialResponse);
-                                const token = credentialResponse.credential;
-                                if (token) {
-                                    handleGoogleSignIn(token);
-                                } else {
-                                    console.error('Google Sign-In failed: Token is undefined');
+                        <Box ref={googleLoginRef} sx={{ position: "absolute", opacity: 0, pointerEvents: "none" }}>
+                            <GoogleLogin
+                                locale="en"
+                                text="signin_with"
+                                onSuccess={(credentialResponse) => {
+                                    const token = credentialResponse.credential;
+                                    if (token) {
+                                        handleGoogleSignIn(token);
+                                    } else {
+                                        setErrorMessage('Google Sign-In failed. Please try again.');
+                                    }
+                                }}
+                                onError={() => {
                                     setErrorMessage('Google Sign-In failed. Please try again.');
+                                }}
+                                useOneTap={false}
+                                logo_alignment="left"
+                                theme={theme.palette.mode === 'dark' ? 'filled_black' : 'outline'}
+                                size="large"
+                            />
+                        </Box>
+                        <Button
+                            onClick={() => {
+                                const googleButton = googleLoginRef.current?.querySelector('div[role="button"]');
+                                if (googleButton) {
+                                    (googleButton as HTMLElement).click();
                                 }
                             }}
-                            onError={() => {
-                                console.error('Google Sign-In Failed');
-                                setErrorMessage('Google Sign-In failed. Please try again.');
-                            }}
-                            useOneTap
-                            theme="outline" // עיצוב כפתור
-                            size="large"
-                        />
-                    </Box>
+                            startIcon={
+                                <Box
+                                    component="img"
+                                    src="/google.png"
+                                    alt="Google"
+                                    sx={{ width: 24, height: 24 }}
+                                />
+                            }
+                            variant="outlined"
+                            sx={{
+                                borderRadius: 2,
+                                textTransform: "none",
+                                fontWeight: 600,
+                                bgcolor: theme.palette.background.paper,
+                                color: theme.palette.text.primary,
+                                borderColor: theme.palette.divider,
+                                transition: "all 0.2s",
 
+                                "&:hover": {
+                                    bgcolor: theme.palette.action.hover,
+                                    borderColor: theme.palette.primary.main,
+                                    color: theme.palette.primary.main,
+                                },
+                                py: 1.2,
+                                fontSize: "1rem",
+                            }}
+                            fullWidth
+                            size="large"
+                        >
+                            Sign in with Google
+                        </Button>
+                    </Box>
                     <Box textAlign="center" mt={4}>
-                        <Typography variant="body2" sx={{ color: "#666" }}>
+                        <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
                             {isRegister ? (
                                 <>
                                     Already have an account?{" "}
-                                    <Link to="/login" style={{ color: "#10a37f", fontWeight: 500, textDecoration: "none" }}>
+                                    <Link to="/login" style={{ color: theme.palette.primary.main, fontWeight: 500, textDecoration: "none" }}>
                                         Sign in
                                     </Link>
                                 </>
                             ) : (
                                 <>
                                     New to IntelliDocs?{" "}
-                                    <Link to="/register" style={{ color: "#10a37f", fontWeight: 500, textDecoration: "none" }}>
+                                    <Link to="/register" style={{ color: theme.palette.primary.main, fontWeight: 500, textDecoration: "none" }}>
                                         Create an account
                                     </Link>
                                 </>

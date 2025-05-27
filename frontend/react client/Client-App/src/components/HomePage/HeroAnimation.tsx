@@ -28,7 +28,7 @@ export function HeroAnimation() {
           height: 320,
           p: 2,
           zIndex: 20,
-          bgcolor: "background.paper",
+          bgcolor: "background.paper.default",
           transform: "translate(-50%, -50%)",
         }}
       >
@@ -55,7 +55,7 @@ export function HeroAnimation() {
               height: 32,
               width: 32,
               borderRadius: "50%",
-              bgcolor: "primary.light",
+              bgcolor: "primary.default",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -70,7 +70,7 @@ export function HeroAnimation() {
               height: 32,
               width: 32,
               borderRadius: "50%",
-              bgcolor: "primary.light",
+              bgcolor: "primary.default",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -96,7 +96,7 @@ export function HeroAnimation() {
           height: 288,
           p: 2,
           zIndex: 10,
-          bgcolor: "primary.light",
+          bgcolor: "primary.default",
           opacity: 0.2,
           transform: "translate(-60%, -60%)",
         }}
@@ -124,7 +124,7 @@ export function HeroAnimation() {
           height: 288,
           p: 2,
           zIndex: 0,
-          bgcolor: "primary.light",
+          bgcolor: "primary.default",
           opacity: 0.2,
           transform: "translate(-40%, -40%)",
         }}

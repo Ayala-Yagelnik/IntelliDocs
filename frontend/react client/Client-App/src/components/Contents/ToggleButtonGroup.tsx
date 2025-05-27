@@ -25,17 +25,17 @@ const ToggleViewSelector: React.FC<ToggleViewSelectorProps> = ({ isGridView, onV
       size={isMobile ? "small" : "medium"}
       sx={{
         "& .MuiToggleButtonGroup-grouped": {
-          border: "1px solid #eaeaea",
+          border: `1px solid ${theme.palette.divider}`,
           "&.Mui-selected": {
-            backgroundColor: "#10a37f",
-            color: "white",
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
             "&:hover": {
-              backgroundColor: "#0e8c6b",
+              backgroundColor: theme.palette.primary.dark,
             },
           },
           "&:not(:first-of-type)": {
             borderRadius: 1,
-            borderLeft: "1px solid #eaeaea",
+            borderLeft: `1px solid ${theme.palette.divider}`,
           },
           "&:first-of-type": {
             borderRadius: 1,

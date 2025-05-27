@@ -10,7 +10,7 @@ const AppLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
- 
+
   useEffect(() => {
     // Close sidebar by default on mobile
     if (isMobile) {
@@ -19,7 +19,7 @@ const AppLayout = () => {
       setSidebarOpen(true);
     }
   }, [isMobile]);
-  
+
   const handleSidebarToggle = () => {
     setSidebarOpen(!sidebarOpen)
   }
@@ -31,7 +31,7 @@ const AppLayout = () => {
           display: "flex",
           flexDirection: "column",
           minHeight: "100vh",
-          bgcolor: "#f9f9f9",
+          bgcolor: theme.palette.background.default,
         }}
       >
         <Nav />
@@ -41,10 +41,10 @@ const AppLayout = () => {
             component="main"
             sx={{
               flexGrow: 1,
-            p: { xs: 2, md: 3 },
-            transition: "padding 0.2s ease",
-            width: "100%",
-            overflowX: "hidden",
+              p: { xs: 2, md: 3 },
+              transition: "padding 0.2s ease",
+              width: "100%",
+              overflowX: "hidden",
             }}
           >
             <Outlet />

@@ -103,8 +103,8 @@ const NewFileList: React.FC = () => {
                         p: { xs: 2, sm: 3 },
                         borderRadius: 3,
                         mb: 3,
-                        border: "1px solid #eaeaea",
-                    }}
+                        border: `1px solid ${theme.palette.divider}`,
+                        backgroundColor: theme.palette.background.paper,}}
                 >
                     <BreadcrumbsNav items={folderHistory} onClick={handleBreadcrumbClick} />
                     <Box
@@ -135,13 +135,13 @@ const NewFileList: React.FC = () => {
 
                 {loading && (
                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
-                        <CircularProgress sx={{ color: "#10a37f" }} />
+                        <CircularProgress sx={{ color: theme.palette.primary.main }} />
                     </Box>
                 )}
 
                 {!loading && folders?.length === 0 && files?.length === 0 && (
                     <EmptyState
-                        icon={<FolderOpen size={40} color="#10a37f" />}
+                        icon={<FolderOpen size={40} color={theme.palette.primary.main} />}
                         title="This folder is empty."
                         description="Start by uploading files or creating a folder."
                     />

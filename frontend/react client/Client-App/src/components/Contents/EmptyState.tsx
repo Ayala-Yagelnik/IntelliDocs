@@ -10,16 +10,16 @@ interface EmptyStateProps {
 const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description }) => (
   <Paper
     elevation={0}
-    sx={{
+    sx={(theme) => ({
       p: 6,
       borderRadius: 3,
-      border: "1px solid #eaeaea",
+      border: `1px solid ${theme.palette.divider}`,
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
       textAlign: "center",
-    }}
+    })}
   >
     <Box sx={{
       width: 80,
