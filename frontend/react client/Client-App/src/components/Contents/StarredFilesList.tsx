@@ -33,7 +33,6 @@ const StarredFilesList: React.FC = () => {
     } else {
       dispatch(fetchUserContent({ userId: user.id }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, navigate, user?.id]);
 
   // סינון קבצים מסומנים בכוכב

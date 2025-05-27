@@ -122,6 +122,10 @@ namespace IntelliDocs.Service.Services
                 throw new Exception("Invalid fileId ");
             }
             var user = await _repository.Users.GetUserByEmailAsync(email);
+            if (user == null)
+            {
+                Console.WriteLine($"User with email {email} not found.");
+            }
             var file = await _repository.Files.GetByIdAsync(fileId);
             if (file == null)
             {
@@ -129,11 +133,6 @@ namespace IntelliDocs.Service.Services
                 throw new Exception("File not found");
             }
 
-            if (user == null)
-            {
-                Console.WriteLine($"User with ID {email} not found.");
-                throw new Exception("User not found");
-            }
             file.SharedUsers.Add(user);
             user.SharedFiles.Add(file);
 

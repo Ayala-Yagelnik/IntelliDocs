@@ -24,14 +24,23 @@ namespace IntelliDocs.API.Controllers
         private readonly IEmbeddingService _embeddingService;
         private readonly IS3Service _s3Service;
         private readonly IAmazonS3 _s3Client;
+        private readonly IEmailService _emailService;
 
-        public FilesController(IUserService userService, IUserFileService fileService, IS3Service s3Server, IAmazonS3 s3Client,IEmbeddingService embeddingService)
+
+        public FilesController(
+            IUserService userService,
+            IUserFileService fileService,
+            IS3Service s3Server,
+            IAmazonS3 s3Client,
+            IEmbeddingService embeddingService,
+            IEmailService emailService)
         {
             _usersService = userService;
             _userFileService = fileService;
             _s3Service = s3Server;
             _s3Client = s3Client;
             _embeddingService = embeddingService;
+            _emailService = emailService;
         }
 
         [Authorize(Policy = "UserOrAdmin")]
@@ -40,7 +49,7 @@ namespace IntelliDocs.API.Controllers
         {
             try
             {
-                var files = await _userFileService.GetFilesByUserIdAsync(userId,false);
+                var files = await _userFileService.GetFilesByUserIdAsync(userId, false);
                 var filesWithAuthors = files.Select(file => new
                 {
                     file.Id,
@@ -156,9 +165,17 @@ namespace IntelliDocs.API.Controllers
         {
             Console.WriteLine($"Attempting to share file with ID: {request.FileId} for email: {request.Email}");
             await _userFileService.ShareFileAsync(request.FileId, request.Email);
+
+            // שליחת מייל
+            var subject = "You've been shared a document on IntelliDocs";
+            var body = $"<p>Hello,<br/>A document was shared with you on IntelliDocs.<br/>" +
+                       $"<b>File ID:</b> {request.FileId}<br/>" +
+                       $"<a href=\"https://intellidocs-client-app.onrender.com\">View the document</a></p>";
+
+            await _emailService.SendEmailAsync(request.Email, subject, body);
+
             return Ok();
         }
-
         [Authorize(Policy = "UserOrAdmin")]
         [HttpPost("search")]
         public async Task<IActionResult> SearchFiles(string query, int userId)
@@ -248,6 +265,7 @@ namespace IntelliDocs.API.Controllers
             var success = await _userFileService.RestoreFileAsync(id);
             return success ? NoContent() : NotFound();
         }
+
 
     }
 }
