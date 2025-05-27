@@ -89,7 +89,7 @@ export const Home = () => {
                     </Box>
 
                     <MotionTypography
-                        variant={isMobile ? "h4" : "h2"}
+                        variant={isMobile ? "h4" : "h3"}
                         fontWeight={700}
                         color={theme.palette.text.primary} 
                         gutterBottom
