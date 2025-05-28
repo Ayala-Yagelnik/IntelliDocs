@@ -11,6 +11,7 @@ import { StoreType } from '../../models/storeModel';
 import { User } from '../../models/user';
 import { connectWithGoogle, login, register } from '../../store/authSlice';
 import { setCurrentUser } from '../../store/userSlice';
+import GoogleSignInButton from "./GoogleSignInButton";
 
 const MotionButton = motion(Button);
 
@@ -205,6 +206,10 @@ const AuthForm = ({ isRegister = false }) => {
                             OR
                         </Typography>
                     </Divider>
+                    <GoogleSignInButton
+                        onSuccess={handleGoogleSignIn}
+                        onError={setErrorMessage}
+                    />
                     <Box
                         sx={{
                             width: "100%",
