@@ -7,5 +7,7 @@ namespace IntelliDocs.Core.IServices
     {
 
         Task SendEmailAsync(string to, string subject, string body);
+        Task SendFileShareEmailAsync(string to, string senderName, string fileName, DateTime sharedAt, string fileUrl);
+
     }
 }

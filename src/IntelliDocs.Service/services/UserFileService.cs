@@ -20,16 +20,16 @@ namespace IntelliDocs.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<FileDTO>> GetFilesByUserIdAsync(int userId,bool includeDeleted=false)
+        public async Task<IEnumerable<FileDTO>> GetFilesByUserIdAsync(int userId, bool includeDeleted = false)
         {
-            var userFiles = await _repository.Files.GetFilesByUserIdAsync(userId,includeDeleted);
+            var userFiles = await _repository.Files.GetFilesByUserIdAsync(userId, includeDeleted);
             return _mapper.Map<IEnumerable<FileDTO>>(userFiles);
         }
 
 
-        public async Task<IEnumerable<FileDTO>> GetFilesInFolderAsync(int? folderId, int userId,bool includeDeleted=false)
+        public async Task<IEnumerable<FileDTO>> GetFilesInFolderAsync(int? folderId, int userId, bool includeDeleted = false)
         {
-            var allFiles = await _repository.Files.GetFilesByUserIdAsync(userId,includeDeleted);
+            var allFiles = await _repository.Files.GetFilesByUserIdAsync(userId, includeDeleted);
             var filesInFolder = allFiles.Where(f => f.FolderId == folderId).ToList();
             return _mapper.Map<IEnumerable<FileDTO>>(filesInFolder);
         }
@@ -121,20 +121,22 @@ namespace IntelliDocs.Service.Services
             {
                 throw new Exception("Invalid fileId ");
             }
-            var user = await _repository.Users.GetUserByEmailAsync(email);
-            if (user == null)
-            {
-                Console.WriteLine($"User with email {email} not found.");
-            }
             var file = await _repository.Files.GetByIdAsync(fileId);
             if (file == null)
             {
                 Console.WriteLine($"File with ID {fileId} not found.");
                 throw new Exception("File not found");
             }
-
-            file.SharedUsers.Add(user);
-            user.SharedFiles.Add(file);
+            var user = await _repository.Users.GetUserByEmailAsync(email);
+            if (user != null)
+            {
+                file.SharedUsers.Add(user);
+                user.SharedFiles.Add(file);
+            }
+            else
+            {
+                Console.WriteLine($"User with email {email} not found.");
+            }
 
             await _repository.SaveAsync();
 

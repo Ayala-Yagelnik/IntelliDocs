@@ -166,13 +166,18 @@ namespace IntelliDocs.API.Controllers
             Console.WriteLine($"Attempting to share file with ID: {request.FileId} for email: {request.Email}");
             await _userFileService.ShareFileAsync(request.FileId, request.Email);
 
-            // שליחת מייל
-            var subject = "You've been shared a document on IntelliDocs";
-            var body = $"<p>Hello,<br/>A document was shared with you on IntelliDocs.<br/>" +
-                       $"<b>File ID:</b> {request.FileId}<br/>" +
-                       $"<a href=\"https://intellidocs-client-app.onrender.com\">View the document</a></p>";
+            var file = await _userFileService.GetFileById(request.FileId);
+            var sender = await _usersService.GetByIdAsync(file.AuthorId);
 
-            await _emailService.SendEmailAsync(request.Email, subject, body);
+            var fileUrl = $"https://intellidocs-client-app.onrender.com/files-shared";
+
+            await _emailService.SendFileShareEmailAsync(
+                request.Email,
+                sender?.Username ?? "Someone",
+                file.FileName,
+                DateTime.Now,
+                fileUrl
+            );
 
             return Ok();
         }
