@@ -1,10 +1,10 @@
 import { Button, Box, Container, Typography, TextField, Alert, CircularProgress, Paper, IconButton, InputAdornment, Divider, useMediaQuery, useTheme, } from '@mui/material';
 import { motion } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTransition } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
+// import { GoogleLogin } from '@react-oauth/google';
 import { Eye, EyeOff, Mail, Lock, User as LucideUser, AlertCircle } from "lucide-react"
 import { AppDispatch } from '../../store/store';
 import { StoreType } from '../../models/storeModel';
@@ -28,7 +28,7 @@ const AuthForm = ({ isRegister = false }) => {
     const loading = useSelector((state: StoreType) => state.auth.loading);
     const [isPending, startTransition] = useTransition();
     const user = useSelector((state: StoreType) => state.users.user)
-    const googleLoginRef = useRef<HTMLDivElement>(null);
+    // const googleLoginRef = useRef<HTMLDivElement>(null);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -210,7 +210,7 @@ const AuthForm = ({ isRegister = false }) => {
                         onSuccess={handleGoogleSignIn}
                         onError={setErrorMessage}
                     />
-                    <Box
+                    {/* <Box
                         sx={{
                             width: "100%",
                             display: "flex",
@@ -277,7 +277,7 @@ const AuthForm = ({ isRegister = false }) => {
                         >
                             Sign in with Google
                         </Button>
-                    </Box>
+                    </Box> */}
                     <Box textAlign="center" mt={4}>
                         <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
                             {isRegister ? (
