@@ -50,35 +50,44 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
   //   setSelectedUsers([...selectedUsers, user]);
   //   setSearchTerm("");
   // };
-  type KnownError = {
-    data?: {
-      message?: string;
-    };
-    message?: string;
-  };
+ 
   const handleRemoveUser = (userId: number) => {
     setSelectedUsers(selectedUsers.filter((user) => user.id !== userId));
   };
 
-  const handleShare = async () => {
-    setIsSharing(true);
-    try {
-      await dispatch(shareFile({ fileId: file.id, email })).unwrap();
-      console.log("File shared successfully with:", email);
-      setErrorMsg("");
-      onClose();
-    } catch (error: string | unknown | KnownError) {
-      if (error.includes("400")) {
-        setErrorMsg(`The file is already shared with ${email}.`);
-      } else {
-        setErrorMsg("Error sharing file. Please try again.");
-      }
+ const handleShare = async () => {
+  setIsSharing(true);
+  try {
+    await dispatch(shareFile({ fileId: file.id, email })).unwrap();
+    console.log("File shared successfully with:", email);
+    setErrorMsg("");
+    onClose();
+  } catch (error: unknown) {
+    let msg = "";
 
-      console.error("Error sharing file:", error);
-    } finally {
-      setIsSharing(false);
+    if (typeof error === "string") {
+      msg = error;
+    } else if (
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error &&
+      typeof (error as { message: string }).message === "string"
+    ) {
+      msg = (error as { message: string }).message;
     }
-  };
+
+    if (msg.includes("400")) {
+      setErrorMsg(`The file is already shared with ${email}.`);
+    } else {
+      setErrorMsg("Error sharing file. Please try again.");
+    }
+
+    console.error("Error sharing file:", error);
+  } finally {
+    setIsSharing(false);
+  }
+};
+
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(`https://example.com/shared/${file.id}`);
