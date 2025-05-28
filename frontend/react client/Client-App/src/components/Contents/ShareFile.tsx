@@ -14,7 +14,9 @@ import {
   InputAdornment,
   CircularProgress,
   useTheme,
+  Snackbar,
 } from "@mui/material"
+import MuiAlert from "@mui/material/Alert";
 import { shareFile } from "../../store/StorageSlice";
 import { AppDispatch } from "../../store/store";
 import { useDispatch } from "react-redux";
@@ -41,6 +43,8 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
   const [isSharing, setIsSharing] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const theme = useTheme();
+  const [errorMsg, setErrorMsg] = useState("");
+
 
   // const handleSelectUser = (user: User) => {
   //   setSelectedUsers([...selectedUsers, user]);
@@ -56,11 +60,17 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
     try {
       await dispatch(shareFile({ fileId: file.id, email })).unwrap();
       console.log("File shared successfully with:", email);
-    } catch (error) {
+      setErrorMsg("");
+      onClose();
+    } catch (error: unknown) {
+      if (typeof error === "object" && error !== null && "message" in error && typeof (error as { message?: string }).message === "string" && (error as { message: string }).message.includes("already shared")) {
+        setErrorMsg(`the file is already shared with ${email}.`);
+      } else {
+        setErrorMsg("error sharing file. Please try again.");
+      }
       console.error("Error sharing file:", error);
     } finally {
       setIsSharing(false);
-      onClose();
     }
   };
 
@@ -72,6 +82,16 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
 
   return (
     <CustomModal open={open} onClose={onClose} maxWidth={500}>
+      <Snackbar
+        open={!!errorMsg}
+        autoHideDuration={4000}
+        onClose={() => setErrorMsg("")}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <MuiAlert onClose={() => setErrorMsg("")} severity="warning" sx={{ width: '100%' }}>
+          {errorMsg}
+        </MuiAlert>
+      </Snackbar>
       <MotionBox initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
           Share "{file.fileName}"
@@ -243,15 +263,16 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
               <CircularProgress size={16} color="inherit" />
               : <Mail size={18} />}
             sx={{
-               backgroundColor: theme.palette.primary.main,
+              backgroundColor: theme.palette.primary.main,
               color: theme.palette.primary.contrastText,
               borderRadius: 2,
               "&:hover": {
                 backgroundColor: theme.palette.primary.dark,
               },
               "&.Mui-disabled": {
-backgroundColor: theme.palette.action.disabledBackground,
-                color: theme.palette.action.disabled,              },
+                backgroundColor: theme.palette.action.disabledBackground,
+                color: theme.palette.action.disabled,
+              },
             }}
           >
             {isSharing ? "Sharing..." : "Share"}

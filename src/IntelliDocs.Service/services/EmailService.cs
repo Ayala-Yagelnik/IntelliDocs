@@ -1,3 +1,4 @@
+using DotNetEnv;
 using IntelliDocs.Core.IServices;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Configuration;
@@ -63,21 +64,26 @@ public class EmailService : IEmailService
           </td>
         </tr>
       </table>";
-Console.WriteLine("--------------------------------------------------------------------");
-Console.WriteLine("FROM: " + _config["Email:From"]);
-Console.WriteLine("SMTP: " + _config["Email:Smtp"]);
-Console.WriteLine("PORT: " + _config["Email:Port"]);
-Console.WriteLine("USER: " + _config["Email:User"]);
-Console.WriteLine("TO: " + to);    var email = new MimeMessage();
-    email.From.Add(MailboxAddress.Parse(_config["Email:From"]));
+
+    Console.WriteLine("--------------------------------------------------------------------");
+    Console.WriteLine("FROM: " + _config["Email:From"]);
+    Console.WriteLine("SMTP: " + _config["Email:Smtp"]);
+    Console.WriteLine("PORT: " + _config["Email:Port"]);
+    Console.WriteLine("USER: " + _config["Email:User"]);
+    Console.WriteLine("TO: " + to); var email = new MimeMessage();
+    email.From.Add(MailboxAddress.Parse(Environment.GetEnvironmentVariable("EMAIL_FROM")
+    // _config["Email:From"]
+    ));
     email.To.Add(MailboxAddress.Parse(to));
     email.Subject = subject;
     email.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = body };
 
     using var smtp = new SmtpClient();
     smtp.ServerCertificateValidationCallback = (s, c, h, e) => true;
-    await smtp.ConnectAsync(_config["Email:Smtp"], int.Parse(_config["Email:Port"]), MailKit.Security.SecureSocketOptions.StartTls);
-    await smtp.AuthenticateAsync(_config["Email:User"], _config["Email:Password"]);
+    await smtp.ConnectAsync(Environment.GetEnvironmentVariable("EMAIL_SMTP"),int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT")), MailKit.Security.SecureSocketOptions.StartTls);
+      // _config["Email:Smtp"], int.Parse(_config["Email:Port"]), MailKit.Security.SecureSocketOptions.StartTls);
+    await smtp.AuthenticateAsync(Environment.GetEnvironmentVariable("EMAIL_USER"), Environment.GetEnvironmentVariable("EMAIL_PASSWORD"));
+      // _config["Email:User"], _config["Email:Password"]);
     await smtp.SendAsync(email);
     await smtp.DisconnectAsync(true);
   }

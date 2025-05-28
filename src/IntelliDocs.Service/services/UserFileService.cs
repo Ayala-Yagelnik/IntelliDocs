@@ -115,7 +115,6 @@ namespace IntelliDocs.Service.Services
 
         public async Task<FileDTO> ShareFileAsync(int fileId, string email)
         {
-            Console.WriteLine($"Attempting to share file with ID: {fileId} for user ID: {email}");
 
             if (fileId <= 0)
             {
@@ -130,6 +129,10 @@ namespace IntelliDocs.Service.Services
             var user = await _repository.Users.GetUserByEmailAsync(email);
             if (user != null)
             {
+                if (file.SharedUsers.Any(u => u.Id == user.Id))
+                {
+                    throw new Exception("This file is already shared with this user.");
+                }
                 file.SharedUsers.Add(user);
                 user.SharedFiles.Add(file);
             }
