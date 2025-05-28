@@ -135,6 +135,7 @@ namespace IntelliDocs.Service.Services
                 PasswordHash = hashedPassword,
                 AccountStatus = "Active",
                 CreatedAt = DateTime.UtcNow,
+                LastLogin = DateTime.UtcNow,
                 Role = role
             };
 
