@@ -50,7 +50,12 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
   //   setSelectedUsers([...selectedUsers, user]);
   //   setSearchTerm("");
   // };
-
+  type KnownError = {
+    data?: {
+      message?: string;
+    };
+    message?: string;
+  };
   const handleRemoveUser = (userId: number) => {
     setSelectedUsers(selectedUsers.filter((user) => user.id !== userId));
   };
@@ -62,12 +67,13 @@ const ShareDialog = ({ file, open, onClose }: ShareDialogProps) => {
       console.log("File shared successfully with:", email);
       setErrorMsg("");
       onClose();
-    } catch (error: unknown) {
-      if (typeof error === "object" && error !== null && "message" in error && typeof (error as { message?: string }).message === "string" && (error as { message: string }).message.includes("already shared")) {
-        setErrorMsg(`the file is already shared with ${email}.`);
+    } catch (error: string | unknown | KnownError) {
+      if (error.includes("400")) {
+        setErrorMsg(`The file is already shared with ${email}.`);
       } else {
-        setErrorMsg("error sharing file. Please try again.");
+        setErrorMsg("Error sharing file. Please try again.");
       }
+
       console.error("Error sharing file:", error);
     } finally {
       setIsSharing(false);

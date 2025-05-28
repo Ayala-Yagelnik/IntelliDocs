@@ -163,23 +163,33 @@ namespace IntelliDocs.API.Controllers
         [HttpPost("share")]
         public async Task<IActionResult> ShareFile([FromBody] ShareFileRequest request)
         {
-            Console.WriteLine($"Attempting to share file with ID: {request.FileId} for email: {request.Email}");
-            await _userFileService.ShareFileAsync(request.FileId, request.Email);
+            try
+            {
+                Console.WriteLine($"Attempting to share file with ID: {request.FileId} for email: {request.Email}");
+                await _userFileService.ShareFileAsync(request.FileId, request.Email);
 
-            var file = await _userFileService.GetFileById(request.FileId);
-            var sender = await _usersService.GetByIdAsync(file.AuthorId);
+                var file = await _userFileService.GetFileById(request.FileId);
+                var sender = await _usersService.GetByIdAsync(file.AuthorId);
 
-            var fileUrl = $"https://intellidocs-client-app.onrender.com/files-shared";
+                var fileUrl = $"https://intellidocs-client-app.onrender.com/files-shared";
 
-            await _emailService.SendFileShareEmailAsync(
-                request.Email,
-                sender?.Username ?? "Someone",
-                file.FileName,
-                DateTime.Now,
-                fileUrl
-            );
+                await _emailService.SendFileShareEmailAsync(
+                    request.Email,
+                    sender?.Username ?? "Someone",
+                    file.FileName,
+                    DateTime.Now,
+                    fileUrl
+                );
 
-            return Ok();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("already shared"))
+                    return BadRequest(new { message = ex.Message });
+                Console.WriteLine($"Error sharing file: {ex.Message}");
+                return StatusCode(500, "An error occurred while sharing the file.");
+            }
         }
         [Authorize(Policy = "UserOrAdmin")]
         [HttpPost("search")]
