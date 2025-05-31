@@ -6,7 +6,9 @@ using AutoMapper;
 using IntelliDocs.Core.DTOs;
 using IntelliDocs.Data.Repositories;
 using System.Net.Http.Json;
-
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 
 namespace IntelliDocs.Service.Services
 {
@@ -77,9 +79,7 @@ namespace IntelliDocs.Service.Services
 
                 var file = _mapper.Map<UserFile>(fileDto);
                 if (fileDto.UploadDate == null)
-                {
                     fileDto.UploadDate = DateTime.UtcNow;
-                }
                 var authorExists = await _repository.Users.GetByIdAsync(fileDto.AuthorId);
                 if (fileDto.Author == null)
                 {
@@ -102,8 +102,33 @@ namespace IntelliDocs.Service.Services
                 {
                     throw new Exception("Failed to save file metadata.");
                 }
-
                 await _repository.SaveAsync();
+                fileDto.Id = savedFile.Id;
+                // שליחת הקובץ לשרת Python לתמלול
+                try
+                {
+                    using var httpClient = new HttpClient();
+
+                    var payload = new
+                    {
+                        s3_url = $"https://{Environment.GetEnvironmentVariable("AWS_BUCKET_NAME")}.s3.amazonaws.com/{fileDto.FileKey}",
+                        user_id = fileDto.AuthorId,
+                        file_id = fileDto.Id
+                    };
+                    Console.WriteLine(payload);
+                    var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+                    var response = await httpClient.PostAsync("http://localhost:8000/index-file", content);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Python server returned error: {await response.Content.ReadAsStringAsync()}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Failed to send file to Python server: {e.Message}");
+                }
+
                 return _mapper.Map<FileDTO>(savedFile);
             }
             catch (Exception ex)

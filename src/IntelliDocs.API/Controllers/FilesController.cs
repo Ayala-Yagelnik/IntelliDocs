@@ -12,6 +12,8 @@ using IntelliDocs.API.PostEntity;
 using IntelliDocs.Service.Services;
 using IntelliDocs.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text;
 
 namespace IntelliDocs.API.Controllers
 {
@@ -193,26 +195,26 @@ namespace IntelliDocs.API.Controllers
         }
         [Authorize(Policy = "UserOrAdmin")]
         [HttpPost("search")]
-        public async Task<IActionResult> SearchFiles(string query, int userId)
+        public async Task<IActionResult> SearchFiles([FromBody] SearchQueryDTO query)
         {
             try
             {
-                // קבלת הווקטור לשאילתה
-                var embedding = await _embeddingService.GetEmbeddingAsync(query);
+                using var httpClient = new HttpClient();
+                var payload = new { query=query.Query, user_id = query.UserId };
+                var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 
-                // חיפוש קבצים מבוסס embedding
-                var files = await _userFileService.SearchFilesByEmbeddingAsync(embedding, userId);
-
-                if (!files.Any())
+                var response = await httpClient.PostAsync("http://localhost:8000/query-files", content);
+                if (!response.IsSuccessStatusCode)
                 {
-                    return NotFound("No files match the query.");
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
                 }
 
-                return Ok(files);
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                return Content(jsonResponse, "application/json");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error searching files for user {userId}: {ex.Message}");
+                Console.WriteLine($"Error searching files via Python: {ex.Message}");
                 return StatusCode(500, "An error occurred while searching files.");
             }
         }

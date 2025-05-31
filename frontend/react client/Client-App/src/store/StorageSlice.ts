@@ -145,18 +145,38 @@ export const shareFile = createAsyncThunk(
   }
 );
 
+// export const searchFiles = createAsyncThunk(
+//   'files/search',
+//   async ({ query, userId }: { query: string, userId: number }, thunkAPI) => {
+//     try {
+//       const response = await axios.get(`${API_URL}/search`, {
+//         params: { query, userId },
+//         headers: {
+//           'Authorization': `Bearer ${localStorage.getItem('token')}`,
+//         },
+//       });
+//       return response.data as MyFile[];
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue((error as Error).message);
+//     }
+//   }
+// );
+
 export const searchFiles = createAsyncThunk(
   'files/search',
   async ({ query, userId }: { query: string, userId: number }, thunkAPI) => {
     try {
-      const response = await axios.get(`${API_URL}/search`, {
-        params: { query, userId },
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const response = await axios.post(`${API_URL}/search`,
+        { query, userId },
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        });
       return response.data as MyFile[];
     } catch (error) {
+      console.error('Error in searchFiles:', error);
       return thunkAPI.rejectWithValue((error as Error).message);
     }
   }
@@ -379,7 +399,8 @@ const fileSlice = createSlice({
       })
 
       .addCase(searchFiles.fulfilled, (state, action) => {
-        state.files = action.payload;
+        const returnedIds = new Set(action.payload.map((item) => item.file_id));
+        state.files = state.files.filter((file) => returnedIds.has(file.id));
         state.loading = false;
       })
       .addCase(searchFiles.rejected, (state, action) => {

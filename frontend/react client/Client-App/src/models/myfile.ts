@@ -1,4 +1,5 @@
 export interface MyFile {
+    [x: string]: unknown;
     isStarred: boolean;
     id: number;
     fileName: string;
