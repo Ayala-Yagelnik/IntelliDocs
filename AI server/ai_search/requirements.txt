@@ -1,9 +1,5 @@
 fastapi
 uvicorn
 python-multipart
-transformers
-torch
 pillow
-opencv-python
-whisper
 git+https://github.com/openai/whisper.git
