@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 from utils.detect_file_type import detect_file_type
 from utils.summarize_text import summarize_text_file
 from utils.summarize_image import summarize_image_file
@@ -39,3 +40,5 @@ async def summarize(file: UploadFile = File(...)):
         return {"type": file_type, "summary": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+uvicorn.run(app, host="0.0.0.0", port=10000)
