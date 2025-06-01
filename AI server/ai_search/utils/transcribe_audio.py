@@ -1,7 +1,7 @@
-import whisper
+# import whisper
 
-model = whisper.load_model("base")
+# model = whisper.load_model("base")
 
 def transcribe_audio_file(filepath):
-    result = model.transcribe(filepath)
+    result =""
     return result.get("text", "No transcription available.")
