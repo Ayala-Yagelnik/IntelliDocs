@@ -41,4 +41,3 @@ async def summarize(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-uvicorn.run(app, host="0.0.0.0", port=10000)
