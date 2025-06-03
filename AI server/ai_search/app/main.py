@@ -439,10 +439,8 @@ def query_files(req: QueryFilesRequest):
 
 # ---- הרצה ----
 
-import nest_asyncio
-nest_asyncio.apply()
 
-uvicorn.run(app, host="0.0.0.0", port=8000)
+# uvicorn.run(app, host="0.0.0.0", port=8000)
 
 import openai
 
