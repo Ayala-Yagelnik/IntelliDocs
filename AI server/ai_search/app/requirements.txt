@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+boto3
+pdfplumber
+python-docx
+sentence-transformers
+pinecone-client
+pinecone
+python-pptx
+openai
+requests
