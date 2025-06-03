@@ -5,6 +5,7 @@ import mimetypes
 import pdfplumber
 from PIL import Image
 from docx import Document
+from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 import pinecone
 import uuid
@@ -21,6 +22,8 @@ from pydantic import BaseModel
 from typing import List
 import uvicorn
 
+
+load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 pinecone_api_key = os.getenv("PINECONE_API_KEY")
 aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
