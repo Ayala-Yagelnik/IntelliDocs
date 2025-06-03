@@ -1,0 +1,15 @@
+Pillow
+boto3
+python-docx
+fastapi
+nest_asyncio
+openai
+pdfplumber
+pinecone
+python-pptx
+pydantic
+pytesseract
+requests
+sentence_transformers
+uvicorn
+python-dotenv
