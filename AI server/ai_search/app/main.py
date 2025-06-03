@@ -3,7 +3,6 @@ import boto3
 import tempfile
 import mimetypes
 import pdfplumber
-import pytesseract
 from PIL import Image
 from docx import Document
 from sentence_transformers import SentenceTransformer
